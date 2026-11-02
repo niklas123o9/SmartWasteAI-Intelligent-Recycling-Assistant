@@ -1,0 +1,52 @@
+{
+  "title": "40 % landen in der falschen Tonne",
+  "handle": "@smartwasteai",
+  "theme": {
+    "bg": [
+      "#14532d",
+      "#052e16"
+    ],
+    "accent": "#4ade80",
+    "text": "#ffffff"
+  },
+  "caption": "Wusstest du das? Fast 40 % der Verpackungen landen in der falschen Tonne 😳 Speicher dir das für den nächsten Müll-Gang! ♻️\n\n#mülltrennung #recycling #nachhaltigkeit #umwelt #lernenmittiktok #ki",
+  "scenes": [
+    {
+      "type": "hook",
+      "text": "*40 %* deines Mülls landet in der *falschen* Tonne.",
+      "sub": "Und das kostet uns alle.",
+      "duration": 3.5
+    },
+    {
+      "type": "text",
+      "label": "Fakt",
+      "headline": "Falsch sortiert = *verschmutzt*",
+      "body": "Schon ein paar falsche Teile können eine ganze Ladung Recyclingmaterial *unbrauchbar* machen. Die Folge: Verbrennung statt Recycling.",
+      "duration": 5.5
+    },
+    {
+      "type": "list",
+      "headline": "Die 4 häufigsten *Fehler*",
+      "items": [
+        "Fettiger Pizzakarton → *Restmüll*",
+        "Kassenbon → *Restmüll*",
+        "Joghurtbecher: *Deckel abziehen*",
+        "Glas-Deckel → *Gelbe Tonne*"
+      ],
+      "duration": 7
+    },
+    {
+      "type": "text",
+      "label": "Die Lösung",
+      "headline": "*KI* sortiert für dich",
+      "body": "Foto machen, die KI erkennt das Material und sagt dir sofort die *richtige Tonne*.",
+      "duration": 5
+    },
+    {
+      "type": "cta",
+      "text": "Folge für mehr *Müll-Hacks*!",
+      "button": "Folgen",
+      "duration": 3.5
+    }
+  ]
+}
