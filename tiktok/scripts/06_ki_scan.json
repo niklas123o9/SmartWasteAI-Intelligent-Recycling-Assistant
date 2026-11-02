@@ -1,0 +1,17 @@
+{
+  "title": "KI sortiert meinen Müll",
+  "header": "SmartWasteAI · Konzept-Demo",
+  "bpm": 134,
+  "theme": { "bgs": [["#0f172a", "#020617"], ["#164e63", "#020617"]], "accent": "#22d3ee", "accent_text": "#04111a", "glow": "#06b6d4" },
+  "particles": ["♻️", "🤖", "📦", "🥤", "🧾"],
+  "caption": "Ich baue eine KI, die dir sagt, wohin dein Müll gehört 🤖♻️ Was soll sie als Nächstes scannen? 👇\n\n#ki #künstlicheintelligenz #mülltrennung #startup #buildinpublic #recycling #fyp",
+  "scenes": [
+    { "type": "hook", "emoji": "🤖", "text": "Ich lasse eine *KI* meinen Müll sortieren", "duration": 2.4 },
+    { "type": "scan", "emoji": "🎁", "item": "Glitzer-Geschenkpapier", "result": "Restmüll", "bin": "rest", "confidence": 97, "fact": "Glitzer = *nicht* recycelbar" },
+    { "type": "scan", "emoji": "🧃", "item": "Tetra Pak", "result": "Gelbe Tonne", "bin": "gelb", "confidence": 99, "fact": "Verbundstoff = *Verpackung*" },
+    { "type": "scan", "emoji": "🧾", "item": "Kassenbon", "result": "Restmüll", "bin": "rest", "confidence": 96, "fact": "*Thermopapier*, nicht Altpapier" },
+    { "type": "scan", "emoji": "🍌", "item": "Bananenschale", "result": "Biotonne", "bin": "bio", "confidence": 99 },
+    { "type": "punch", "emoji": "📸", "text": "Foto. *Fertig.*" },
+    { "type": "cta", "emoji": "👇", "text": "Was soll die KI als *Nächstes* scannen?", "sub": "Schreib's in die Kommis", "duration": 3.0 }
+  ]
+}

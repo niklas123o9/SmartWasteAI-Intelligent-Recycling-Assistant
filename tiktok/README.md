@@ -24,6 +24,7 @@ Ergebnis in `tiktok/output/`: `<name>.mp4` + `<name>_caption.txt` (Beschreibung 
 | `punch` | 1–4 Wörter, knallt mit Blitz & Wackler rein | `text`, `emoji` |
 | `captions` | Erklärung als Wort-für-Wort-Untertitel | `text`, `emoji`, `per_word` |
 | `quiz` | Frage mit 2 Antworten, Countdown, Auflösung | `emoji`, `item`, `options`, `answer` (0/1), `fact`, `think` |
+| `scan` | KI-Scanner: Ladebalken, dann Ergebnis-Tonne | `emoji`, `item`, `result`, `bin` (gelb/rest/papier/bio/glas/pfand), `confidence`, `fact` |
 | `cta` | Ende: Kommentar-/Follow-Aufforderung | `text`, `emoji`, `sub` |
 
 Global: `header` (bleibt oben stehen), `bpm`, `particles` (Hintergrund-Emojis), `theme`

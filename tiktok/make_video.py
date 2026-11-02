@@ -308,6 +308,8 @@ def dur_of(sc):
         return sc["duration"]
     if tp == "quiz":
         return sc.get("think", 2.6) + sc.get("reveal", 1.7)
+    if tp == "scan":
+        return sc.get("think", 2.2) + sc.get("reveal", 1.8)
     if tp == "captions":
         return 0.3 + len([w for w, _ in parse(sc["text"]) if w != "\n"]) * sc.get("per_word", 0.3)
     return {"hook": 2.4, "punch": 1.1, "cta": 3.0}.get(tp, 2.5)
@@ -457,7 +459,77 @@ def s_cta(ov, sc, t, d, C, ev):
                 dr.text((W / 2 - tw / 2, cy - asc / 2 - 4), sc["sub"], font=f, fill=C["accent_text"])
 
 
-SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta}
+BINS = {  # Farbe, Textfarbe
+    "gelb": ((250, 204, 21), (20, 20, 20)), "rest": ((55, 65, 81), (255, 255, 255)),
+    "papier": ((37, 99, 235), (255, 255, 255)), "bio": ((146, 64, 14), (255, 255, 255)),
+    "glas": ((22, 163, 74), (255, 255, 255)), "pfand": ((14, 165, 233), (255, 255, 255)),
+}
+
+
+def s_scan(ov, sc, t, d, C, ev):
+    """KI-Scanner: Sucher-Rahmen, Scan-Linie, Ladebalken, dann Ergebnis."""
+    think = sc.get("think", 2.2)
+    dr = ImageDraw.Draw(ov)
+    if sc.get("_label"):
+        pill(dr, W / 2, SAFE_TOP + 40, sc["_label"], 44, (0, 0, 0, 150), (255, 255, 255, 255))
+    cx, cy, half = W / 2, 690, 250
+    k = ease_back(t / 0.3)
+    hh = half * k
+    L, col = 70, C["accent"] + (255,)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            x0, y0 = cx + sx * hh, cy + sy * hh
+            dr.line([(x0, y0), (x0 - sx * L, y0)], fill=col, width=12)
+            dr.line([(x0, y0), (x0, y0 - sy * L)], fill=col, width=12)
+    paste_scaled(ov, emoji_img(sc["emoji"], 300), cx, cy + math.sin(t * 3) * 8, k, clamp(t * 4), math.sin(t * 2) * 4)
+    name = parse(sc["item"])
+    _, placed, h = fit(name, 92, C, 240, 2)
+    draw_words(ov, placed, 1030 - h / 2, t, 0.15, 0.05)
+    if t < think:
+        # Scan-Linie fährt hoch und runter
+        ly = cy + math.sin(t * 4.2) * half * 0.9
+        glow = Image.new("RGBA", (int(2 * half), 60), (0, 0, 0, 0))
+        g = ImageDraw.Draw(glow)
+        for j in range(30):
+            g.line([(0, 30 - j), (2 * half, 30 - j)], fill=C["accent"] + (int(90 * (1 - j / 30)),))
+            g.line([(0, 30 + j), (2 * half, 30 + j)], fill=C["accent"] + (int(90 * (1 - j / 30)),))
+        composite(ov, glow, int(cx - half), int(ly - 30))
+        dr.line([(cx - half, ly), (cx + half, ly)], fill=(255, 255, 255, 255), width=5)
+        p = clamp(ease_out(t / (think * 0.95)))
+        bw, by = 760, 1210
+        dr.rounded_rectangle([cx - bw / 2, by - 26, cx + bw / 2, by + 26], radius=26, fill=(0, 0, 0, 150))
+        dr.rounded_rectangle([cx - bw / 2, by - 26, cx - bw / 2 + max(52, bw * p), by + 26], radius=26, fill=col)
+        f = font("bold", 46)
+        dots = "." * (1 + int(t * 4) % 3)
+        txt = f"KI analysiert{dots}  {int(p * 100)} %"
+        dr.text((cx - bw / 2, by + 50), txt, font=f, fill=(255, 255, 255, 230))
+    else:
+        rt = t - think
+        bcol, tcol = BINS.get(sc.get("bin", "rest"), BINS["rest"])
+        rk = ease_back(rt / 0.3)
+        f = font("black", 76)
+        txt = sc["result"]
+        tw = f.getlength(txt)
+        bw, bh = (tw + 120) * rk, 150 * rk
+        by = 1220
+        if rk > 0.05:
+            dr.rounded_rectangle([cx - bw / 2, by - bh / 2, cx + bw / 2, by + bh / 2], radius=46,
+                                 fill=bcol + (255,), outline=(0, 0, 0, 255), width=7)
+        if rk > 0.8:
+            asc, _ = f.getmetrics()
+            dr.text((cx - tw / 2, by - asc / 2 - 6), txt, font=f, fill=tcol + (255,))
+        if sc.get("confidence"):
+            fs = font("bold", 42)
+            ct = f"Sicherheit: {sc['confidence']} %"
+            dr.text((cx - fs.getlength(ct) / 2, by + 88), ct, font=fs, fill=(255, 255, 255, int(220 * clamp(rt * 3))))
+        if sc.get("fact"):
+            _, fp, fh = fit(parse(sc["fact"]), 58, C, 180, 2)
+            draw_words(ov, fp, 1445 - fh / 2, t, think + 0.3, 0.04)
+        paste_scaled(ov, emoji_img(sc.get("stamp", "✅"), 190), cx + 230, cy - 210,
+                     1 + 1.2 * (1 - ease_out(rt / 0.3)), clamp(rt * 6), -12)
+
+
+SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta, "scan": s_scan}
 
 
 # ---------- Audio ----------
@@ -531,6 +603,8 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6):
         elif kind == "pop":
             x = tt(0.08)
             add(np.sin(2 * np.pi * (500 + 2500 * x) * x) * np.exp(-x * 50), at, 0.35)
+        elif kind == "blip":
+            add(tone([2400], 0.04, 120), at, 0.18)
         elif kind == "tick":
             add(tone([1800], 0.05, 80), at, 0.4)
         elif kind == "ding":
@@ -552,9 +626,10 @@ def render(script, out, music=None, beat_on=True):
     bpm = script.get("bpm", 128)
     beat = 60 / bpm
     scenes = script["scenes"]
-    quizzes = [s for s in scenes if s.get("type") == "quiz"]
-    for i, s in enumerate(quizzes):
-        s["_label"] = s.get("label", f"FRAGE {i + 1}/{len(quizzes)}")
+    for tp_, word in (("quiz", "FRAGE"), ("scan", "SCAN")):
+        group = [s for s in scenes if s.get("type") == tp_]
+        for i, s in enumerate(group):
+            s["_label"] = s.get("label", f"{word} {i + 1}/{len(group)}")
     durs = [dur_of(s) for s in scenes]
     total = sum(durs)
     bg = Background(C, script.get("particles", []))
@@ -568,6 +643,12 @@ def render(script, out, music=None, beat_on=True):
             think = sc.get("think", 2.6)
             for k in range(math.ceil(think)):
                 events.append(("tick", T0 + think - math.ceil(think) + k))
+            events.append(("ding", T0 + think))
+        if tp == "scan":
+            think = sc.get("think", 2.2)
+            x = 0.3
+            while x < think - 0.1:
+                events.append(("blip", T0 + x)); x += 0.25
             events.append(("ding", T0 + think))
         if tp == "cta":
             events.append(("pop", T0 + 0.9))
@@ -594,14 +675,15 @@ def render(script, out, music=None, beat_on=True):
         for i in range(int(round(d * FPS))):
             t = i / FPS
             T = fr / FPS
-            quiz_rays = 1.0 if tp == "quiz" and t >= sc.get("think", 2.6) else 0.0
+            think = sc.get("think", 2.6 if tp == "quiz" else 2.2)
+            quiz_rays = 1.0 if tp in ("quiz", "scan") and t >= think else 0.0
             img = bg.render(T, sbg, beat, max(rays, quiz_rays))
             ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
             fn(ov, sc, t, d, C, events)
             # Kamera: Zoom-Punch beim Schnitt, Wackeln bei Impact, leichtes Atmen im Beat
             zoom = 1 + 0.10 * (1 - ease_out(t / 0.25)) + 0.012 * math.exp(-((T % beat) / beat) * 5)
             shake = 22 * max(0, 1 - t / 0.3) if tp in ("hook", "punch") else 0
-            if tp == "quiz" and 0 <= t - sc.get("think", 2.6) < 0.3:
+            if tp in ("quiz", "scan") and 0 <= t - think < 0.3:
                 shake = 14
             ox = math.sin(fr * 2.1) * shake
             oy = math.cos(fr * 2.7) * shake

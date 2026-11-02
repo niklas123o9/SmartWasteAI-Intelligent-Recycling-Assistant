@@ -1,0 +1,17 @@
+{
+  "title": "Weihnachtsmüll-Quiz",
+  "header": "Weihnachts-Edition 🎄",
+  "bpm": 128,
+  "theme": { "bgs": [["#991b1b", "#1a0505"], ["#14532d", "#03140a"]], "accent": "#facc15", "accent_text": "#111111", "glow": "#f87171" },
+  "particles": ["🎄", "🎁", "⭐", "❄️", "🎅", "❄️"],
+  "caption": "Weihnachten = Müll-Chaos 🎄😅 Wie viele hattest du richtig? Schick's deiner Familie, bevor wieder alles in der falschen Tonne landet 👇\n\n#weihnachten #mülltrennung #quiz #adventskalender #nachhaltigkeit #fyp #christmas",
+  "scenes": [
+    { "type": "hook", "emoji": "🎅", "text": "Weihnachtsmüll-Quiz: Nur *Profis* schaffen 5/5", "duration": 2.4 },
+    { "type": "quiz", "emoji": "🎁", "item": "Glitzer-Geschenkpapier", "options": ["Altpapier", "Restmüll"], "answer": 1, "fact": "Glitzer & Metallic = *nicht* recycelbar" },
+    { "type": "quiz", "emoji": "✨", "item": "Lametta", "options": ["Gelbe Tonne", "Restmüll"], "answer": 1, "fact": "Lametta ist keine *Verpackung*" },
+    { "type": "quiz", "emoji": "🎄", "item": "Kaputte Christbaumkugel aus Glas", "options": ["Altglas", "Restmüll"], "answer": 1, "fact": "Nur *Flaschen & Gläser* ins Altglas" },
+    { "type": "quiz", "emoji": "📦", "item": "Versandkarton vom Paket", "options": ["Altpapier", "Gelbe Tonne"], "answer": 0, "fact": "Vorher *klein falten*!" },
+    { "type": "quiz", "emoji": "🍫", "item": "Plastik-Einsatz vom Adventskalender", "options": ["Gelbe Tonne", "Altpapier"], "answer": 0, "fact": "Die Pappe separat ins *Altpapier*" },
+    { "type": "cta", "emoji": "🎄", "text": "Wie viele hattest du *richtig*?", "sub": "Schick's deiner Familie", "duration": 2.8 }
+  ]
+}
