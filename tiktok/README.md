@@ -1,36 +1,37 @@
 # TikTok-Video-Generator
 
-Erstellt fertige TikTok-Videos (1080×1920, 30 fps, MP4) aus einem einfachen Text-Skript.
+Macht aus einem kurzen JSON-Skript ein fertiges TikTok-Video (1080×1920, 30 fps, MP4 mit Ton).
+Gebaut für kurze Aufmerksamkeitsspannen: Hook in der ersten Sekunde, Schnitte alle 1–3 Sekunden,
+Wort-für-Wort-Untertitel (CapCut-Stil), Zoom-Punches, Wackler, Blitze, schwebende Emojis im
+Hintergrund, generierter Beat und Soundeffekte (Whoosh, Impact, Tick-Countdown, Ding).
 
-## Ein Video erstellen
+## Video erstellen
 
 ```bash
-pip install pillow          # einmalig; außerdem wird ffmpeg benötigt
-python3 tiktok/make_video.py tiktok/scripts/01_falsche_tonne.json
-# optional mit Musik:
-python3 tiktok/make_video.py tiktok/scripts/01_falsche_tonne.json --music song.mp3
+pip install pillow numpy      # außerdem: ffmpeg
+python3 tiktok/make_video.py tiktok/scripts/02_gelb_oder_rest.json
+python3 tiktok/make_video.py skript.json --no-beat        # nur Soundeffekte, Trend-Sound in TikTok drüberlegen
+python3 tiktok/make_video.py skript.json --music song.mp3 # eigene Musik
 ```
 
-Ergebnis: `tiktok/output/<name>.mp4` + `<name>_caption.txt` (Beschreibung & Hashtags zum Kopieren).
+Ergebnis in `tiktok/output/`: `<name>.mp4` + `<name>_caption.txt` (Beschreibung & Hashtags).
 
-Tipp: Trend-Sounds am besten direkt in der TikTok-App hinzufügen, das bringt mehr Reichweite.
+## Szenen-Typen
 
-## Skript-Format
+| Typ | Wofür | Felder |
+|---|---|---|
+| `hook` | Aufhänger in Sekunde 1 | `text`, `emoji`, `sub` |
+| `punch` | 1–4 Wörter, knallt mit Blitz & Wackler rein | `text`, `emoji` |
+| `captions` | Erklärung als Wort-für-Wort-Untertitel | `text`, `emoji`, `per_word` |
+| `quiz` | Frage mit 2 Antworten, Countdown, Auflösung | `emoji`, `item`, `options`, `answer` (0/1), `fact`, `think` |
+| `cta` | Ende: Kommentar-/Follow-Aufforderung | `text`, `emoji`, `sub` |
 
-```json
-{
-  "handle": "@deinname",
-  "theme": { "bg": ["#14532d", "#052e16"], "accent": "#4ade80", "text": "#ffffff" },
-  "caption": "Beschreibung #hashtags",
-  "scenes": [
-    { "type": "hook", "text": "Großer *Aufhänger*", "sub": "Untertitel", "duration": 3.5 },
-    { "type": "text", "label": "Fakt", "headline": "Überschrift", "body": "Fließtext …", "duration": 5 },
-    { "type": "list", "headline": "3 Tipps", "items": ["Tipp eins", "Tipp *zwei*"], "duration": 6 },
-    { "type": "cta", "text": "Folge für mehr!", "button": "Folgen", "duration": 3 }
-  ]
-}
-```
+Global: `header` (bleibt oben stehen), `bpm`, `particles` (Hintergrund-Emojis), `theme`
+(`bgs`, `accent`, `accent_text`, `glow`, `active`), `caption`.
+`*Wort*` bzw. `*mehrere Wörter*` = hervorgehoben. Dauer ist optional (`duration`), sonst automatisch.
 
-- `*Wort*` wird in der Akzentfarbe hervorgehoben.
-- Die Texte bleiben in der sicheren Zone, damit TikToks Buttons und Beschreibung nichts verdecken.
-- Emojis werden im Video nicht dargestellt. Verwende sie nur in der `caption`.
+## Formate, die gut funktionieren
+
+- **Quiz** („Nur Profis schaffen 5/5"): Leute pausieren und kommentieren ihren Score.
+- **Red Flags / Green Flags**: bekanntes Trendformat, schnell und teilbar.
+- **„Was wäre, wenn…" / Build in Public**: zeigt SmartWasteAI und sammelt Feedback.

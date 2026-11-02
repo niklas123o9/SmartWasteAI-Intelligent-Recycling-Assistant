@@ -1,354 +1,653 @@
 #!/usr/bin/env python3
-"""TikTok-Video-Generator (1080x1920, 30 fps, H.264).
+"""TikTok-Video-Generator v2: schnelle Schnitte, Emojis, Beat & Soundeffekte.
 
-Erstellt aus einem einfachen JSON-Skript ein fertiges Hochkant-Video mit
-animiertem Text, Farbverlauf-Hintergrund und Fortschrittsbalken.
+    python3 tiktok/make_video.py tiktok/scripts/02_gelb_oder_rest.json
+    python3 tiktok/make_video.py skript.json --music song.mp3   # eigene Musik statt Beat
+    python3 tiktok/make_video.py skript.json --no-beat          # nur Soundeffekte (für TikTok-Sounds)
 
-Benutzung:
-    python3 tiktok/make_video.py tiktok/scripts/01_falsche_tonne.json
-    python3 tiktok/make_video.py skript.json -o mein_video.mp4 --music song.mp3
-
-Benötigt: Python 3, Pillow (pip install pillow), ffmpeg.
-Text mit *Sternchen* wird in der Akzentfarbe hervorgehoben.
+Benötigt: Python 3, Pillow, numpy, ffmpeg (für Emojis: Noto Color Emoji).
+Formatierung im Text: *Wort* = hervorgehoben (farbige Box). Emojis gehen überall.
 """
 import argparse
 import json
 import math
 import os
+import random
 import subprocess
 import sys
+import wave
 
-from PIL import Image, ImageDraw, ImageFont
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-W, H, FPS = 1080, 1920, 30
-MARGIN_X = 100            # TikTok-UI rechts/links freihalten
-SAFE_TOP, SAFE_BOTTOM = 260, 1450  # unten liegen Caption & Buttons
-FADE_FRAMES = 8
+W, H, FPS, SR = 1080, 1920, 30, 44100
+MX = 90                      # seitlicher Rand
+SAFE_TOP, SAFE_BOTTOM = 300, 1460
+GREEN, RED = (34, 197, 94), (239, 68, 68)
 
-FONT_DIRS = [
-    os.path.join(os.path.dirname(__file__), "fonts"),
-    "/usr/share/fonts/opentype/inter",
-    "/usr/share/fonts/truetype/dejavu",
-    "/Library/Fonts", "C:/Windows/Fonts",
-]
+HERE = os.path.dirname(os.path.abspath(__file__))
+FONT_DIRS = [os.path.join(HERE, "fonts"), "/usr/share/fonts/opentype/inter",
+             "/usr/share/fonts/truetype/dejavu", "/usr/share/fonts/truetype/noto",
+             "/Library/Fonts", "/System/Library/Fonts", "C:/Windows/Fonts"]
 FONT_FILES = {
-    "black": ["Inter-Black.otf", "Inter-ExtraBold.otf", "DejaVuSans-Bold.ttf", "arialbd.ttf", "Arial Bold.ttf"],
-    "bold": ["Inter-Bold.otf", "DejaVuSans-Bold.ttf", "arialbd.ttf", "Arial Bold.ttf"],
-    "regular": ["Inter-Medium.otf", "Inter-Regular.otf", "DejaVuSans.ttf", "arial.ttf", "Arial.ttf"],
+    "black": ["Inter-Black.otf", "Inter-ExtraBold.otf", "DejaVuSans-Bold.ttf", "arialbd.ttf"],
+    "bold": ["Inter-Bold.otf", "DejaVuSans-Bold.ttf", "arialbd.ttf"],
+    "emoji": ["NotoColorEmoji.ttf", "Apple Color Emoji.ttc", "seguiemj.ttf"],
 }
-_font_cache = {}
+_cache = {}
 
 
-def font(weight, size):
-    key = (weight, size)
-    if key not in _font_cache:
-        for d in FONT_DIRS:
-            for f in FONT_FILES[weight]:
-                p = os.path.join(d, f)
-                if os.path.exists(p):
-                    _font_cache[key] = ImageFont.truetype(p, size)
-                    break
-            if key in _font_cache:
-                break
-        else:
-            _font_cache[key] = ImageFont.load_default(size)
-    return _font_cache[key]
+def find_font(kind):
+    for d in FONT_DIRS:
+        for f in FONT_FILES[kind]:
+            if os.path.exists(os.path.join(d, f)):
+                return os.path.join(d, f)
+    return None
 
 
-def hex_rgb(h):
+def font(kind, size):
+    key = ("f", kind, size)
+    if key not in _cache:
+        p = find_font(kind)
+        _cache[key] = ImageFont.truetype(p, size) if p else ImageFont.load_default(size)
+    return _cache[key]
+
+
+def rgb(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
+def clamp(x, a=0.0, b=1.0):
+    return max(a, min(b, x))
+
+
 def ease_out(t):
-    t = max(0.0, min(1.0, t))
-    return 1 - (1 - t) ** 3
+    return 1 - (1 - clamp(t)) ** 3
 
 
 def ease_back(t):
-    t = max(0.0, min(1.0, t))
-    c = 1.7
-    return 1 + (c + 1) * (t - 1) ** 3 + c * (t - 1) ** 2
+    t = clamp(t) - 1
+    return 1 + 2.7 * t ** 3 + 1.7 * t ** 2
 
 
-# ---------- Hintergrund ----------
-
-def gradient(c1, c2):
-    top, bot = hex_rgb(c1), hex_rgb(c2)
-    col = Image.new("RGB", (1, H))
-    for y in range(H):
-        t = y / (H - 1)
-        col.putpixel((0, y), tuple(int(top[i] + (bot[i] - top[i]) * t) for i in range(3)))
-    return col.resize((W, H))
+def is_emoji(ch):
+    cp = ord(ch)
+    return cp >= 0x1F000 or 0x2600 <= cp <= 0x27BF or cp in (0x2B50, 0x2B55, 0xFE0F, 0x200D, 0x203C, 0x2049)
 
 
-def draw_blobs(img, accent, t):
-    """Zwei weiche, langsam schwebende Kreise für Bewegung im Hintergrund."""
-    ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    d = ImageDraw.Draw(ov)
-    r, g, b = accent
-    for i, (cx, cy, rad, sp) in enumerate([(0.15, 0.2, 420, 0.35), (0.9, 0.78, 520, 0.27)]):
-        x = cx * W + math.sin(t * sp + i) * 90
-        y = cy * H + math.cos(t * sp * 1.3 + i) * 120
-        d.ellipse([x - rad, y - rad, x + rad, y + rad], fill=(r, g, b, 26))
-    img.alpha_composite(ov)
+# ---------- Grafik-Bausteine ----------
+
+def emoji_img(e, size):
+    key = ("e", e, size)
+    if key not in _cache:
+        p = find_font("emoji")
+        if not p:
+            _cache[key] = Image.new("RGBA", (1, 1))
+            return _cache[key]
+        f = ImageFont.truetype(p, 109)
+        im = Image.new("RGBA", (180, 160), (0, 0, 0, 0))
+        ImageDraw.Draw(im).text((10, 10), e, font=f, embedded_color=True)
+        im = im.crop(im.getbbox() or (0, 0, 1, 1))
+        s = size / max(im.size)
+        _cache[key] = im.resize((max(1, int(im.width * s)), max(1, int(im.height * s))), Image.LANCZOS)
+    return _cache[key]
 
 
-# ---------- Text-Layout ----------
+def runs(word):
+    """Teilt ein Wort in Text- und Emoji-Abschnitte."""
+    out = []
+    for ch in word:
+        kind = "e" if is_emoji(ch) else "t"
+        if out and out[-1][0] == kind:
+            out[-1][1] += ch
+        else:
+            out.append([kind, ch])
+    return out
 
-def parse_words(text):
-    """'Das ist *wichtig*' -> [('Das', False), ('ist', False), ('wichtig', True)]"""
+
+def word_img(word, size, style, C):
+    """style: normal | box (Akzent-Box) | active (Akzentfarbe) | dark"""
+    key = ("w", word, size, style)
+    if key in _cache:
+        return _cache[key]
+    f = font("black", size)
+    stroke = max(4, size // 11)
+    parts = []
+    for kind, txt in runs(word):
+        if kind == "e":
+            parts.append(emoji_img(txt.replace("\ufe0f", "").replace("\u200d", "") or txt, int(size * 1.05)))
+        else:
+            l, t, r, b = f.getbbox(txt, stroke_width=stroke)
+            asc, desc = f.getmetrics()
+            im = Image.new("RGBA", (int(r - l + 4), asc + desc + 2 * stroke), (0, 0, 0, 0))
+            d = ImageDraw.Draw(im)
+            if style == "box":
+                d.text((-l + 2, stroke), txt, font=f, fill=C["accent_text"])
+            elif style == "dark":
+                d.text((-l + 2, stroke), txt, font=f, fill=(20, 20, 20))
+            else:
+                fill = C["active"] if style == "active" else C["text"]
+                d.text((-l + 2, stroke), txt, font=f, fill=fill, stroke_width=stroke, stroke_fill=(0, 0, 0))
+            parts.append(im)
+    w = sum(p.width for p in parts) + 4 * (len(parts) - 1)
+    h = max(p.height for p in parts)
+    pad = int(size * 0.22) if style == "box" else 0
+    im = Image.new("RGBA", (w + 2 * pad, h + pad), (0, 0, 0, 0))
+    if style == "box":
+        ImageDraw.Draw(im).rounded_rectangle([0, pad * 0.3, w + 2 * pad, h + pad * 0.7], radius=int(size * 0.2),
+                                             fill=C["accent"])
+    x = pad
+    for p in parts:
+        im.alpha_composite(p, (x, (h - p.height) // 2 + pad // 2))
+        x += p.width + 4
+    _cache[key] = im
+    return im
+
+
+def parse(text):
+    """'*Red Flags*, die' -> [('Red Flags,', True), ('die', False)]  (Markierung hält Wörter zusammen)"""
     out = []
     for line in text.split("\n"):
+        span = None
         for w in line.split():
-            hl = w.startswith("*") or w.endswith("*") or w.endswith("*,") or w.endswith("*.")
-            out.append((w.replace("*", ""), hl))
+            if span is not None:
+                span.append(w)
+                if "*" in w:
+                    out.append((" ".join(span).replace("*", ""), True)); span = None
+            elif w.count("*") == 1 and w.startswith("*"):
+                span = [w]
+            else:
+                out.append((w.replace("*", ""), "*" in w))
+        if span:
+            out.append((" ".join(span).replace("*", ""), True))
         out.append(("\n", False))
     return out[:-1]
 
 
-def layout(text, fnt, max_w, line_gap=1.18):
-    words = parse_words(text)
-    space = fnt.getlength(" ")
-    lines, cur, cur_w = [], [], 0
-    for w, hl in words:
+def layout(words, size, C, max_w=W - 2 * MX, style_fn=None):
+    """Bricht Wörter um und liefert [(img, cx, cy)] relativ zu y=0 plus Gesamthöhe."""
+    gap = size * 0.16
+    lines, cur, cw = [], [], 0
+    for i, (w, hl) in enumerate(words):
         if w == "\n":
-            lines.append(cur); cur, cur_w = [], 0
+            lines.append(cur); cur, cw = [], 0
             continue
-        ww = fnt.getlength(w)
-        if cur and cur_w + space + ww > max_w:
-            lines.append(cur); cur, cur_w = [], 0
-        cur.append((w, hl, ww))
-        cur_w += (space if cur_w else 0) + ww
+        im = word_img(w, size, style_fn(i, hl) if style_fn else ("box" if hl else "normal"), C)
+        if cur and cw + gap + im.width > max_w:
+            lines.append(cur); cur, cw = [], 0
+        cur.append((i, im))
+        cw += (gap if cw else 0) + im.width
     if cur:
         lines.append(cur)
-    asc, desc = fnt.getmetrics()
-    lh = int((asc + desc) * line_gap)
+    lh = size * 1.22
     placed = []
     for li, line in enumerate(lines):
-        lw = sum(x[2] for x in line) + space * (len(line) - 1)
+        lw = sum(im.width for _, im in line) + gap * (len(line) - 1)
         x = (W - lw) / 2
-        for w, hl, ww in line:
-            placed.append({"w": w, "hl": hl, "x": x, "y": li * lh})
-            x += ww + space
-    return placed, len(lines) * lh
+        for i, im in line:
+            placed.append((i, im, x + im.width / 2, li * lh + lh / 2))
+            x += im.width + gap
+    widest = max((sum(im.width for _, im in l) + gap * (len(l) - 1) for l in lines), default=0)
+    return placed, len(lines) * lh, widest
 
 
-def fit_font(text, weight, size, max_w, max_h):
-    while size > 30:
-        f = font(weight, size)
-        _, h = layout(text, f, max_w)
-        longest = max((f.getlength(w) for w, _ in parse_words(text) if w != "\n"), default=0)
-        if h <= max_h and longest <= max_w:
-            return f
-        size -= 4
-    return font(weight, size)
+def fit(words, size, C, max_h, max_lines=4):
+    while size > 40:
+        placed, h, widest = layout(words, size, C)
+        if h <= max_h and widest <= W - 2 * MX and h <= max_lines * size * 1.22 + 1:
+            return size, placed, h
+        size -= 6
+    placed, h, _ = layout(words, size, C)
+    return size, placed, h
 
 
-def draw_words(ov, placed, fnt, top, t, start, per_word, colors, pop=False, shadow=True):
-    d = ImageDraw.Draw(ov)
-    for i, p in enumerate(placed):
-        k = (t - start - i * per_word) / 0.25
-        if k <= 0:
-            continue
-        e = ease_back(k) if pop else ease_out(k)
-        a = int(255 * min(1.0, k * 1.5))
-        dy = (1 - e) * 40
-        col = colors["accent"] if p["hl"] else colors["text"]
-        y = top + p["y"] + dy
-        if shadow:
-            d.text((p["x"] + 4, y + 6), p["w"], font=fnt, fill=(0, 0, 0, int(a * 0.35)))
-        d.text((p["x"], y), p["w"], font=fnt, fill=col + (a,))
+def composite(dst, im, x, y):
+    """alpha_composite, das Bilder am Rand sauber abschneidet."""
+    x0, y0 = max(0, x), max(0, y)
+    x1, y1 = min(dst.width, x + im.width), min(dst.height, y + im.height)
+    if x1 <= x0 or y1 <= y0:
+        return
+    if (x0, y0, x1, y1) != (x, y, x + im.width, y + im.height):
+        im = im.crop((x0 - x, y0 - y, x1 - x, y1 - y))
+    dst.alpha_composite(im, (x0, y0))
+
+
+def paste_scaled(dst, im, cx, cy, scale=1.0, alpha=1.0, angle=0.0):
+    if scale <= 0.01 or alpha <= 0.01:
+        return
+    if abs(scale - 1) > 0.01:
+        im = im.resize((max(1, int(im.width * scale)), max(1, int(im.height * scale))), Image.BILINEAR)
+    if angle:
+        im = im.rotate(angle, resample=Image.BICUBIC, expand=True)
+    if alpha < 0.99:
+        im = im.copy()
+        im.putalpha(im.getchannel("A").point(lambda v: int(v * alpha)))
+    x, y = int(cx - im.width / 2), int(cy - im.height / 2)
+    composite(dst, im, x, y)
+
+
+def stamp(t, start, dur=0.16):
+    """Wort 'knallt' rein: von groß auf normal."""
+    k = (t - start) / dur
+    if k <= 0:
+        return 0, 0
+    return 1 + 0.9 * (1 - ease_out(k)), clamp(k * 2)
+
+
+def draw_words(ov, placed, top, t, start, per_word, pop=True):
+    for i, im, cx, cy in placed:
+        s, a = stamp(t, start + i * per_word) if pop else (1, 1)
+        paste_scaled(ov, im, cx, top + cy, s, a)
+
+
+def pill(d, cx, cy, text, size, fill, tcol, pad=(34, 16)):
+    f = font("black", size)
+    tw = f.getlength(text)
+    asc, desc = f.getmetrics()
+    d.rounded_rectangle([cx - tw / 2 - pad[0], cy - asc / 2 - pad[1], cx + tw / 2 + pad[0], cy + asc / 2 + pad[1] + 6],
+                        radius=999, fill=fill)
+    d.text((cx - tw / 2, cy - asc / 2 - 2), text, font=f, fill=tcol)
+
+
+# ---------- Hintergrund ----------
+
+class Background:
+    def __init__(self, C, emojis, seed=7):
+        self.C = C
+        self.grads = {}
+        rnd = random.Random(seed)
+        self.parts = [dict(e=rnd.choice(emojis), x=rnd.uniform(0, W), y=rnd.uniform(0, H + 300),
+                           sp=rnd.uniform(50, 130), size=rnd.randint(90, 170), ph=rnd.uniform(0, 6.3))
+                      for _ in range(14)] if emojis else []
+        for p in self.parts:
+            im = emoji_img(p["e"], p["size"]).copy()
+            im.putalpha(im.getchannel("A").point(lambda v: int(v * 0.33)))
+            p["im"] = im
+
+    def grad(self, c1, c2):
+        if (c1, c2) not in self.grads:
+            a, b = np.array(rgb(c1), float), np.array(rgb(c2), float)
+            t = np.linspace(0, 1, H)[:, None]
+            col = (a + (b - a) * t).astype(np.uint8)
+            self.grads[(c1, c2)] = Image.fromarray(np.repeat(col[:, None, :], W, axis=1).reshape(H, W, 3)).convert("RGBA")
+        return self.grads[(c1, c2)]
+
+    def render(self, T, bg, beat, rays=0.0):
+        img = self.grad(*bg).copy()
+        # Glow, der im Beat pulsiert, und rotierende Strahlen
+        sw, sh = W // 8, H // 8
+        small = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
+        d = ImageDraw.Draw(small)
+        pulse = math.exp(-((T % beat) / beat) * 4)
+        r = sw * (0.55 + 0.12 * pulse)
+        cx, cy = sw / 2 + math.sin(T * 0.7) * 20, sh * 0.45 + math.cos(T * 0.5) * 30
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=self.C["glow"] + (int(70 + 70 * pulse),))
+        if rays > 0:
+            n, R = 14, sh * 1.2
+            for k in range(n):
+                a0 = T * 0.6 + k * 2 * math.pi / n
+                a1 = a0 + math.pi / n * 0.55
+                d.polygon([(cx, cy), (cx + R * math.cos(a0), cy + R * math.sin(a0)),
+                           (cx + R * math.cos(a1), cy + R * math.sin(a1))],
+                          fill=(255, 255, 255, int(22 * rays)))
+        small = small.filter(ImageFilter.GaussianBlur(5))
+        img.alpha_composite(small.resize((W, H), Image.BICUBIC))
+        for p in self.parts:
+            y = (p["y"] - p["sp"] * T) % (H + 300) - 150
+            x = p["x"] + math.sin(T * 0.8 + p["ph"]) * 40
+            paste_scaled(img, p["im"], x, y, angle=math.sin(T * 1.1 + p["ph"]) * 18)
+        return img
 
 
 # ---------- Szenen ----------
 
-def scene_hook(ov, sc, t, dur, colors):
-    f = fit_font(sc["text"], "black", sc.get("size", 132), W - 2 * MARGIN_X, 800)
-    placed, h = layout(sc["text"], f, W - 2 * MARGIN_X, 1.08)
-    top = (SAFE_TOP + SAFE_BOTTOM) / 2 - h / 2
-    pw = min(0.18, (dur * 0.5) / max(1, len(placed)))
-    draw_words(ov, placed, f, top, t, 0.1, pw, colors, pop=True)
+def dur_of(sc):
+    tp = sc.get("type")
+    if "duration" in sc:
+        return sc["duration"]
+    if tp == "quiz":
+        return sc.get("think", 2.6) + sc.get("reveal", 1.7)
+    if tp == "captions":
+        return 0.3 + len([w for w, _ in parse(sc["text"]) if w != "\n"]) * sc.get("per_word", 0.3)
+    return {"hook": 2.4, "punch": 1.1, "cta": 3.0}.get(tp, 2.5)
+
+
+def bouncing_emoji(ov, e, size, cx, cy, t, start=0.0, bounce=True):
+    if not e:
+        return
+    k = (t - start) / 0.3
+    if k <= 0:
+        return
+    s = ease_back(k)
+    dy = -abs(math.sin(t * 5)) * 30 if bounce and k > 1 else 0
+    paste_scaled(ov, emoji_img(e, size), cx, cy + dy, s, clamp(k * 2), math.sin(t * 3) * 6)
+
+
+def s_hook(ov, sc, t, d, C, ev):
+    words = parse(sc["text"])
+    has_e = bool(sc.get("emoji"))
+    size, placed, h = fit(words, sc.get("size", 124), C, 620)
+    top = (1060 if has_e else 880) - h / 2
+    bouncing_emoji(ov, sc.get("emoji"), 300, W / 2, top - 230, t)
+    pw = min(0.16, (d * 0.45) / max(1, len(placed)))
+    draw_words(ov, placed, top, t, 0.12, pw)
     if sc.get("sub"):
-        fs = font("regular", 52)
-        sp, _ = layout(sc["sub"], fs, W - 2 * MARGIN_X)
-        draw_words(ov, sp, fs, top + h + 50, t, 0.4 + len(placed) * pw, 0.03, colors, shadow=False)
+        sw = parse(sc["sub"])
+        _, sp, _ = fit(sw, 58, C, 200)
+        draw_words(ov, sp, top + h + 40, t, 0.4 + len(placed) * pw, 0.05)
 
 
-def scene_text(ov, sc, t, dur, colors):
-    d = ImageDraw.Draw(ov)
-    y = SAFE_TOP + 80
-    if sc.get("label"):
-        fl = font("bold", 44)
-        txt = sc["label"].upper()
-        tw = fl.getlength(txt)
-        k = ease_out(t / 0.4)
-        x0 = (W - tw) / 2 - 30
-        d.rounded_rectangle([x0, y, x0 + (tw + 60) * k, y + 76], radius=38, fill=colors["accent"] + (255,))
-        if k > 0.9:
-            d.text(((W - tw) / 2, y + 12), txt, font=fl, fill=colors["bg_dark"] + (255,))
-        y += 140
-    if sc.get("headline"):
-        fh = fit_font(sc["headline"], "black", sc.get("size", 104), W - 2 * MARGIN_X, 520)
-        placed, h = layout(sc["headline"], fh, W - 2 * MARGIN_X, 1.08)
-        draw_words(ov, placed, fh, y, t, 0.15, 0.09, colors, pop=True)
-        y += h + 60
-        start = 0.3 + len(placed) * 0.09
-    else:
-        start = 0.2
-    if sc.get("body"):
-        fb = fit_font(sc["body"], "regular", sc.get("body_size", 62), W - 2 * MARGIN_X, SAFE_BOTTOM - y)
-        placed, _ = layout(sc["body"], fb, W - 2 * MARGIN_X, 1.3)
-        pw = min(0.12, max(0.02, (dur - start - 1.2) / max(1, len(placed))))
-        draw_words(ov, placed, fb, y, t, start, pw, colors, shadow=False)
+def s_punch(ov, sc, t, d, C, ev):
+    words = parse(sc["text"])
+    size, placed, h = fit(words, sc.get("size", 170), C, 700, 3)
+    top = 930 - h / 2
+    bouncing_emoji(ov, sc.get("emoji"), 260, W / 2, top - 200, t)
+    draw_words(ov, placed, top, t, 0.0, 0.07)
 
 
-def scene_list(ov, sc, t, dur, colors):
-    d = ImageDraw.Draw(ov)
-    fh = fit_font(sc["headline"], "black", sc.get("size", 92), W - 2 * MARGIN_X, 330)
-    placed, h = layout(sc["headline"], fh, W - 2 * MARGIN_X, 1.08)
-    y = SAFE_TOP + 60
-    draw_words(ov, placed, fh, y, t, 0.1, 0.07, colors, pop=True)
-    y += h + 70
-    items = sc["items"]
-    step = min(1.2, (dur - 1.5) / max(1, len(items)))
-    fi = font("bold", sc.get("item_size", 54))
-    row_h = min(230, (SAFE_BOTTOM - y) / max(1, len(items)))
-    for i, item in enumerate(items):
-        st = 0.6 + i * step
-        k = (t - st) / 0.35
+def s_captions(ov, sc, t, d, C, ev):
+    words = [(w, hl) for w, hl in parse(sc["text"]) if w != "\n"]
+    pw = (d - 0.3) / max(1, len(words))
+    size = sc.get("size", 118)
+    # Wörter in Häppchen von max. 3 Wörtern aufteilen (wie CapCut-Untertitel)
+    chunks, cur = [], []
+    for i, (w, hl) in enumerate(words):
+        cur.append(i)
+        end = w.endswith((".", "!", "?", ":", ","))
+        if len(cur) == 3 or end or sum(word_img(words[j][0], size, "normal", C).width for j in cur) > W - 2 * MX - 200:
+            chunks.append(cur); cur = []
+    if cur:
+        chunks.append(cur)
+    idx = min(int(t / pw), len(words) - 1)
+    chunk = next(c for c in chunks if idx <= c[-1])
+    active = idx
+    sub = [words[j] for j in chunk]
+
+    def style(i, hl):
+        j = chunk[i]
+        return "box" if hl else ("active" if j == active else "normal")
+
+    placed, h, _ = layout(sub, size, C, style_fn=style)
+    cstart = chunk[0] * pw
+    k = (t - cstart) / 0.12
+    s = 0.85 + 0.15 * ease_back(k)
+    top = (1050 if sc.get("emoji") else 900) - h / 2
+    bouncing_emoji(ov, sc.get("emoji"), 240, W / 2, top - 200, t)
+    for i, im, cx, cy in placed:
+        paste_scaled(ov, im, cx, top + cy, s * (1.08 if chunk[i] == active else 1), clamp(k * 3))
+
+
+def s_quiz(ov, sc, t, d, C, ev):
+    think = sc.get("think", 2.6)
+    dr = ImageDraw.Draw(ov)
+    if sc.get("_label"):
+        k = ease_back(t / 0.25)
+        if k > 0.3:
+            pill(dr, W / 2, SAFE_TOP + 40, sc["_label"], 44, (0, 0, 0, 150), (255, 255, 255, 255))
+    bouncing_emoji(ov, sc.get("emoji"), 330, W / 2, 640, t)
+    name = parse(sc["item"])
+    _, placed, h = fit(name, 100, C, 260, 2)
+    draw_words(ov, placed, 900 - h / 2, t, 0.15, 0.06)
+    opts = sc["options"]
+    revealed = t >= think
+    for i, o in enumerate(opts):
+        cx = W / 2 + (i - (len(opts) - 1) / 2) * 470
+        cy = 1180
+        k = ease_back((t - 0.35 - i * 0.12) / 0.3)
         if k <= 0:
             continue
-        e = ease_back(k)
-        a = int(255 * min(1, k * 2))
-        cy = y + i * row_h
-        dx = (1 - ease_out(k)) * -120
-        r = 48 * min(1.15, e)
-        cx = MARGIN_X + 50 + dx
-        d.ellipse([cx - r, cy + 50 - r, cx + r, cy + 50 + r], fill=colors["accent"] + (a,))
-        num = str(i + 1) if not sc.get("icons") else sc["icons"][i]
-        fn = font("black", 50)
-        d.text((cx - fn.getlength(num) / 2, cy + 20), num, font=fn, fill=colors["bg_dark"] + (a,))
-        tx = MARGIN_X + 130 + dx
-        max_w = W - MARGIN_X - (MARGIN_X + 130)
-        lh = int(sum(fi.getmetrics()) * 1.1)
-        x, ly = tx, cy + 18
-        for w, hl in parse_words(item):
-            if w == "\n":
-                x, ly = tx, ly + lh
-                continue
-            ww = fi.getlength(w)
-            if x > tx and x - tx + ww > max_w:
-                x, ly = tx, ly + lh
-            d.text((x, ly), w, font=fi, fill=(colors["accent"] if hl else colors["text"]) + (a,))
-            x += ww + fi.getlength(" ")
+        correct = i == sc["answer"]
+        fill, tcol, sc_ = (255, 255, 255, 240), (20, 20, 20, 255), k
+        if revealed:
+            rk = ease_back((t - think) / 0.25)
+            if correct:
+                fill, tcol = GREEN + (255,), (255, 255, 255, 255)
+                sc_ = 1 + 0.15 * rk
+            else:
+                fill, tcol = RED + (200,), (255, 255, 255, 220)
+                cx += math.sin((t - think) * 60) * 14 * max(0, 1 - (t - think) / 0.4)
+                sc_ = 1 - 0.1 * rk
+        f = font("black", int(54 * sc_))
+        label = o + ("  ✓" if revealed and correct else "")
+        tw = f.getlength(label)
+        bw, bh = max(tw + 70, 380 * sc_), 130 * sc_
+        dr.rounded_rectangle([cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2], radius=40, fill=fill,
+                             outline=(0, 0, 0, 255), width=6)
+        asc, _ = f.getmetrics()
+        dr.text((cx - tw / 2, cy - asc / 2 - 4), label, font=f, fill=tcol)
+    if not revealed:
+        # Countdown-Ring
+        remain = think - t
+        n = math.ceil(remain)
+        frac = remain - (n - 1)
+        cx, cy, r = W / 2, 1360, 62
+        dr.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(0, 0, 0, 140))
+        dr.arc([cx - r, cy - r, cx + r, cy + r], -90, -90 + 360 * frac, fill=C["accent"] + (255,), width=12)
+        f = font("black", 64)
+        dr.text((cx - f.getlength(str(n)) / 2, cy - 40), str(n), font=f, fill=(255, 255, 255, 255))
+    else:
+        if sc.get("fact"):
+            words = parse(sc["fact"])
+            _, placed, h = fit(words, 60, C, 200, 2)
+            draw_words(ov, placed, 1340 - h / 2 + 30, t, think + 0.25, 0.04)
+        rk = (t - think) / 0.3
+        paste_scaled(ov, emoji_img("✅", 200), W / 2 + 220, 560, 1 + 1.2 * (1 - ease_out(rk)), clamp(rk * 2), -12)
 
 
-def scene_cta(ov, sc, t, dur, colors):
-    scene_hook(ov, {"text": sc["text"], "size": sc.get("size", 112)}, t, dur, colors)
-    if sc.get("button"):
-        d = ImageDraw.Draw(ov)
-        fb = font("black", 58)
-        txt = sc["button"]
-        tw = fb.getlength(txt)
-        k = ease_back((t - 1.0) / 0.4)
+def s_cta(ov, sc, t, d, C, ev):
+    words = parse(sc["text"])
+    size, placed, h = fit(words, sc.get("size", 120), C, 520)
+    top = 980 - h / 2
+    bouncing_emoji(ov, sc.get("emoji"), 260, W / 2, top - 210, t)
+    draw_words(ov, placed, top, t, 0.1, 0.1)
+    if sc.get("sub"):
+        k = ease_back((t - 0.9) / 0.35)
         if k > 0:
-            pulse = 1 + 0.04 * math.sin(t * 6)
-            bw, bh = (tw + 110) * k * pulse, 120 * k * pulse
-            cx, cy = W / 2, SAFE_BOTTOM - 110
-            d.rounded_rectangle([cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2], radius=60,
-                                fill=colors["accent"] + (255,))
+            dr = ImageDraw.Draw(ov)
+            pulse = 1 + 0.04 * math.sin(t * 7)
+            f = font("black", 56)
+            tw = f.getlength(sc["sub"])
+            bw, bh = (tw + 100) * k * pulse, 124 * k * pulse
+            cy = top + h + 140
+            dr.rounded_rectangle([W / 2 - bw / 2, cy - bh / 2, W / 2 + bw / 2, cy + bh / 2], radius=62,
+                                 fill=C["accent"])
             if k > 0.8:
-                d.text((cx - tw / 2, cy - 38), txt, font=fb, fill=colors["bg_dark"] + (255,))
+                asc, _ = f.getmetrics()
+                dr.text((W / 2 - tw / 2, cy - asc / 2 - 4), sc["sub"], font=f, fill=C["accent_text"])
 
 
-SCENES = {"hook": scene_hook, "text": scene_text, "list": scene_list, "cta": scene_cta}
+SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta}
+
+
+# ---------- Audio ----------
+
+def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6):
+    n = int(total * SR) + SR
+    mix = np.zeros(n)
+    tt = lambda d: np.arange(int(d * SR)) / SR
+    rng = np.random.default_rng(1)
+
+    def add(sig, at, vol=1.0):
+        i = int(at * SR)
+        j = min(n, i + len(sig))
+        if i < n:
+            mix[i:j] += sig[:j - i] * vol
+
+    def kick():
+        x = tt(0.35)
+        f = 45 + 110 * np.exp(-x * 30)
+        return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-x * 9)
+
+    def noise(d, decay):
+        x = tt(d)
+        return rng.uniform(-1, 1, len(x)) * np.exp(-x * decay)
+
+    def hat():
+        s = noise(0.05, 90)
+        return np.diff(s, prepend=0)
+
+    def tone(freqs, d, decay, wave_="sin"):
+        x = tt(d)
+        s = sum(np.sin(2 * np.pi * f * x) for f in freqs) / len(freqs)
+        return s * np.exp(-x * decay) * np.minimum(1, x * 200)
+
+    if music:
+        raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-stream_loop", "-1", "-i", music, "-t", str(total + 1),
+                              "-f", "f32le", "-ac", "1", "-ar", str(SR), "-"], capture_output=True).stdout
+        m = np.frombuffer(raw, np.float32).astype(float)
+        mix[:min(n, len(m))] += m[:n] * music_volume
+    elif beat_on:
+        beat = 60 / bpm
+        roots = [55.0, 43.65, 65.41, 49.0]          # A, F, C, G
+        chords = [[220, 261.6, 329.6], [174.6, 220, 261.6], [261.6, 329.6, 392], [196, 246.9, 293.7]]
+        b = 0
+        while b * beat < total:
+            at = b * beat
+            bar = (b // 4) % 4
+            add(kick(), at, 0.9 if b % 2 == 0 else 0.55)
+            if b % 4 in (1, 3):
+                add(noise(0.18, 22), at, 0.28)
+            add(hat(), at + beat / 2, 0.22)
+            add(hat(), at + beat * 0.75, 0.10)
+            add(tone([roots[bar]], beat * 0.9, 4), at, 0.55)
+            if b % 4 == 0:
+                x = tt(beat * 4)
+                pad = sum(np.sin(2 * np.pi * f * x) + 0.3 * np.sin(4 * np.pi * f * x) for f in chords[bar])
+                pad *= np.minimum(1, x * 3) * np.minimum(1, (beat * 4 - x) * 4) / 3
+                add(pad, at, 0.10)
+            b += 1
+        mix[:n] *= np.minimum(1, np.arange(n) / (SR * 0.05))
+
+    for kind, at in events:
+        if kind == "whoosh":
+            x = tt(0.35)
+            s = np.diff(rng.uniform(-1, 1, len(x)), prepend=0) * np.sin(np.pi * x / 0.35) ** 2
+            add(s, max(0, at - 0.15), 0.35)
+        elif kind == "impact":
+            x = tt(0.6)
+            s = np.sin(2 * np.pi * (40 + 80 * np.exp(-x * 20)) * x) * np.exp(-x * 6) + noise(0.6, 25) * 0.4
+            add(s, at, 0.8)
+        elif kind == "pop":
+            x = tt(0.08)
+            add(np.sin(2 * np.pi * (500 + 2500 * x) * x) * np.exp(-x * 50), at, 0.35)
+        elif kind == "tick":
+            add(tone([1800], 0.05, 80), at, 0.4)
+        elif kind == "ding":
+            add(tone([1046.5, 1568], 0.8, 5), at, 0.45)
+            add(tone([1318.5, 2093], 0.6, 6), at + 0.09, 0.35)
+    peak = np.max(np.abs(mix)) or 1
+    mix = np.tanh(mix / peak * 1.4) * 0.85
+    return (mix * 32767).astype(np.int16)
 
 
 # ---------- Rendern ----------
 
-def render(script, out_path, music=None, music_volume=0.25):
-    theme = script.get("theme", {})
-    bg = theme.get("bg", ["#14532d", "#052e16"])
-    colors = {
-        "text": hex_rgb(theme.get("text", "#ffffff")),
-        "accent": hex_rgb(theme.get("accent", "#4ade80")),
-        "bg_dark": hex_rgb(bg[1]),
-    }
+def render(script, out, music=None, beat_on=True):
+    th = script.get("theme", {})
+    C = {"text": rgb(th.get("text", "#ffffff")), "accent": rgb(th.get("accent", "#facc15")),
+         "accent_text": rgb(th.get("accent_text", "#111111")), "glow": rgb(th.get("glow", th.get("accent", "#facc15"))),
+         "active": rgb(th.get("active", th.get("accent", "#facc15")))}
+    bgs = th.get("bgs", [th.get("bg", ["#4c1d95", "#0f0a1f"])])
+    bpm = script.get("bpm", 128)
+    beat = 60 / bpm
     scenes = script["scenes"]
-    total = sum(s.get("duration", 4) for s in scenes)
-    total_frames = int(total * FPS)
-    handle = script.get("handle", "")
-    fh = font("bold", 40)
+    quizzes = [s for s in scenes if s.get("type") == "quiz"]
+    for i, s in enumerate(quizzes):
+        s["_label"] = s.get("label", f"FRAGE {i + 1}/{len(quizzes)}")
+    durs = [dur_of(s) for s in scenes]
+    total = sum(durs)
+    bg = Background(C, script.get("particles", []))
 
-    audio_in = ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo"]
-    audio_map = ["-map", "1:a"]
-    if music:
-        audio_in = ["-stream_loop", "-1", "-i", music]
-        audio_map = ["-map", "1:a", "-af", f"volume={music_volume},afade=t=out:st={max(0, total - 1.5)}:d=1.5"]
+    # Sound-Events vorab planen
+    events, T0 = [], 0.0
+    for i, (sc, d) in enumerate(zip(scenes, durs)):
+        tp = sc.get("type")
+        events.append(("impact" if tp in ("hook", "punch") or i == 0 else "whoosh", T0))
+        if tp == "quiz":
+            think = sc.get("think", 2.6)
+            for k in range(math.ceil(think)):
+                events.append(("tick", T0 + think - math.ceil(think) + k))
+            events.append(("ding", T0 + think))
+        if tp == "cta":
+            events.append(("pop", T0 + 0.9))
+        T0 += d
 
-    cmd = ["ffmpeg", "-y", "-loglevel", "error",
-           "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-           *audio_in, "-map", "0:v", *audio_map,
+    wav = os.path.splitext(out)[0] + "_audio.wav"
+    with wave.open(wav, "wb") as wf:
+        wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(SR)
+        wf.writeframes(synth_audio(total, events, bpm, beat_on, music).tobytes())
+
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+           "-r", str(FPS), "-i", "-", "-i", wav, "-map", "0:v", "-map", "1:a",
            "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p",
-           "-c:a", "aac", "-b:a", "192k", "-t", f"{total:.3f}", "-movflags", "+faststart", out_path]
+           "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-t", f"{total:.3f}", "-movflags", "+faststart", out]
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-
-    frame_no = 0
-    prev_last = None
-    for si, sc in enumerate(scenes):
-        dur = sc.get("duration", 4)
-        n = int(round(dur * FPS))
-        sbg = sc.get("bg", bg)
-        base = gradient(*sbg).convert("RGBA")
-        fn = SCENES[sc.get("type", "text")]
-        last = None
-        for i in range(n):
+    total_frames = int(total * FPS)
+    header = script.get("header")
+    fr, T0 = 0, 0.0
+    for si, (sc, d) in enumerate(zip(scenes, durs)):
+        tp = sc.get("type")
+        sbg = sc.get("bg", bgs[si % len(bgs)])
+        rays = 1.0 if tp in ("hook", "punch", "cta") else 0.0
+        fn = SCENES[tp]
+        for i in range(int(round(d * FPS))):
             t = i / FPS
-            img = base.copy()
-            draw_blobs(img, colors["accent"], frame_no / FPS)
+            T = fr / FPS
+            quiz_rays = 1.0 if tp == "quiz" and t >= sc.get("think", 2.6) else 0.0
+            img = bg.render(T, sbg, beat, max(rays, quiz_rays))
             ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-            fn(ov, sc, t, dur, colors)
-            # Fortschrittsbalken + Handle
-            d = ImageDraw.Draw(ov)
-            d.rounded_rectangle([MARGIN_X, 150, W - MARGIN_X, 160], radius=5, fill=(255, 255, 255, 60))
-            px = MARGIN_X + (W - 2 * MARGIN_X) * (frame_no + 1) / total_frames
-            d.rounded_rectangle([MARGIN_X, 150, px, 160], radius=5, fill=colors["accent"] + (255,))
-            if handle:
-                d.text(((W - fh.getlength(handle)) / 2, 185), handle, font=fh, fill=(255, 255, 255, 170))
+            fn(ov, sc, t, d, C, events)
+            # Kamera: Zoom-Punch beim Schnitt, Wackeln bei Impact, leichtes Atmen im Beat
+            zoom = 1 + 0.10 * (1 - ease_out(t / 0.25)) + 0.012 * math.exp(-((T % beat) / beat) * 5)
+            shake = 22 * max(0, 1 - t / 0.3) if tp in ("hook", "punch") else 0
+            if tp == "quiz" and 0 <= t - sc.get("think", 2.6) < 0.3:
+                shake = 14
+            ox = math.sin(fr * 2.1) * shake
+            oy = math.cos(fr * 2.7) * shake
+            if zoom > 1.003 or shake:
+                z = ov.resize((int(W * zoom), int(H * zoom)), Image.BILINEAR)
+                l = int((z.width - W) / 2 + ox)
+                tp_ = int((z.height - H) / 2 + oy)
+                ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+                composite(ov, z, -l, -tp_)
             img.alpha_composite(ov)
+            dr = ImageDraw.Draw(img)
+            dr.rectangle([0, 0, W, 12], fill=(0, 0, 0, 90))
+            dr.rectangle([0, 0, W * (fr + 1) / total_frames, 12], fill=C["accent"] + (255,))
+            if header:
+                hw = word_img(header, 58, "normal", C)
+                paste_scaled(img, hw, W / 2, 200)
             frame = img.convert("RGB")
-            if prev_last is not None and i < FADE_FRAMES:
-                frame = Image.blend(prev_last, frame, (i + 1) / (FADE_FRAMES + 1))
+            if tp in ("hook", "punch") and t < 0.1:
+                frame = Image.blend(frame, Image.new("RGB", (W, H), (255, 255, 255)), 0.55 * (1 - t / 0.1))
             proc.stdin.write(frame.tobytes())
-            last = frame
-            frame_no += 1
-        prev_last = last
-        print(f"  Szene {si + 1}/{len(scenes)} fertig", file=sys.stderr)
+            fr += 1
+        T0 += d
+        print(f"  Szene {si + 1}/{len(scenes)} ({tp}) fertig", file=sys.stderr)
     proc.stdin.close()
-    if proc.wait() != 0:
+    ok = proc.wait() == 0
+    os.remove(wav)
+    if not ok:
         sys.exit("ffmpeg ist fehlgeschlagen")
-
-    caption = script.get("caption")
-    if caption:
-        with open(os.path.splitext(out_path)[0] + "_caption.txt", "w", encoding="utf-8") as f:
-            f.write(caption.strip() + "\n")
-    print(f"Fertig: {out_path} ({total:.1f}s)")
+    if script.get("caption"):
+        with open(os.path.splitext(out)[0] + "_caption.txt", "w", encoding="utf-8") as f:
+            f.write(script["caption"].strip() + "\n")
+    print(f"Fertig: {out} ({total:.1f}s)")
 
 
 def main():
     ap = argparse.ArgumentParser(description="Erstellt ein TikTok-Video aus einem JSON-Skript.")
     ap.add_argument("script")
     ap.add_argument("-o", "--out")
-    ap.add_argument("--music", help="optionale Audiodatei (mp3/wav) als Hintergrundmusik")
-    ap.add_argument("--music-volume", type=float, default=0.25)
+    ap.add_argument("--music", help="eigene Audiodatei statt des generierten Beats")
+    ap.add_argument("--no-beat", action="store_true", help="nur Soundeffekte (Trend-Sound in TikTok hinzufügen)")
     a = ap.parse_args()
     with open(a.script, encoding="utf-8") as f:
         script = json.load(f)
-    out = a.out or os.path.join(os.path.dirname(os.path.abspath(__file__)), "output",
-                                os.path.splitext(os.path.basename(a.script))[0] + ".mp4")
+    out = a.out or os.path.join(HERE, "output", os.path.splitext(os.path.basename(a.script))[0] + ".mp4")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
-    render(script, out, a.music, a.music_volume)
+    render(script, out, a.music, not a.no_beat)
 
 
 if __name__ == "__main__":

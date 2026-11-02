@@ -1,52 +1,16 @@
 {
   "title": "40 % landen in der falschen Tonne",
-  "handle": "@smartwasteai",
-  "theme": {
-    "bg": [
-      "#14532d",
-      "#052e16"
-    ],
-    "accent": "#4ade80",
-    "text": "#ffffff"
-  },
-  "caption": "Wusstest du das? Fast 40 % der Verpackungen landen in der falschen Tonne 😳 Speicher dir das für den nächsten Müll-Gang! ♻️\n\n#mülltrennung #recycling #nachhaltigkeit #umwelt #lernenmittiktok #ki",
+  "bpm": 124,
+  "theme": { "bgs": [["#065f46", "#03140f"], ["#0f172a", "#022c22"]], "accent": "#4ade80", "accent_text": "#052e16", "glow": "#22c55e" },
+  "particles": ["♻️", "📦", "🥤", "🍾", "🥫"],
+  "caption": "Fast 40 % landen in der falschen Tonne 😳 Wir bauen eine KI, die das ändert ♻️ Würdest du's nutzen?\n\n#mülltrennung #ki #recycling #nachhaltigkeit #startup #fyp #umwelt",
   "scenes": [
-    {
-      "type": "hook",
-      "text": "*40 %* deines Mülls landet in der *falschen* Tonne.",
-      "sub": "Und das kostet uns alle.",
-      "duration": 3.5
-    },
-    {
-      "type": "text",
-      "label": "Fakt",
-      "headline": "Falsch sortiert = *verschmutzt*",
-      "body": "Schon ein paar falsche Teile können eine ganze Ladung Recyclingmaterial *unbrauchbar* machen. Die Folge: Verbrennung statt Recycling.",
-      "duration": 5.5
-    },
-    {
-      "type": "list",
-      "headline": "Die 4 häufigsten *Fehler*",
-      "items": [
-        "Fettiger Pizzakarton → *Restmüll*",
-        "Kassenbon → *Restmüll*",
-        "Joghurtbecher: *Deckel abziehen*",
-        "Glas-Deckel → *Gelbe Tonne*"
-      ],
-      "duration": 7
-    },
-    {
-      "type": "text",
-      "label": "Die Lösung",
-      "headline": "*KI* sortiert für dich",
-      "body": "Foto machen, die KI erkennt das Material und sagt dir sofort die *richtige Tonne*.",
-      "duration": 5
-    },
-    {
-      "type": "cta",
-      "text": "Folge für mehr *Müll-Hacks*!",
-      "button": "Folgen",
-      "duration": 3.5
-    }
+    { "type": "hook", "emoji": "😳", "text": "Fast *40 %* landen in der *falschen* Tonne", "duration": 2.4 },
+    { "type": "captions", "emoji": "🔥", "text": "Und dann wird alles *verbrannt* statt recycelt." },
+    { "type": "punch", "emoji": "🤔", "text": "Aber was wäre, wenn…" },
+    { "type": "captions", "emoji": "📱", "text": "dein Handy einfach *weiß*, wohin damit?" },
+    { "type": "punch", "emoji": "📸", "text": "Foto. Tonne. *Fertig.*" },
+    { "type": "captions", "emoji": "♻️", "text": "Genau daran bauen wir: *SmartWasteAI*." },
+    { "type": "cta", "emoji": "👇", "text": "Würdest du das *nutzen*?", "sub": "Folg für Updates", "duration": 2.8 }
   ]
 }

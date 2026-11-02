@@ -1,0 +1,19 @@
+{
+  "title": "Mülltrennung Red Flags",
+  "bpm": 140,
+  "theme": { "bgs": [["#7f1d1d", "#0a0a0a"], ["#18181b", "#450a0a"]], "accent": "#ff2d55", "accent_text": "#ffffff", "glow": "#ff2d55", "active": "#fde047" },
+  "particles": ["🚩", "🚩", "🗑️", "♻️"],
+  "caption": "Welche Red Flag hast du? Sei ehrlich 😅🚩\n\n#redflag #mülltrennung #recycling #nachhaltigkeit #lifehacks #fyp #umwelt",
+  "scenes": [
+    { "type": "hook", "emoji": "🚩", "text": "Mülltrennung *Red Flags*, die du JEDEN Tag machst", "duration": 2.4 },
+    { "type": "punch", "emoji": "🥛", "text": "Becher *ausspülen*" },
+    { "type": "captions", "text": "Musst du nicht. *Löffelrein* reicht völlig. Spart Wasser!" },
+    { "type": "punch", "emoji": "📚", "text": "Alles *ineinander* stapeln" },
+    { "type": "captions", "text": "Die Sortieranlage erkennt das dann *nicht*. Immer einzeln rein!" },
+    { "type": "punch", "emoji": "🧾", "text": "Kassenbon ins *Altpapier*" },
+    { "type": "captions", "text": "Thermopapier gehört in den *Restmüll*." },
+    { "type": "punch", "emoji": "🫙", "text": "Deckel *drauf* lassen" },
+    { "type": "captions", "text": "Deckel ab und in die *Gelbe Tonne*, Glas ins Altglas." },
+    { "type": "cta", "emoji": "👀", "text": "Welche Red Flag hast *du*?", "sub": "Folg für Teil 2", "duration": 2.8 }
+  ]
+}
