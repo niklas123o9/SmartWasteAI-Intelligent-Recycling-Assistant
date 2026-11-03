@@ -23,10 +23,18 @@ Alle Texte auf dem Bildschirm werden automatisch vorgelesen (Piper, läuft offli
 so lang, wie die Stimme braucht; die Untertitel laufen im Takt der Sprache mit, und die Musik wird beim
 Sprechen automatisch leiser. Im Skript einstellbar:
 
-- `"voice"`: `thorsten-high` (Standard, sehr klar), `thorsten_emotional:amused` (fröhlich), `thorsten_emotional:surprised`, `kerstin`, `ramona` oder `none`
+- `"voice"`: `thorsten-high` (Standard, am klarsten), `thorsten_emotional:amused` (fröhlich, etwas undeutlicher), `thorsten_emotional:surprised`, `kerstin`, `ramona` oder `none`
 - `"speed": 0.92` (kleiner = schneller), `"pitch": 1` (Stimme in Halbtönen höher)
 - `"pronounce": {"Wort": "Aussprache"}` für Wörter, die falsch klingen
 - pro Szene `"say"` / `"say_reveal"`, wenn etwas anderes gesprochen werden soll als auf dem Bildschirm steht
+
+### Saubere deutsche Aussprache
+
+- Zahlen werden ausgeschrieben (2024 → „zweitausendvierundzwanzig“), `%` → „Prozent“, `5/5` → „fünf von fünf“.
+- Anglizismen werden deutsch korrekt gesprochen („recyceln“ → ri-SAI-keln, „Kassenbon“ → Kassenbong).
+- Englische Begriffe in den Skripten möglichst vermeiden (lieber „E-Zigarette“ statt „Vape“).
+- **Aussprache prüfen:** `tiktok/check_aussprache.py skript.json` lässt alle Sätze von einer
+  Spracherkennung (Whisper) anhören und markiert Sätze, die nicht sauber verstanden werden.
 
 Ergebnis in `tiktok/output/`: `<name>.mp4` + `<name>_caption.txt` (Beschreibung & Hashtags).
 

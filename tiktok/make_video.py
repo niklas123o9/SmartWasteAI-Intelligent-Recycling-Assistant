@@ -560,9 +560,36 @@ SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_qu
 
 # ---------- Sprachausgabe (Piper, offline) ----------
 
-PRONOUNCE = {"SmartWasteAI": "Smart Wehst I Ei", "Coffee-to-go": "Koffi-tu-goh", "Vapes": "Wehps",
-             "Energy-Drink": "Enerdschi-Drink", "Fast Fashion": "Fast Fäschn", "1 %": "ein Prozent", "Red Flags": "Rädd Fläggs", "Red Flag": "Rädd Fläck",
-             "Score": "Skohr", "Tetra Pak": "Tetra Pack", "Kommis": "Kommis"}
+PRONOUNCE = {"SmartWasteAI": "Smart Wehst A I", "1 %": "ein Prozent", "Cent": "Sent", "Tetra Pak": "Tetrapack", "Kassenbon": "Kassenbong", "Quiz": "Kwiss", "Red Flags": "Rädd Fläggs", "Red Flag": "Rädd Fläck",
+             "Score": "Skohr", "Kommis": "Kommis"}
+
+
+_ONES = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf",
+         "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn"]
+_TENS = {2: "zwanzig", 3: "dreißig", 4: "vierzig", 5: "fünfzig", 6: "sechzig", 7: "siebzig", 8: "achtzig", 9: "neunzig"}
+
+
+def zahl(n):
+    """Ganze Zahl als deutsches Wort (bis 999 999)."""
+    if n < 20:
+        return _ONES[n]
+    if n < 100:
+        t, o = divmod(n, 10)
+        return _TENS[t] if o == 0 else ("ein" if o == 1 else _ONES[o]) + "und" + _TENS[t]
+    if n < 1000:
+        h, r = divmod(n, 100)
+        return ("ein" if h == 1 else _ONES[h]) + "hundert" + (zahl(r) if r else "")
+    if n < 1000000:
+        t, r = divmod(n, 1000)
+        return ("ein" if t == 1 else zahl(t)) + "tausend" + (zahl(r) if r else "")
+    return str(n)
+
+
+def german_numbers(s):
+    """Zahlen als deutsche Wörter ausschreiben (2024 -> zweitausendvierundzwanzig)."""
+    return re.sub(r"\d+", lambda m: zahl(int(m.group(0))), s)
+
+
 LEAD = 0.12  # Sprechbeginn nach dem Schnitt
 
 
@@ -571,6 +598,10 @@ def speech_text(text, extra=None):
     for a, b in {**PRONOUNCE, **(extra or {})}.items():
         s = s.replace(a, b)
     s = re.sub(r"(\d+)\s*/\s*(\d+)", r"\1 von \2", s)
+    # Anglizismus "recyceln" deutsch korrekt: ri-SAI-keln
+    s = re.sub(r"[Rr]ecyc", lambda m: "Rissaik" if m.group(0)[0] == "R" else "rissaik", s)
+    s = s.replace("%", " Prozent")
+    s = german_numbers(s)
     s = s.replace("&", " und ").replace("+", " plus ").replace("=", " ist ").replace("·", ",").replace("…", "...")
     s = re.sub(r"\s+", " ", s).strip()
     return s if not s or s[-1] in ".!?:," else s + "."
@@ -585,8 +616,11 @@ class Voice:
             sid = self.v.config.speaker_id_map.get(speaker, speaker) if isinstance(speaker, str) else speaker
         self.sr = self.v.config.sample_rate
         orig = self.v.phonemize
+        needs_fix = "\u0327" not in self.v.config.phoneme_id_map
 
-        def fixed(text):  # neuere espeak-Versionen zerlegen "ç" (ich-Laut) in c + Cedille
+        def fixed(text):
+            if not needs_fix:
+                return orig(text)  # neuere espeak-Versionen zerlegen "ç" (ich-Laut) in c + Cedille
             out = []
             for sent in orig(text):
                 m = []
@@ -600,7 +634,7 @@ class Voice:
             return out
 
         self.v.phonemize = fixed
-        self.cfg = SynthesisConfig(speaker_id=sid, length_scale=speed, noise_scale=0.6, noise_w_scale=0.7)
+        self.cfg = SynthesisConfig(speaker_id=sid, length_scale=speed, noise_scale=0.45, noise_w_scale=0.6)
 
     def say(self, text):
         gap = np.zeros(int(self.sr * 0.07), np.float32)
@@ -608,8 +642,8 @@ class Voice:
         for c in self.v.synthesize(text, syn_config=self.cfg):
             parts += [c.audio_float_array, gap]
         a = np.concatenate(parts) if parts else np.zeros(1, np.float32)
-        loud = np.where(np.abs(a) > 0.02)[0]
-        return a[max(0, loud[0] - 160):loud[-1] + 800] if len(loud) else a
+        loud = np.where(np.abs(a) > 0.01)[0]
+        return a[max(0, loud[0] - int(self.sr * 0.08)):loud[-1] + int(self.sr * 0.3)] if len(loud) else a
 
 
 def plan_voice(scenes, voice, extra):

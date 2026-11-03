@@ -1,23 +1,113 @@
 {
   "title": "10 Müll-Fakten, die keiner kennt",
   "bpm": 128,
-  "voice": "thorsten_emotional:amused",
+  "voice": "thorsten-high",
+  "pitch": 1,
   "speed": 0.9,
-  "theme": { "bgs": [["#0e7490", "#041318"], ["#6d28d9", "#0f0a1f"], ["#be185d", "#1a0410"]], "accent": "#facc15", "accent_text": "#111111", "glow": "#38bdf8", "active": "#facc15" },
-  "particles": ["🤯", "♻️", "📱", "🥤", "☕", "👕", "📦"],
+  "theme": {
+    "bgs": [
+      [
+        "#0e7490",
+        "#041318"
+      ],
+      [
+        "#6d28d9",
+        "#0f0a1f"
+      ],
+      [
+        "#be185d",
+        "#1a0410"
+      ]
+    ],
+    "accent": "#facc15",
+    "accent_text": "#111111",
+    "glow": "#38bdf8",
+    "active": "#facc15"
+  },
+  "particles": [
+    "🤯",
+    "♻️",
+    "📱",
+    "🥤",
+    "☕",
+    "👕",
+    "📦"
+  ],
   "caption": "10 Müll-Fakten, die dir keiner erzählt 🤯 Welchen kanntest du nicht? Schreib die Nummer in die Kommis 👇\n\n#fakten #wusstestdu #mülltrennung #recycling #nachhaltigkeit #fyp #lernenmittiktok",
   "scenes": [
-    { "type": "hook", "emoji": "🤯", "text": "10 Müll-Fakten, die dir *keiner* erzählt", "sub": "Nummer 6 kann richtig gefährlich werden", "duration": 2.2 },
-    { "type": "fact", "emoji": "📱", "text": "In deinem *Handy* steckt echtes Gold", "sub": "Eine Tonne alter Handys enthält mehr Gold als eine Tonne Golderz." },
-    { "type": "fact", "emoji": "🥤", "text": "Deine *Energy-Drink-Dose* kann nach 60 Tagen wieder im Regal stehen", "sub": "Alu lässt sich schnell und immer wieder recyceln." },
-    { "type": "fact", "emoji": "⚡", "text": "Recyceltes Alu spart *95 %* Energie", "sub": "im Vergleich zu neu hergestelltem Aluminium." },
-    { "type": "fact", "emoji": "🍾", "text": "Glas kannst du *unendlich* oft recyceln", "sub": "ohne dass es schlechter wird." },
-    { "type": "fact", "emoji": "📦", "text": "Papier schafft nur *5 bis 7* Runden", "sub": "Danach sind die Fasern zu kurz, auch bei deinen Paketkartons." },
-    { "type": "fact", "emoji": "🔥", "text": "*Vapes* im Restmüll können Brände auslösen", "sub": "Wegen der Akkus! Bring sie zur Sammelstelle oder zurück in den Laden." },
-    { "type": "fact", "emoji": "☕", "text": "Dein *Coffee-to-go-Becher* ist kein Altpapier", "sub": "Er ist mit Plastik beschichtet und gehört in die Gelbe Tonne." },
-    { "type": "fact", "emoji": "👕", "text": "Weniger als *1 %* der Kleidung wird zu neuer Kleidung recycelt", "sub": "Fast Fashion wird meist verbrannt oder landet auf der Deponie." },
-    { "type": "fact", "emoji": "🧋", "text": "Dein *Eiskaffee* in der Plastikflasche hat Pfand", "sub": "Seit 2024 auch bei Milchgetränken. Das sind 25 Cent!" },
-    { "type": "fact", "emoji": "🍣", "text": "*Schwarzes* Plastik erkennt die Sortieranlage oft nicht", "sub": "Die schwarze Lieferdienst-Schale wird dann meistens verbrannt." },
-    { "type": "cta", "emoji": "👇", "text": "Welchen Fakt kanntest du *nicht*?", "sub": "Folg für Teil 2", "duration": 2.6 }
+    {
+      "type": "hook",
+      "emoji": "🤯",
+      "text": "10 Müll-Fakten, die dir *keiner* erzählt",
+      "sub": "Nummer 6 kann richtig gefährlich werden",
+      "duration": 2.2
+    },
+    {
+      "type": "fact",
+      "emoji": "📱",
+      "text": "In deinem *Handy* steckt echtes Gold",
+      "sub": "Eine Tonne alter Handys enthält mehr Gold als eine Tonne Golderz."
+    },
+    {
+      "type": "fact",
+      "emoji": "🥤",
+      "text": "Deine *Getränkedose* kann nach 60 Tagen wieder im Regal stehen",
+      "sub": "Alu lässt sich schnell und immer wieder recyceln."
+    },
+    {
+      "type": "fact",
+      "emoji": "⚡",
+      "text": "Recyceltes Alu spart *95 %* Energie",
+      "sub": "im Vergleich zu neu hergestelltem Aluminium."
+    },
+    {
+      "type": "fact",
+      "emoji": "🍾",
+      "text": "Glas kannst du *unendlich* oft recyceln",
+      "sub": "ohne dass es schlechter wird."
+    },
+    {
+      "type": "fact",
+      "emoji": "📦",
+      "text": "Papier schafft nur *5 bis 7* Runden",
+      "sub": "Danach sind die Fasern zu kurz, auch bei deinen Paketkartons."
+    },
+    {
+      "type": "fact",
+      "emoji": "🔥",
+      "text": "*E-Zigaretten* im Restmüll können Brände auslösen",
+      "sub": "Wegen der Akkus! Bring sie zur Sammelstelle oder zurück in den Laden."
+    },
+    {
+      "type": "fact",
+      "emoji": "☕",
+      "text": "Dein *Kaffeebecher zum Mitnehmen* ist kein Altpapier",
+      "sub": "Er ist mit Plastik beschichtet und gehört in die Gelbe Tonne."
+    },
+    {
+      "type": "fact",
+      "emoji": "👕",
+      "text": "Weniger als *1 %* der Kleidung wird zu neuer Kleidung recycelt",
+      "sub": "Billigmode wird meist verbrannt oder landet auf der Deponie."
+    },
+    {
+      "type": "fact",
+      "emoji": "🧋",
+      "text": "Dein *Eiskaffee* in der Plastikflasche hat Pfand",
+      "sub": "Seit 2024 auch bei Milchgetränken. Das sind 25 Cent!"
+    },
+    {
+      "type": "fact",
+      "emoji": "🍣",
+      "text": "*Schwarzes* Plastik erkennt die Sortieranlage oft nicht",
+      "sub": "Die schwarze Lieferdienst-Schale wird dann meistens verbrannt."
+    },
+    {
+      "type": "cta",
+      "emoji": "👇",
+      "text": "Welchen Fakt kanntest du *nicht*?",
+      "sub": "Folg für Teil 2",
+      "duration": 2.6
+    }
   ]
 }

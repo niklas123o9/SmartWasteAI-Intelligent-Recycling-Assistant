@@ -1,17 +1,71 @@
 {
   "title": "Tschüss Gelber Sack?",
   "bpm": 126,
-  "theme": { "bgs": [["#a16207", "#1c1003"], ["#1f2937", "#0b0b0b"]], "accent": "#facc15", "accent_text": "#111111", "glow": "#fde047", "active": "#fde047" },
-  "particles": ["🗑️", "♻️", "📦", "🥤"],
+  "theme": {
+    "bgs": [
+      [
+        "#a16207",
+        "#1c1003"
+      ],
+      [
+        "#1f2937",
+        "#0b0b0b"
+      ]
+    ],
+    "accent": "#facc15",
+    "accent_text": "#111111",
+    "glow": "#fde047",
+    "active": "#fde047"
+  },
+  "particles": [
+    "🗑️",
+    "♻️",
+    "📦",
+    "🥤"
+  ],
   "caption": "In immer mehr Städten wird der Gelbe Sack durch die Gelbe Tonne ersetzt 👋 Wie ist es bei dir? Schreib deine Stadt in die Kommis 👇 (Was genau bei dir gilt, sagt dir dein Entsorger.)\n\n#gelbetonne #gelbersack #mülltrennung #news #recycling #fyp #wusstestdu",
   "scenes": [
-    { "type": "hook", "emoji": "👋", "text": "Tschüss, *Gelber Sack*?", "sub": "Das ändert sich gerade", "duration": 2.3 },
-    { "type": "captions", "emoji": "🗑️", "text": "In immer mehr Städten kommt stattdessen die *Gelbe Tonne*." },
-    { "type": "captions", "emoji": "📅", "text": "Oft wird dann nur noch *alle zwei Wochen* geleert." },
-    { "type": "punch", "emoji": "💸", "text": "Und die *Gebühren*?" },
-    { "type": "captions", "text": "steigen vielerorts. Weniger Restmüll heißt *kleinere Tonne*." },
-    { "type": "punch", "emoji": "💡", "text": "*Pro-Tipp*" },
-    { "type": "captions", "text": "Verpackungen *nicht* ineinander stapeln. Sonst erkennt die Anlage sie nicht." },
-    { "type": "cta", "emoji": "👇", "text": "Hast du schon die *Gelbe Tonne*?", "sub": "Schreib deine Stadt!", "duration": 2.8 }
+    {
+      "type": "hook",
+      "emoji": "👋",
+      "text": "Tschüss, *Gelber Sack*?",
+      "sub": "Das ändert sich gerade",
+      "duration": 2.3
+    },
+    {
+      "type": "captions",
+      "emoji": "🗑️",
+      "text": "In immer mehr Städten kommt stattdessen die *Gelbe Tonne*."
+    },
+    {
+      "type": "captions",
+      "emoji": "📅",
+      "text": "Oft wird dann nur noch *alle zwei Wochen* geleert."
+    },
+    {
+      "type": "punch",
+      "emoji": "💸",
+      "text": "Und die *Gebühren*?"
+    },
+    {
+      "type": "captions",
+      "text": "steigen vielerorts. Weniger Restmüll heißt *kleinere Tonne*."
+    },
+    {
+      "type": "punch",
+      "emoji": "💡",
+      "text": "*Profi-Tipp*"
+    },
+    {
+      "type": "captions",
+      "text": "Verpackungen *nicht* ineinander stapeln. Sonst erkennt die Anlage sie nicht."
+    },
+    {
+      "type": "cta",
+      "emoji": "👇",
+      "text": "Hast du schon die *Gelbe Tonne*?",
+      "sub": "Schreib deine Stadt!",
+      "duration": 2.8
+    }
   ]
 }

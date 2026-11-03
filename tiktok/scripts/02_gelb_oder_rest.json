@@ -2,16 +2,100 @@
   "title": "Gelb oder Rest? Quiz",
   "header": "Wohin damit? 🤔",
   "bpm": 132,
-  "theme": { "bgs": [["#5b21b6", "#0f0a1f"], ["#1e3a8a", "#0a0f1f"]], "accent": "#facc15", "accent_text": "#111111", "glow": "#a855f7" },
-  "particles": ["♻️", "🥤", "📦", "🧃", "🥫", "🗑️", "🍾"],
+  "theme": {
+    "bgs": [
+      [
+        "#5b21b6",
+        "#0f0a1f"
+      ],
+      [
+        "#1e3a8a",
+        "#0a0f1f"
+      ]
+    ],
+    "accent": "#facc15",
+    "accent_text": "#111111",
+    "glow": "#a855f7"
+  },
+  "particles": [
+    "♻️",
+    "🥤",
+    "📦",
+    "🧃",
+    "🥫",
+    "🗑️",
+    "🍾"
+  ],
   "caption": "Sei ehrlich: wie viele hattest du richtig? 👀 Schreib deinen Score in die Kommis 👇\n\n#mülltrennung #quiz #recycling #nachhaltigkeit #lernenmittiktok #fyp #wusstestdu",
   "scenes": [
-    { "type": "hook", "emoji": "🧠", "text": "Nur echte *Profis* schaffen 5/5", "sub": "Antworte, bevor die Zeit abläuft!", "duration": 2.4 },
-    { "type": "quiz", "emoji": "🧾", "item": "Kassenbon", "options": ["Altpapier", "Restmüll"], "answer": 1, "fact": "Thermopapier enthält *Chemie*" },
-    { "type": "quiz", "emoji": "🧃", "item": "Tetra Pak", "options": ["Gelbe Tonne", "Altpapier"], "answer": 0, "fact": "Pappe, Plastik und Alu im *Verbund*" },
-    { "type": "quiz", "emoji": "🍷", "item": "Kaputtes Weinglas", "options": ["Altglas", "Restmüll"], "answer": 1, "fact": "Trinkglas schmilzt *anders* als Flaschen" },
-    { "type": "quiz", "emoji": "🍪", "item": "Benutztes Backpapier", "options": ["Altpapier", "Restmüll"], "answer": 1, "fact": "Ist mit *Silikon* beschichtet" },
-    { "type": "quiz", "emoji": "🥫", "item": "Leere Konservendose", "options": ["Gelbe Tonne", "Restmüll"], "answer": 0, "fact": "Metall ist *endlos* recycelbar" },
-    { "type": "cta", "emoji": "👇", "text": "Wie viele hattest du *richtig*?", "sub": "Score in die Kommis!", "duration": 2.8 }
+    {
+      "type": "hook",
+      "emoji": "🧠",
+      "text": "Nur echte *Profis* schaffen 5/5",
+      "sub": "Antworte, bevor die Zeit abläuft!",
+      "duration": 2.4
+    },
+    {
+      "type": "quiz",
+      "emoji": "🧾",
+      "item": "Kassenbon",
+      "options": [
+        "Altpapier",
+        "Restmüll"
+      ],
+      "answer": 1,
+      "fact": "Thermopapier enthält *Chemie*"
+    },
+    {
+      "type": "quiz",
+      "emoji": "🧃",
+      "item": "Tetra Pak",
+      "options": [
+        "Gelbe Tonne",
+        "Altpapier"
+      ],
+      "answer": 0,
+      "fact": "Pappe, Plastik und Alu im *Verbund*"
+    },
+    {
+      "type": "quiz",
+      "emoji": "🍷",
+      "item": "Kaputtes Weinglas",
+      "options": [
+        "Altglas",
+        "Restmüll"
+      ],
+      "answer": 1,
+      "fact": "Trinkglas schmilzt *anders* als Flaschen"
+    },
+    {
+      "type": "quiz",
+      "emoji": "🍪",
+      "item": "Benutztes Backpapier",
+      "options": [
+        "Altpapier",
+        "Restmüll"
+      ],
+      "answer": 1,
+      "fact": "Ist mit *Silikon* beschichtet"
+    },
+    {
+      "type": "quiz",
+      "emoji": "🥫",
+      "item": "Leere Konservendose",
+      "options": [
+        "Gelbe Tonne",
+        "Restmüll"
+      ],
+      "answer": 0,
+      "fact": "Metall ist *endlos* recycelbar"
+    },
+    {
+      "type": "cta",
+      "emoji": "👇",
+      "text": "Wie viele hattest du *richtig*?",
+      "sub": "Punktzahl in die Kommentare!",
+      "duration": 2.8
+    }
   ]
 }
