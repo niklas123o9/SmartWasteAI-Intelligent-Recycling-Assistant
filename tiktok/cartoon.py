@@ -296,7 +296,12 @@ def draw_character(layer, look, cx, ground, scale, t, mouth=0.0, expr="neutral",
     hx, hy = P(0, head_y)
     R = 135 * s
     hair_c = rgb(L["hair_color"])
-    if L["hair"] in ("long", "pigtails"):
+    if L["hair"] == "long":
+        for side in (-1, 1):
+            x_in, x_out = hx + side * R * 0.55, hx + side * R * 1.12
+            d.rounded_rectangle([min(x_in, x_out), hy - R * 0.6, max(x_in, x_out), hy + R * 1.45], radius=int(R * 0.3),
+                                fill=hair_c, outline=OUT, width=LW)
+    if L["hair"] == "pigtails":
         d.rounded_rectangle([hx - R * 1.08, hy - R * 0.9, hx + R * 1.08, hy + R * 1.25], radius=int(R),
                             fill=hair_c, outline=OUT, width=LW)
         if L["hair"] == "pigtails":
