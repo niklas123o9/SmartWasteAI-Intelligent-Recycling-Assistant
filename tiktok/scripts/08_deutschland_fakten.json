@@ -1,0 +1,83 @@
+{
+  "title": "5 Fakten über Deutschland",
+  "bpm": 124,
+  "voice": "thorsten-high",
+  "pitch": 1,
+  "speed": 0.9,
+  "theme": {
+    "bgs": [
+      [
+        "#1f1f1f",
+        "#000000"
+      ],
+      [
+        "#7f1d1d",
+        "#1a0505"
+      ],
+      [
+        "#854d0e",
+        "#1c1003"
+      ]
+    ],
+    "accent": "#facc15",
+    "accent_text": "#111111",
+    "glow": "#ef4444",
+    "active": "#facc15"
+  },
+  "particles": [
+    "🇩🇪",
+    "🥨",
+    "🏰",
+    "🚗",
+    "🎧",
+    "🧸"
+  ],
+  "caption": "5 Fakten über Deutschland, die fast keiner kennt 🇩🇪🤯 Welcher hat dich am meisten überrascht? 👇\n\n#deutschland #fakten #wusstestdu #germany #lernenmittiktok #fyp #funfacts",
+  "scenes": [
+    {
+      "type": "hook",
+      "emoji": "🇩🇪",
+      "text": "5 Fakten über *Deutschland*, die dich sprachlos machen",
+      "sub": "Nummer 5 hat mich echt umgehauen",
+      "duration": 2.4,
+      "say": "Hier sind 5 Fakten über Deutschland, die dich sprachlos machen. Nummer 5 hat mich echt umgehauen."
+    },
+    {
+      "type": "fact",
+      "emoji": "🌉",
+      "text": "Berlin hat mehr *Brücken* als Venedig",
+      "sub": "Venedig kommt auf rund 400 Brücken. Berlin hat mehr als doppelt so viele! Und Venedig gilt als die Stadt der Brücken."
+    },
+    {
+      "type": "fact",
+      "emoji": "🧸",
+      "text": "Gummibärchen wurden in *Bonn* erfunden",
+      "sub": "1922 von Hans Riegel. Damals hießen sie noch Tanzbären. Aus Hans Riegel und Bonn wurde der Name Haribo."
+    },
+    {
+      "type": "fact",
+      "emoji": "⛪",
+      "text": "Der Kölner Dom war mal das *höchste* Gebäude der Welt",
+      "sub": "Fertig wurde er 1880, nach über 600 Jahren Bauzeit. Den Rekord hielt er nur vier Jahre. Unter den Kirchen in Deutschland ist heute nur das Ulmer Münster höher."
+    },
+    {
+      "type": "fact",
+      "emoji": "🎧",
+      "text": "Das *MP3*-Format kommt aus Deutschland",
+      "sub": "Entwickelt am Fraunhofer-Institut in Erlangen. Ohne diese Erfindung hätte digitale Musik ganz anders angefangen."
+    },
+    {
+      "type": "fact",
+      "emoji": "🥤",
+      "text": "*Fanta* wurde in Deutschland erfunden",
+      "sub": "1940 in Essen, weil im Krieg kein Coca-Cola-Sirup mehr ins Land kam. Der Name kommt übrigens von Fantasie."
+    },
+    {
+      "type": "cta",
+      "emoji": "👇",
+      "text": "Welcher Fakt hat dich am meisten *überrascht*?",
+      "sub": "Folg für mehr Fakten",
+      "duration": 3.2
+    }
+  ]
+}

@@ -560,7 +560,7 @@ SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_qu
 
 # ---------- Sprachausgabe (Piper, offline) ----------
 
-PRONOUNCE = {"SmartWasteAI": "Smart Wehst A I", "1 %": "ein Prozent", "Cent": "Sent", "Tetra Pak": "Tetrapack", "Kassenbon": "Kassenbong", "Quiz": "Kwiss", "Red Flags": "Rädd Fläggs", "Red Flag": "Rädd Fläck",
+PRONOUNCE = {"SmartWasteAI": "Smart Wehst A I", "1 %": "ein Prozent", "Cent": "Sent", "Tetra Pak": "Tetrapack", "Kassenbon": "Kassenbong", "Quiz": "Kwiss", "MP3": "Em-Pe-Drei", "Red Flags": "Rädd Fläggs", "Red Flag": "Rädd Fläck",
              "Score": "Skohr", "Kommis": "Kommis"}
 
 
@@ -585,9 +585,18 @@ def zahl(n):
     return str(n)
 
 
+def jahr(n):
+    """Jahreszahlen 1100-1999 wie gesprochen: 1880 -> achtzehnhundertachtzig."""
+    h, r = divmod(n, 100)
+    return zahl(h) + "hundert" + (zahl(r) if r else "")
+
+
 def german_numbers(s):
-    """Zahlen als deutsche Wörter ausschreiben (2024 -> zweitausendvierundzwanzig)."""
-    return re.sub(r"\d+", lambda m: zahl(int(m.group(0))), s)
+    """Zahlen als deutsche Wörter ausschreiben (2024 -> zweitausendvierundzwanzig, 1922 -> neunzehnhundertzweiundzwanzig)."""
+    def word(m):
+        n = int(m.group(0))
+        return jahr(n) if len(m.group(0)) == 4 and 1100 <= n <= 1999 else zahl(n)
+    return re.sub(r"\d+", word, s)
 
 
 LEAD = 0.12  # Sprechbeginn nach dem Schnitt
