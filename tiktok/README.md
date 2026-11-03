@@ -8,11 +8,24 @@ Hintergrund, generierter Beat und Soundeffekte (Whoosh, Impact, Tick-Countdown, 
 ## Video erstellen
 
 ```bash
-pip install pillow numpy      # außerdem: ffmpeg
+pip install pillow numpy piper-tts   # außerdem: ffmpeg
+tiktok/get_voices.sh                 # einmalig: deutsche Stimmen laden (Thorsten, Kerstin, Ramona)
 python3 tiktok/make_video.py tiktok/scripts/02_gelb_oder_rest.json
 python3 tiktok/make_video.py skript.json --no-beat        # nur Soundeffekte, Trend-Sound in TikTok drüberlegen
 python3 tiktok/make_video.py skript.json --music song.mp3 # eigene Musik
+python3 tiktok/make_video.py skript.json --voice kerstin   # andere Stimme
+python3 tiktok/make_video.py skript.json --no-voice        # ohne Vorlesen
 ```
+
+## Vorlese-Stimme
+
+Alle Texte auf dem Bildschirm werden automatisch vorgelesen (Piper, läuft offline). Die Szenen werden
+so lang, wie die Stimme braucht; die Untertitel laufen im Takt der Sprache mit, und die Musik wird beim
+Sprechen automatisch leiser. Im Skript einstellbar:
+
+- `"voice": "thorsten"` (oder `kerstin`, `ramona`, `none`), `"speed": 0.92` (kleiner = schneller)
+- `"pronounce": {"Wort": "Aussprache"}` für Wörter, die falsch klingen
+- pro Szene `"say"` / `"say_reveal"`, wenn etwas anderes gesprochen werden soll als auf dem Bildschirm steht
 
 Ergebnis in `tiktok/output/`: `<name>.mp4` + `<name>_caption.txt` (Beschreibung & Hashtags).
 

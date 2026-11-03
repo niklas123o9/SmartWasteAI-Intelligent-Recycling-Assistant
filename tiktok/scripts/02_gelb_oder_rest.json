@@ -6,9 +6,9 @@
   "particles": ["♻️", "🥤", "📦", "🧃", "🥫", "🗑️", "🍾"],
   "caption": "Sei ehrlich: wie viele hattest du richtig? 👀 Schreib deinen Score in die Kommis 👇\n\n#mülltrennung #quiz #recycling #nachhaltigkeit #lernenmittiktok #fyp #wusstestdu",
   "scenes": [
-    { "type": "hook", "emoji": "🧠", "text": "Nur echte *Profis* schaffen 5/5", "sub": "Du hast 3 Sekunden pro Frage", "duration": 2.4 },
-    { "type": "quiz", "emoji": "🧾", "item": "Kassenbon", "options": ["Altpapier", "Restmüll"], "answer": 1, "fact": "Thermopapier = *Chemie* drin" },
-    { "type": "quiz", "emoji": "🧃", "item": "Tetra Pak", "options": ["Gelbe Tonne", "Altpapier"], "answer": 0, "fact": "Pappe + Plastik + Alu = *Verbund*" },
+    { "type": "hook", "emoji": "🧠", "text": "Nur echte *Profis* schaffen 5/5", "sub": "Antworte, bevor die Zeit abläuft!", "duration": 2.4 },
+    { "type": "quiz", "emoji": "🧾", "item": "Kassenbon", "options": ["Altpapier", "Restmüll"], "answer": 1, "fact": "Thermopapier enthält *Chemie*" },
+    { "type": "quiz", "emoji": "🧃", "item": "Tetra Pak", "options": ["Gelbe Tonne", "Altpapier"], "answer": 0, "fact": "Pappe, Plastik und Alu im *Verbund*" },
     { "type": "quiz", "emoji": "🍷", "item": "Kaputtes Weinglas", "options": ["Altglas", "Restmüll"], "answer": 1, "fact": "Trinkglas schmilzt *anders* als Flaschen" },
     { "type": "quiz", "emoji": "🍪", "item": "Benutztes Backpapier", "options": ["Altpapier", "Restmüll"], "answer": 1, "fact": "Ist mit *Silikon* beschichtet" },
     { "type": "quiz", "emoji": "🥫", "item": "Leere Konservendose", "options": ["Gelbe Tonne", "Restmüll"], "answer": 0, "fact": "Metall ist *endlos* recycelbar" },

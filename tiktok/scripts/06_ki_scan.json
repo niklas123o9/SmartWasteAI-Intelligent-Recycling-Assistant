@@ -7,8 +7,8 @@
   "caption": "Ich baue eine KI, die dir sagt, wohin dein Müll gehört 🤖♻️ Was soll sie als Nächstes scannen? 👇\n\n#ki #künstlicheintelligenz #mülltrennung #startup #buildinpublic #recycling #fyp",
   "scenes": [
     { "type": "hook", "emoji": "🤖", "text": "Ich lasse eine *KI* meinen Müll sortieren", "duration": 2.4 },
-    { "type": "scan", "emoji": "🎁", "item": "Glitzer-Geschenkpapier", "result": "Restmüll", "bin": "rest", "confidence": 97, "fact": "Glitzer = *nicht* recycelbar" },
-    { "type": "scan", "emoji": "🧃", "item": "Tetra Pak", "result": "Gelbe Tonne", "bin": "gelb", "confidence": 99, "fact": "Verbundstoff = *Verpackung*" },
+    { "type": "scan", "emoji": "🎁", "item": "Glitzer-Geschenkpapier", "result": "Restmüll", "bin": "rest", "confidence": 97, "fact": "Glitzer ist *nicht* recycelbar" },
+    { "type": "scan", "emoji": "🧃", "item": "Tetra Pak", "result": "Gelbe Tonne", "bin": "gelb", "confidence": 99, "fact": "Verbundstoff zählt als *Verpackung*" },
     { "type": "scan", "emoji": "🧾", "item": "Kassenbon", "result": "Restmüll", "bin": "rest", "confidence": 96, "fact": "*Thermopapier*, nicht Altpapier" },
     { "type": "scan", "emoji": "🍌", "item": "Bananenschale", "result": "Biotonne", "bin": "bio", "confidence": 99 },
     { "type": "punch", "emoji": "📸", "text": "Foto. *Fertig.*" },
