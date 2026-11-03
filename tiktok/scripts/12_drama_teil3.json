@@ -1,16 +1,14 @@
 {
   "title": "TAG 0 – Teil 3: Das Labor",
-  "header": "TAG 0 · TEIL 3",
-  "voice": "thorsten-high",
-  "speed": 1.08,
-  "pitch": -1,
+  "title_bar": "TAG 0 · Teil 3",
+  "speed": 1.0,
   "bpm": 68,
   "music_style": "drama",
-  "cinematic": true,
+  "subtitles": true,
   "theme": {
     "bgs": [
       [
-        "#1c1917",
+        "#111111",
         "#000000"
       ]
     ],
@@ -20,311 +18,393 @@
     "active": "#fca5a5"
   },
   "particles": [],
-  "caption": "TAG 0 – Teil 3 🧟 Mit diesem Twist hat keiner gerechnet … Soll es weitergehen? Schreib JA 👇\n\n#story #zombie #drama #plottwist #storytime #serie #fyp",
+  "cast": {
+    "erzähler": {
+      "voice": "thorsten-high",
+      "pitch": -1
+    },
+    "ich": {
+      "name": "Ich",
+      "voice": "thorsten-high",
+      "color": "#60a5fa",
+      "look": {
+        "hair": "short",
+        "hair_color": "#3b2414",
+        "shirt": "#2563eb",
+        "jacket": "#1e3a8a",
+        "pants": "#1f2937"
+      }
+    },
+    "jonas": {
+      "name": "Jonas",
+      "voice": "thorsten_emotional:neutral",
+      "pitch": 2,
+      "color": "#f59e0b",
+      "look": {
+        "hair": "cap",
+        "hair_color": "#f59e0b",
+        "shirt": "#b91c1c",
+        "pants": "#111827"
+      }
+    },
+    "mia": {
+      "name": "Mia",
+      "voice": "kerstin",
+      "pitch": 2,
+      "color": "#f472b6",
+      "size": 0.86,
+      "look": {
+        "hair": "pigtails",
+        "hair_color": "#7c2d12",
+        "shirt": "#ec4899",
+        "pants": "#1e3a8a",
+        "bandage": true
+      }
+    },
+    "zombie": {
+      "name": "???",
+      "color": "#84cc16",
+      "look": {
+        "skin": "#8fbc6a",
+        "zombie": true,
+        "hair": "messy",
+        "hair_color": "#3f3f46",
+        "shirt": "#64748b",
+        "pants": "#334155"
+      }
+    },
+    "oma": {
+      "name": "Alte Frau",
+      "voice": "kerstin",
+      "pitch": -1.5,
+      "color": "#c084fc",
+      "size": 0.92,
+      "look": {
+        "hair": "bun",
+        "hair_color": "#d1d5db",
+        "glasses": true,
+        "shirt": "#7c3aed",
+        "pants": "#3f3f46"
+      }
+    },
+    "radio": {
+      "name": "Radio",
+      "voice": "thorsten_emotional:neutral",
+      "pitch": -3,
+      "color": "#a3a3a3"
+    },
+    "mama": {
+      "name": "Mama",
+      "voice": "kerstin",
+      "pitch": -0.5,
+      "color": "#34d399",
+      "look": {
+        "hair": "long",
+        "hair_color": "#111827",
+        "shirt": "#f8fafc",
+        "jacket": "#e5e7eb",
+        "pants": "#334155"
+      }
+    },
+    "mia_dark": {
+      "name": "Mia",
+      "voice": "kerstin",
+      "pitch": 2,
+      "color": "#f472b6",
+      "size": 0.86,
+      "look": {
+        "hair": "pigtails",
+        "hair_color": "#7c2d12",
+        "shirt": "#ec4899",
+        "pants": "#1e3a8a",
+        "bandage": true,
+        "red_eyes": true
+      }
+    }
+  },
+  "caption": "TAG 0 – Teil 3 🧟 Mit diesem Twist hat keiner gerechnet … Soll es weitergehen? Schreib JA 👇\n\n#zombie #story #plottwist #animation #cartoon #serie #fyp",
   "scenes": [
     {
-      "type": "story",
-      "bg": [
-        "#0f172a",
-        "#000000"
-      ],
+      "type": "cartoon",
+      "bg": "lab",
       "fx": {
-        "flash": "white",
-        "shake": 0.6
+        "flash": "white"
       },
-      "text": "Sie brachten uns in ein Labor. Tief unter der *Stadt*.",
-      "actors": [
+      "show": [
         {
-          "e": "🏥",
-          "x": 0.5,
-          "y": 0.4,
-          "s": 550,
-          "alpha": 0.85,
-          "pop": false
+          "who": "ich",
+          "x": 0.28,
+          "expr": "tired"
         },
         {
-          "e": "🧪",
-          "x": 0.25,
-          "y": 0.58,
-          "s": 187,
-          "at": 1.0
-        },
-        {
-          "e": "🧪",
-          "x": 0.75,
-          "y": 0.58,
-          "s": 187,
-          "at": 1.3
+          "who": "mia",
+          "x": 0.72,
+          "expr": "sad"
         }
       ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#083344",
-        "#020617"
-      ],
-      "fx": {
-        "tint": "#0ea5e9",
-        "tint_alpha": 25
-      },
-      "text": "Überall Glasröhren. Ärzte in weißen *Schutzanzügen*.",
-      "actors": [
+      "lines": [
         {
-          "e": "🧪",
-          "x": 0.2,
-          "y": 0.35,
-          "s": 250
+          "who": "erzähler",
+          "text": "Sie brachten uns in ein Labor. Tief unter der Stadt."
         },
         {
-          "e": "💉",
-          "x": 0.5,
-          "y": 0.3,
-          "s": 250,
-          "at": 0.4
+          "who": "mia",
+          "text": "Ich hab Angst.",
+          "expr": "sad"
         },
         {
-          "e": "🧪",
-          "x": 0.8,
-          "y": 0.35,
-          "s": 250,
-          "at": 0.8
-        },
-        {
-          "e": "🥼",
-          "x": 0.5,
-          "y": 0.55,
-          "s": 325,
-          "at": 1.4
+          "who": "ich",
+          "text": "Ich bin hier. Dir passiert nichts.",
+          "expr": "neutral"
         }
-      ],
-      "size": 96,
-      "tail": 0.9
+      ]
     },
     {
-      "type": "story",
-      "bg": [
-        "#083344",
-        "#020617"
-      ],
-      "text": "Dann ging eine Tür auf. Und *sie* kam herein.",
-      "actors": [
-        {
-          "e": "🚪",
-          "x": 0.75,
-          "y": 0.42,
-          "s": 450,
-          "pop": false
-        },
-        {
-          "e": "👩",
-          "x": 0.75,
-          "y": 0.45,
-          "s": 300,
-          "to": [
-            0.4,
-            0.45
-          ],
-          "at": 1.0,
-          "bob": 0.6
-        }
-      ],
-      "sfx": [
-        [
-          "door",
-          0.9
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#450a0a",
-        "#000000"
-      ],
+      "type": "cartoon",
+      "bg": "lab",
       "fx": {
         "flash": "red",
-        "shake": 1.0
+        "shake": 0.9
       },
-      "text": "Es war unsere *Mutter*. Seit drei Jahren galt sie als tot.",
-      "actors": [
+      "show": [
         {
-          "e": "👩",
-          "x": 0.5,
-          "y": 0.42,
-          "s": 587,
-          "pulse": true
+          "who": "ich",
+          "x": 0.25,
+          "expr": "shock",
+          "pose": "shock"
+        },
+        {
+          "who": "mama",
+          "x": 0.74,
+          "from": 1.3,
+          "enter": 1.0,
+          "expr": "neutral"
         }
       ],
-      "sfx": [
-        [
-          "boom",
-          0.0
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
+      "lines": [
+        {
+          "who": "ich",
+          "text": "Nein … das kann nicht sein.",
+          "expr": "shock",
+          "pose": "shock",
+          "sfx": [
+            [
+              "door",
+              0.0
+            ],
+            [
+              "boom",
+              0.5
+            ]
+          ]
+        },
+        {
+          "who": "mia",
+          "text": "Mama?!",
+          "expr": "shock"
+        }
+      ]
     },
     {
-      "type": "story",
-      "bg": [
-        "#14532d",
-        "#020617"
+      "type": "cartoon",
+      "bg": "lab",
+      "show": [
+        {
+          "who": "ich",
+          "x": 0.28,
+          "expr": "angry"
+        },
+        {
+          "who": "mama",
+          "x": 0.72,
+          "expr": "sad"
+        }
       ],
+      "lines": [
+        {
+          "who": "mama",
+          "text": "Hallo, meine Schätze. Ihr seid so groß geworden.",
+          "expr": "happy"
+        },
+        {
+          "who": "ich",
+          "text": "Du warst drei Jahre weg! Wir dachten, du bist tot!",
+          "expr": "angry"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "lab",
       "fx": {
         "tint": "#16a34a",
-        "tint_alpha": 25
+        "tint_alpha": 30
       },
-      "text": "Ich habe das Virus nicht gemacht, um die Welt zu zerstören, sagte sie. Sondern um sie *neu zu starten*.",
-      "actors": [
+      "show": [
         {
-          "e": "👩",
-          "x": 0.35,
-          "y": 0.45,
-          "s": 375
+          "who": "ich",
+          "x": 0.28,
+          "expr": "shock"
         },
         {
-          "e": "🦠",
+          "who": "mama",
           "x": 0.72,
-          "y": 0.38,
-          "s": 275,
-          "at": 2.0,
-          "pulse": true
+          "expr": "tired"
         }
       ],
-      "size": 96,
-      "tail": 0.9
+      "lines": [
+        {
+          "who": "mama",
+          "text": "Ich musste gehen. Für das hier. Das Virus.",
+          "expr": "tired"
+        },
+        {
+          "who": "ich",
+          "text": "DU hast das gemacht?!",
+          "expr": "shock"
+        },
+        {
+          "who": "mama",
+          "text": "Ich wollte die Welt nicht zerstören. Ich wollte sie neu starten.",
+          "expr": "smirk"
+        }
+      ]
     },
     {
-      "type": "story",
-      "bg": [
-        "#1e1b4b",
-        "#000000"
-      ],
-      "text": "Mia ist nicht immun. Sie ist der *Anfang*.",
-      "actors": [
+      "type": "cartoon",
+      "bg": "lab",
+      "show": [
         {
-          "e": "👧",
-          "x": 0.5,
-          "y": 0.45,
-          "s": 500,
-          "pulse": true
+          "who": "mia",
+          "x": 0.28,
+          "expr": "neutral"
         },
         {
-          "e": "✨",
-          "x": 0.3,
-          "y": 0.3,
-          "s": 187,
-          "at": 1.2
-        },
-        {
-          "e": "✨",
+          "who": "mama",
           "x": 0.72,
-          "y": 0.32,
-          "s": 187,
-          "at": 1.5
+          "expr": "smirk"
         }
       ],
-      "sfx": [
-        [
-          "riser",
-          0.3
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
+      "lines": [
+        {
+          "who": "mama",
+          "text": "Mia ist nicht immun, mein Schatz. Sie ist der Anfang.",
+          "expr": "smirk"
+        },
+        {
+          "who": "mia",
+          "text": "Was … heißt das?",
+          "expr": "shock"
+        }
+      ]
     },
     {
-      "type": "story",
-      "bg": [
-        "#450a0a",
-        "#000000"
-      ],
+      "type": "cartoon",
+      "bg": "lab",
       "fx": {
         "siren": true,
         "shake": 0.6
       },
-      "text": "Dann ging der Alarm los. Die Toten waren im *Gebäude*.",
-      "actors": [
+      "show": [
         {
-          "e": "🚨",
-          "x": 0.5,
-          "y": 0.25,
-          "s": 250,
-          "pulse": true
+          "who": "mama",
+          "x": 0.3,
+          "expr": "shock"
         },
         {
-          "e": "🧟",
-          "x": 1.05,
-          "y": 0.5,
-          "s": 275,
-          "to": [
-            0.6,
-            0.5
-          ],
-          "bob": 0.8,
-          "flip": true
-        },
-        {
-          "e": "🧟",
-          "x": 1.2,
-          "y": 0.58,
-          "s": 300,
-          "to": [
-            0.8,
-            0.58
-          ],
-          "bob": 0.8,
-          "flip": true,
-          "at": 0.4
+          "who": "zombie",
+          "x": 0.78,
+          "from": 1.3,
+          "enter": 1.5,
+          "pose": "zombie",
+          "expr": "zombie"
         }
       ],
-      "sfx": [
-        [
-          "siren",
-          0.2
-        ],
-        [
-          "growl",
-          1.2
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
+      "lines": [
+        {
+          "who": "mama",
+          "text": "Sie sind im Gebäude! Nimm den Schlüssel. Lauf!",
+          "expr": "shock",
+          "pose": "shock",
+          "sfx": [
+            [
+              "siren",
+              0.0
+            ],
+            [
+              "growl",
+              1.0
+            ]
+          ]
+        },
+        {
+          "who": "ich",
+          "text": "Ich lass dich hier nicht allein!",
+          "expr": "angry"
+        }
+      ]
     },
     {
-      "type": "story",
-      "bg": [
-        "#1c1917",
-        "#000000"
-      ],
+      "type": "cartoon",
+      "bg": "lab",
       "fx": {
+        "dark": 0.2,
         "tint": "#7f1d1d",
         "tint_alpha": 35
       },
-      "text": "Mama drückte mir einen Schlüssel in die Hand. Lauf, sagte sie. Und vertrau *niemandem*. Auch nicht Mia.",
-      "actors": [
+      "show": [
         {
-          "e": "🔑",
+          "who": "mama",
           "x": 0.5,
-          "y": 0.42,
-          "s": 375,
-          "pulse": true,
-          "at": 0.5
+          "scale": 1.08,
+          "expr": "sad"
         }
       ],
-      "sfx": [
-        [
-          "riser",
-          3.5
-        ]
+      "lines": [
+        {
+          "who": "mama",
+          "text": "Vertrau niemandem. Auch nicht Mia.",
+          "expr": "sad",
+          "sfx": [
+            [
+              "riser",
+              0.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "lab",
+      "fx": {
+        "flash": "red",
+        "shake": 0.4,
+        "dark": 0.25
+      },
+      "show": [
+        {
+          "who": "mia_dark",
+          "x": 0.5,
+          "scale": 1.15,
+          "expr": "smirk"
+        }
       ],
-      "tail": 0.9,
-      "size": 96
+      "lines": [
+        {
+          "who": "mia_dark",
+          "text": "Was hat Mama gerade gesagt?",
+          "expr": "smirk",
+          "expr_after": "smirk",
+          "sfx": [
+            [
+              "boom",
+              1.2
+            ]
+          ]
+        }
+      ],
+      "tail": 1.0
     },
     {
       "type": "cta",

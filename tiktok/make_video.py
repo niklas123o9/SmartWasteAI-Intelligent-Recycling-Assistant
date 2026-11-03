@@ -662,6 +662,38 @@ def ease_io(t):
     return t * t * (3 - 2 * t)
 
 
+def draw_chat(ov, ch, t):
+    """Handy-Nachricht mit Tipp-Animation."""
+    if ch:
+        at = ch.get("at", 0.3)
+        if t > at:
+            bx0, by0, bw = MX, 470, W - 2 * MX
+            f = font("bold", 50)
+            fn = font("black", 36)
+            k = ease_back((t - at) / 0.3)
+            typing = t - at < ch.get("typing", 0.8)
+            lines, cur = [], ""
+            for w in ch["text"].split():
+                if f.getlength(cur + " " + w) > bw - 80 and cur:
+                    lines.append(cur); cur = w
+                else:
+                    cur = (cur + " " + w).strip()
+            lines.append(cur)
+            bh = 90 + (60 if typing else 62 * len(lines))
+            ov_b = Image.new("RGBA", (bw, int(bh) + 10), (0, 0, 0, 0))
+            db = ImageDraw.Draw(ov_b)
+            db.rounded_rectangle([0, 0, bw - 1, bh], radius=40, fill=(255, 255, 255, 245))
+            db.text((40, 22), ch.get("from", ""), font=fn, fill=(37, 99, 235, 255))
+            if typing:
+                for j in range(3):
+                    r = 11 + 5 * max(0, math.sin(t * 9 - j))
+                    db.ellipse([50 + j * 46 - r, 100 - r, 50 + j * 46 + r, 100 + r], fill=(120, 120, 120, 255))
+            else:
+                for j, ln in enumerate(lines):
+                    db.text((40, 78 + j * 62), ln, font=f, fill=(15, 15, 15, 255))
+            paste_scaled(ov, ov_b, bx0 + bw / 2, by0 + bh / 2, k, clamp(k * 2))
+
+
 def s_story(ov, sc, t, d, C, ev):
     """Erzähl-Szene: bewegte Emoji-Figuren, Handy-Chat, Effekte und Untertitel."""
     dr = ImageDraw.Draw(ov)
@@ -691,35 +723,7 @@ def s_story(ov, sc, t, d, C, ev):
         sc_k = ease_back(k) if a.get("pop", True) else 1
         ang = math.sin(t * a.get("bob_speed", 7)) * a.get("sway", 0) * 8
         paste_scaled(ov, im, x, y, sc_k, clamp(k * 2) * a.get("alpha", 1.0), ang)
-    ch = sc.get("chat")
-    if ch:
-        at = ch.get("at", 0.3)
-        if t > at:
-            bx0, by0, bw = MX, 470, W - 2 * MX
-            f = font("bold", 50)
-            fn = font("black", 36)
-            k = ease_back((t - at) / 0.3)
-            typing = t - at < ch.get("typing", 0.8)
-            lines, cur = [], ""
-            for w in ch["text"].split():
-                if f.getlength(cur + " " + w) > bw - 80 and cur:
-                    lines.append(cur); cur = w
-                else:
-                    cur = (cur + " " + w).strip()
-            lines.append(cur)
-            bh = 90 + (60 if typing else 62 * len(lines))
-            ov_b = Image.new("RGBA", (bw, int(bh) + 10), (0, 0, 0, 0))
-            db = ImageDraw.Draw(ov_b)
-            db.rounded_rectangle([0, 0, bw - 1, bh], radius=40, fill=(255, 255, 255, 245))
-            db.text((40, 22), ch.get("from", ""), font=fn, fill=(37, 99, 235, 255))
-            if typing:
-                for j in range(3):
-                    r = 11 + 5 * max(0, math.sin(t * 9 - j))
-                    db.ellipse([50 + j * 46 - r, 100 - r, 50 + j * 46 + r, 100 + r], fill=(120, 120, 120, 255))
-            else:
-                for j, ln in enumerate(lines):
-                    db.text((40, 78 + j * 62), ln, font=f, fill=(15, 15, 15, 255))
-            paste_scaled(ov, ov_b, bx0 + bw / 2, by0 + bh / 2, k, clamp(k * 2))
+    draw_chat(ov, sc.get("chat"), t)
     cap = dict(sc)
     cap["emoji"] = None
     cap["cap_y"] = sc.get("cap_y", 1300)
@@ -727,11 +731,76 @@ def s_story(ov, sc, t, d, C, ev):
     s_captions(ov, cap, t, d, C, ev)
 
 
-def story_overlay(img, sc, t, fxcache):
+def s_cartoon(ov, sc, t, d, C, ev):
+    """Cartoon-Dialog: gezeichneter Hintergrund, Figuren mit Lippenbewegung, Untertitel."""
+    import cartoon as ct
+    ov.alpha_composite(ct.background(sc.get("bg", "black")))
+    cast = sc["_cast"]
+    lines = sc.get("_lines", [])
+    cur = next((ln for ln in lines if ln["start"] <= t < ln["start"] + ln["dur"]), None)
+    shown = sc.get("show", [])
+    xs = {c["who"]: c.get("x", 0.5) for c in shown}
+    for i, c in enumerate(shown):
+        who = c["who"]
+        at = c.get("at", 0.0)
+        if t < at:
+            continue
+        k = ease_out((t - at) / c.get("enter", 0.6)) if "from" in c else 1.0
+        x = (c.get("from", c.get("x", 0.5)) + (c.get("x", 0.5) - c.get("from", c.get("x", 0.5))) * k) * W
+        if "to" in c:
+            x = (c.get("x", 0.5) + (c["to"] - c.get("x", 0.5)) * ease_io((t - at) / max(0.1, d - at))) * W
+        talking = cur is not None and cur["who"] == who
+        mouth = 0.0
+        expr, pose = c.get("expr", "neutral"), c.get("pose", "idle")
+        if talking:
+            idx = int((t - cur["start"]) * FPS)
+            env = cur["env"]
+            mouth = env[idx] if 0 <= idx < len(env) else 0.0
+            expr, pose = cur.get("expr", expr), cur.get("pose", pose)
+        else:
+            past = [ln for ln in lines if ln["who"] == who and ln["start"] <= t]
+            if past:
+                expr = past[-1].get("expr_after", expr)
+        look_dir = c.get("look", 0.0)
+        if cur and cur["who"] != who and cur["who"] in xs:
+            look_dir = 0.8 if xs[cur["who"]] > c.get("x", 0.5) else -0.8
+        elif talking and len(shown) > 1:
+            other = [o for o in shown if o["who"] != who]
+            look_dir = 0.7 if other[0].get("x", 0.5) > c.get("x", 0.5) else -0.7
+        if pose == "run" and k < 1:
+            pass
+        look = dict(cast.get(who, {}).get("look", {}))
+        ct.draw_character(ov, look, x, c.get("ground", 1720), c.get("scale", 1.0) * cast.get(who, {}).get("size", 1.0),
+                          t, mouth=mouth, expr=expr, pose=pose, look_dir=look_dir, talking=talking and mouth > 0.05,
+                          seed=i * 3 + len(who))
+    draw_chat(ov, sc.get("chat"), t)
+    if cur and sc.get("_subtitles", True) and cur.get("text"):
+        name = cast.get(cur["who"], {}).get("name", cur["who"].capitalize())
+        dr = ImageDraw.Draw(ov)
+        f = font("black", 50)
+        fn = font("black", 38)
+        words, rows, row = cur["text"].replace("*", "").split(), [], ""
+        for w_ in words:
+            if f.getlength(row + " " + w_) > W - 2 * MX - 60 and row:
+                rows.append(row); row = w_
+            else:
+                row = (row + " " + w_).strip()
+        rows.append(row)
+        rows = rows[-3:]
+        bh = 70 + 62 * len(rows)
+        y0 = 1530 - bh
+        dr.rounded_rectangle([MX - 20, y0, W - MX + 20, y0 + bh], radius=30, fill=(0, 0, 0, 175))
+        col = rgb(cast.get(cur["who"], {}).get("color", "#facc15"))
+        dr.text((MX + 10, y0 + 14), name.upper(), font=fn, fill=col + (255,))
+        for j, r_ in enumerate(rows):
+            dr.text((MX + 10, y0 + 60 + j * 62), r_, font=f, fill=(255, 255, 255, 255))
+
+
+def story_overlay(img, sc, t, fxcache, grain=True):
     """Kino-Effekte über dem fertigen Bild: Sirenenlicht, Farbstich, Blitz, Vignette, Filmkorn."""
     fx = sc.get("fx", {})
     if fx.get("siren"):
-        a = int(60 + 50 * math.sin(t * 9))
+        a = int(28 + 22 * math.sin(t * 9))
         col = (255, 0, 40) if int(t * 2.2) % 2 == 0 else (30, 60, 255)
         img.alpha_composite(Image.new("RGBA", (W, H), col + (max(0, a),)))
     if fx.get("tint"):
@@ -741,6 +810,8 @@ def story_overlay(img, sc, t, fxcache):
         img.alpha_composite(Image.new("RGBA", (W, H), col + (int(170 * (1 - t / 0.25)),)))
     if fx.get("dark"):
         img.alpha_composite(Image.new("RGBA", (W, H), (0, 0, 0, int(fx["dark"] * 255))))
+    if not grain:
+        return
     if "vig" not in fxcache:
         yy, xx = np.mgrid[0:H // 4, 0:W // 4]
         r = np.sqrt(((xx - W / 8) / (W / 8)) ** 2 + ((yy - H / 8) / (H / 8)) ** 2)
@@ -830,7 +901,7 @@ def s_scan(ov, sc, t, d, C, ev):
 
 SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta, "scan": s_scan, "fact": s_fact,
           "stat": s_stat, "bars": s_bars, "myth": s_myth, "calc": s_calc, "badge": s_badge,
-          "story": s_story}
+          "story": s_story, "cartoon": s_cartoon}
 
 
 # ---------- Sprachausgabe (Piper, offline) ----------
@@ -981,6 +1052,105 @@ def plan_voice(scenes, voice, extra):
                 sc["_wt"] = starts
         T0 += dur_of(sc)
     return clips
+
+
+def resolve_voice(name):
+    """'thorsten-high' / 'thorsten_emotional:whisper' / 'kerstin' -> (Pfad, Sprecher)."""
+    speaker = None
+    if ":" in name:
+        name, speaker = name.split(":", 1)
+    if name.endswith(".onnx"):
+        return name, speaker
+    for cand in (f"de_DE-{name}-high.onnx", f"de_DE-{name}-medium.onnx", f"de_DE-{name}.onnx",
+                 f"de-{name}-low.onnx", f"de-{name}.onnx"):
+        p = os.path.join(HERE, "voices", cand)
+        if os.path.exists(p):
+            return p, speaker
+    raise FileNotFoundError(f"Stimme nicht gefunden: {name}")
+
+
+def to_sr(a, sr, pitch=0.0):
+    """Sprachclip auf 44,1 kHz bringen, optional Tonhöhe in Halbtönen ändern."""
+    af = "aresample=%d" % SR
+    if pitch:
+        af = "rubberband=pitch=%.4f:formant=preserved," % (2 ** (pitch / 12)) + af
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "f32le", "-ar", str(sr), "-ac", "1", "-i", "-",
+                          "-af", af, "-f", "f32le", "-ac", "1", "-"], input=a.astype(np.float32).tobytes(),
+                         capture_output=True).stdout
+    return np.frombuffer(raw, np.float32).astype(float)
+
+
+def lip_env(a):
+    """Lautstärke pro Videobild (0..1) für die Mundbewegung."""
+    n = SR // FPS
+    fr = [np.sqrt(np.mean(a[i:i + n] ** 2)) for i in range(0, len(a), n)]
+    fr = np.array(fr) if fr else np.zeros(1)
+    ref = np.percentile(fr, 90) or 1
+    env = np.clip(fr / ref, 0, 1)
+    env = np.where(env < 0.15, 0, env)
+    return np.convolve(env, [0.25, 0.5, 0.25], "same")
+
+
+def plan_cast(scenes, cast, extra, speed):
+    """Mehrere Stimmen: jede Figur spricht mit eigener Stimme. Liefert Clips bei 44,1 kHz."""
+    voices = {}
+
+    def get(spec):
+        if spec not in voices:
+            path, spk = resolve_voice(spec)
+            voices[spec] = Voice(path, speed, spk)
+        return voices[spec]
+
+    narr = cast.get("erzähler", {"voice": "thorsten-high"})
+    clips, T0 = [], 0.0
+    for sc in scenes:
+        tp = sc.get("type")
+        sc["_cast"] = cast
+        if tp == "cartoon":
+            t, lines = LEAD + sc.get("lead", 0.0), []
+            for ln in sc.get("lines", []):
+                m = cast.get(ln["who"], narr)
+                if ln.get("text") and m.get("voice"):
+                    spec = m["voice"]
+                    if ln.get("style"):
+                        spec = spec.split(":")[0] + ":" + ln["style"]
+                    v = get(spec)
+                    a = to_sr(v.say(speech_text(ln.get("say", ln["text"]), extra)), v.sr, m.get("pitch", 0) + ln.get("pitch", 0))
+                    clips.append((T0 + t, a))
+                    dur = len(a) / SR
+                    env = lip_env(a)
+                else:
+                    dur = ln.get("dur", 1.0)
+                    env = np.full(int(dur * FPS), 0.6)
+                for name, off in ln.get("sfx", []):
+                    sc.setdefault("sfx", []).append([name, t + off])
+                lines.append(dict(ln, start=t, dur=dur, env=env))
+                t += dur + ln.get("pause", 0.22)
+            sc["_lines"] = lines
+            sc["duration"] = max(sc.get("duration", 0), t + sc.get("tail", 0.35))
+        else:
+            text = sc.get("say") or (sc.get("text", "") + (" " + sc["sub"] if sc.get("sub") else ""))
+            if text.strip():
+                v = get(narr["voice"])
+                a = to_sr(v.say(speech_text(text, extra)), v.sr, narr.get("pitch", 0))
+                clips.append((T0 + LEAD, a))
+                sc["duration"] = max(sc.get("duration", 1.5), LEAD + len(a) / SR + sc.get("tail", 0.6))
+        T0 += dur_of(sc)
+    return clips
+
+
+def voice_bus_sr(clips, total):
+    bus = np.zeros(int((total + 1) * SR), np.float32)
+    for at, a in clips:
+        i = int(at * SR)
+        j = min(len(bus), i + len(a))
+        bus[i:j] += a[:j - i]
+    pcm = (np.clip(bus / (np.max(np.abs(bus)) or 1) * 0.9, -1, 1) * 32767).astype(np.int16).tobytes()
+    af = ("highpass=f=85,equalizer=f=280:t=q:w=1:g=-3,equalizer=f=3000:t=q:w=1.2:g=3.5,"
+          "equalizer=f=7000:t=q:w=1:g=2,acompressor=threshold=-20dB:ratio=3:attack=5:release=60:makeup=2")
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "s16le", "-ar", str(SR), "-ac", "1", "-i", "-",
+                          "-af", af, "-f", "f32le", "-ac", "1", "-"], input=pcm, capture_output=True).stdout
+    return np.frombuffer(raw, np.float32).astype(float)
 
 
 def voice_bus(clips, sr, total, pitch=0.0):
@@ -1160,7 +1330,12 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
         for i, s in enumerate(group):
             s["_label"] = s.get("label", f"{word} {i + 1}/{len(group)}")
     clips, vsr = [], None
-    if voice_path:
+    if script.get("cast"):
+        for sc in scenes:
+            sc["_subtitles"] = script.get("subtitles", True)
+        clips = plan_cast(scenes, script["cast"], script.get("pronounce"), speed)
+        vsr = "sr"
+    elif voice_path:
         v = Voice(voice_path, speed, speaker)
         vsr = v.sr
         clips = plan_voice(scenes, v, script.get("pronounce"))
@@ -1202,7 +1377,10 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
     wav = os.path.splitext(out)[0] + "_audio.wav"
     with wave.open(wav, "wb") as wf:
         wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(SR)
-        vb = voice_bus(clips, vsr, total, script.get("pitch", 0.0)) if clips else None
+        if vsr == "sr":
+            vb = voice_bus_sr(clips, total) if clips else None
+        else:
+            vb = voice_bus(clips, vsr, total, script.get("pitch", 0.0)) if clips else None
         wf.writeframes(synth_audio(total, events, bpm, beat_on, music, voice=vb, style=style).tobytes())
 
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
@@ -1216,7 +1394,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
     fr, T0 = 0, 0.0
     for si, (sc, d) in enumerate(zip(scenes, durs)):
         tp = sc.get("type")
-        sbg = sc.get("bg", bgs[si % len(bgs)])
+        sbg = sc.get("bg", bgs[si % len(bgs)]) if tp != "cartoon" else bgs[0]
         rays = 1.0 if tp in ("hook", "punch", "cta") else (0.5 if tp in FACT_TYPES else 0.0)
         fn = SCENES[tp]
         for i in range(int(round(d * FPS))):
@@ -1230,7 +1408,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             # Kamera: Zoom-Punch beim Schnitt, Wackeln bei Impact, leichtes Atmen im Beat
             zoom = 1 + 0.10 * (1 - ease_out(t / 0.25)) + 0.012 * math.exp(-((T % beat) / beat) * 5)
             shake = 22 * max(0, 1 - t / 0.3) if tp in ("hook", "punch") else 0
-            if tp == "story":  # langsamer Kamera-Zoom statt Beat-Pumpen
+            if tp in ("story", "cartoon"):  # langsamer Kamera-Zoom statt Beat-Pumpen
                 zoom = 1 + 0.06 * (t / max(d, 0.1)) + 0.04 * (1 - ease_out(t / 0.4))
                 shake = sc.get("fx", {}).get("shake", 0) * 26 * max(0.15, 1 - t / 0.6)
             if tp in ("quiz", "scan") and 0 <= t - think < 0.3:
@@ -1244,14 +1422,20 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
                 ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
                 composite(ov, z, -l, -tp_)
             img.alpha_composite(ov)
-            if script.get("cinematic"):
-                story_overlay(img, sc, t, fxcache)
+            if script.get("cinematic") or tp in ("story", "cartoon"):
+                story_overlay(img, sc, t, fxcache, grain=bool(script.get("cinematic")))
             dr = ImageDraw.Draw(img)
             dr.rectangle([0, 0, W, 12], fill=(0, 0, 0, 90))
             dr.rectangle([0, 0, W * (fr + 1) / total_frames, 12], fill=C["accent"] + (255,))
             if header:
                 hw = word_img(header, 58, "normal", C)
                 paste_scaled(img, hw, W / 2, 200)
+            if script.get("title_bar"):
+                ft = font("black", 62)
+                tb = script["title_bar"].upper()
+                tw = ft.getlength(tb)
+                dr.rectangle([W / 2 - tw / 2 - 28, 165, W / 2 + tw / 2 + 28, 255], fill=(255, 255, 255, 255))
+                dr.text((W / 2, 210), tb, font=ft, fill=(10, 10, 10, 255), anchor="mm")
             frame = img.convert("RGB")
             if tp in ("hook", "punch") and t < 0.1:
                 frame = Image.blend(frame, Image.new("RGB", (W, H), (255, 255, 255)), 0.55 * (1 - t / 0.1))

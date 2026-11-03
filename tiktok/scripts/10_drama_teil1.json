@@ -1,16 +1,14 @@
 {
   "title": "TAG 0 – Teil 1: Der Biss",
-  "header": "TAG 0 · TEIL 1",
-  "voice": "thorsten-high",
-  "speed": 1.08,
-  "pitch": -1,
+  "title_bar": "TAG 0 · Teil 1",
+  "speed": 1.0,
   "bpm": 68,
   "music_style": "drama",
-  "cinematic": true,
+  "subtitles": true,
   "theme": {
     "bgs": [
       [
-        "#1c1917",
+        "#111111",
         "#000000"
       ]
     ],
@@ -20,448 +18,391 @@
     "active": "#fca5a5"
   },
   "particles": [],
-  "caption": "TAG 0 – Teil 1 🧟 Die Welt endet an einem ganz normalen Dienstag … Teil 2 kommt morgen 👀\n\n#story #zombie #drama #apokalypse #storytime #serie #fyp",
+  "cast": {
+    "erzähler": {
+      "voice": "thorsten-high",
+      "pitch": -1
+    },
+    "ich": {
+      "name": "Ich",
+      "voice": "thorsten-high",
+      "color": "#60a5fa",
+      "look": {
+        "hair": "short",
+        "hair_color": "#3b2414",
+        "shirt": "#2563eb",
+        "jacket": "#1e3a8a",
+        "pants": "#1f2937"
+      }
+    },
+    "jonas": {
+      "name": "Jonas",
+      "voice": "thorsten_emotional:neutral",
+      "pitch": 2,
+      "color": "#f59e0b",
+      "look": {
+        "hair": "cap",
+        "hair_color": "#f59e0b",
+        "shirt": "#b91c1c",
+        "pants": "#111827"
+      }
+    },
+    "mia": {
+      "name": "Mia",
+      "voice": "kerstin",
+      "pitch": 2,
+      "color": "#f472b6",
+      "size": 0.86,
+      "look": {
+        "hair": "pigtails",
+        "hair_color": "#7c2d12",
+        "shirt": "#ec4899",
+        "pants": "#1e3a8a",
+        "bandage": true
+      }
+    },
+    "zombie": {
+      "name": "???",
+      "color": "#84cc16",
+      "look": {
+        "skin": "#8fbc6a",
+        "zombie": true,
+        "hair": "messy",
+        "hair_color": "#3f3f46",
+        "shirt": "#64748b",
+        "pants": "#334155"
+      }
+    }
+  },
+  "caption": "TAG 0 – Teil 1 🧟 Der Tag, an dem die Welt endete … Teil 2 kommt morgen 👀\n\n#zombie #story #drama #animation #cartoon #serie #fyp",
   "scenes": [
     {
-      "type": "story",
-      "bg": [
-        "#450a0a",
-        "#000000"
-      ],
-      "fx": {
-        "flash": "red",
-        "shake": 0.8
-      },
-      "text": "Ich dachte immer, Zombies gibt es nur in Filmen. Dann kam dieser *Dienstag*.",
-      "actors": [
-        {
-          "e": "🧟",
-          "x": 0.5,
-          "y": 0.42,
-          "s": 525,
-          "to": [
-            0.5,
-            0.4
-          ],
-          "bob": 0.4,
-          "sway": 1,
-          "pulse": true
-        }
-      ],
-      "sfx": [
-        [
-          "growl",
-          0.6
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#1e293b",
-        "#020617"
-      ],
+      "type": "cartoon",
+      "bg": "supermarket",
       "fx": {
         "siren": true
       },
-      "text": "Ich stand an der Kasse im Supermarkt. Plötzlich heulten überall die *Sirenen*.",
-      "actors": [
+      "show": [
         {
-          "e": "🏪",
+          "who": "ich",
           "x": 0.5,
-          "y": 0.36,
-          "s": 700,
-          "alpha": 0.9,
-          "pop": false
+          "expr": "tired"
+        }
+      ],
+      "lines": [
+        {
+          "who": "erzähler",
+          "text": "Dienstag, siebzehn Uhr. Der Tag, an dem die Welt endete."
         },
         {
-          "e": "🧍",
-          "x": 0.3,
-          "y": 0.55,
-          "s": 250
-        },
-        {
-          "e": "🧍",
-          "x": 0.7,
-          "y": 0.56,
-          "s": 225,
-          "at": 0.3
+          "who": "ich",
+          "text": "Einmal die Chips, bitte. Warte mal … warum heulen da draußen die Sirenen?",
+          "expr": "neutral"
         }
       ],
       "sfx": [
         [
           "siren",
-          0.2
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#1e293b",
-        "#020617"
-      ],
-      "fx": {
-        "siren": true,
-        "shake": 0.4
-      },
-      "tail": 0.9,
-      "size": 96,
-      "text": "Alle rannten zu den Ausgängen. Einkaufswagen krachten *ineinander*.",
-      "actors": [
-        {
-          "e": "🛒",
-          "x": 0.1,
-          "y": 0.48,
-          "s": 300,
-          "to": [
-            0.42,
-            0.48
-          ],
-          "dur": 1.2
-        },
-        {
-          "e": "🛒",
-          "x": 0.9,
-          "y": 0.5,
-          "s": 300,
-          "to": [
-            0.6,
-            0.5
-          ],
-          "dur": 1.2,
-          "flip": true
-        },
-        {
-          "e": "💥",
-          "x": 0.51,
-          "y": 0.45,
-          "s": 280,
-          "at": 1.2
-        }
-      ],
-      "sfx": [
-        [
-          "boom",
-          1.2
+          0.3
         ]
       ]
     },
     {
-      "type": "story",
-      "bg": [
-        "#450a0a",
-        "#0a0000"
+      "type": "cartoon",
+      "bg": "supermarket",
+      "show": [
+        {
+          "who": "ich",
+          "x": 0.3,
+          "expr": "neutral"
+        },
+        {
+          "who": "zombie",
+          "x": 0.72,
+          "from": 1.3,
+          "enter": 1.4,
+          "pose": "zombie",
+          "expr": "zombie"
+        }
       ],
+      "lines": [
+        {
+          "who": "zombie",
+          "dur": 1.4,
+          "sfx": [
+            [
+              "growl",
+              0.1
+            ]
+          ]
+        },
+        {
+          "who": "ich",
+          "text": "Ähm … geht es Ihnen gut? Sie sehen echt grün aus.",
+          "expr": "tired"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "supermarket",
       "fx": {
         "flash": "red",
         "shake": 1.0,
         "tint": "#ff0000",
-        "tint_alpha": 35
+        "tint_alpha": 30
       },
-      "text": "Ein Mann stürzte auf die Kassiererin zu. Und *biss* zu.",
-      "actors": [
+      "show": [
         {
-          "e": "🧟",
-          "x": 0.85,
-          "y": 0.45,
-          "s": 375,
-          "to": [
-            0.58,
-            0.45
-          ],
-          "dur": 1.2,
-          "bob": 1,
-          "flip": true
-        },
-        {
-          "e": "😱",
-          "x": 0.32,
-          "y": 0.45,
-          "s": 350,
-          "pulse": true
-        }
-      ],
-      "sfx": [
-        [
-          "growl",
-          0.4
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#111827",
-        "#000000"
-      ],
-      "text": "Dann vibrierte mein Handy. Meine kleine Schwester *Mia*.",
-      "chat": {
-        "from": "Mia 💔",
-        "text": "Komm nach Hause. Bitte. SCHNELL.",
-        "at": 0.4,
-        "typing": 1.0
-      },
-      "actors": [
-        {
-          "e": "📱",
+          "who": "zombie",
           "x": 0.5,
-          "y": 0.52,
-          "s": 325,
-          "bob": 0.3,
-          "bob_speed": 30
+          "scale": 1.15,
+          "pose": "zombie",
+          "expr": "zombie"
         }
       ],
-      "sfx": [
-        [
-          "vibrate",
-          0.3
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#1f2937",
-        "#030712"
-      ],
-      "fx": {
-        "rain": true,
-        "shake": 0.3
-      },
-      "text": "Ich rannte. Die Straßen waren *voll* von ihnen.",
-      "actors": [
+      "lines": [
         {
-          "e": "🏃",
-          "x": 0.15,
-          "y": 0.52,
-          "s": 300,
-          "to": [
-            0.45,
-            0.52
-          ],
-          "bob": 1.2,
-          "bob_speed": 12,
-          "flip": true
+          "who": "zombie",
+          "dur": 1.0,
+          "sfx": [
+            [
+              "growl",
+              0.0
+            ]
+          ]
         },
         {
-          "e": "🧟",
-          "x": 1.05,
-          "y": 0.4,
-          "s": 250,
-          "to": [
-            0.75,
-            0.4
-          ],
-          "bob": 0.8,
-          "flip": true
-        },
-        {
-          "e": "🧟",
-          "x": 1.15,
-          "y": 0.55,
-          "s": 287,
-          "to": [
-            0.82,
-            0.55
-          ],
-          "bob": 0.8,
-          "flip": true,
-          "at": 0.4
-        },
-        {
-          "e": "🧟",
-          "x": 1.2,
-          "y": 0.3,
-          "s": 212,
-          "to": [
-            0.92,
-            0.3
-          ],
-          "bob": 0.8,
-          "flip": true,
-          "at": 0.8
-        }
-      ],
-      "sfx": [
-        [
-          "growl",
-          1.0
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#1f2937",
-        "#030712"
-      ],
-      "fx": {
-        "rain": true
-      },
-      "text": "Dann quietschten Reifen. *Jonas*. Mein bester Freund. Er hat mir das Leben gerettet.",
-      "actors": [
-        {
-          "e": "🚗",
-          "x": -0.2,
-          "y": 0.5,
-          "s": 412,
-          "to": [
-            0.45,
-            0.5
-          ],
-          "dur": 1.0
-        },
-        {
-          "e": "🧑",
-          "x": 0.75,
-          "y": 0.36,
-          "s": 250,
-          "at": 1.3
-        }
-      ],
-      "sfx": [
-        [
-          "honk",
-          0.9
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#111827",
-        "#000000"
-      ],
-      "fx": {
-        "shake": 0.35,
-        "rain": true
-      },
-      "tail": 0.9,
-      "size": 96,
-      "text": "Jonas fuhr wie ein Verrückter. Er sagte die ganze Fahrt *kein einziges Wort*.",
-      "actors": [
-        {
-          "e": "🚗",
-          "x": 0.5,
-          "y": 0.46,
-          "s": 420,
-          "bob": 0.3,
-          "bob_speed": 18
+          "who": "ich",
+          "text": "Okay. Nein. NEIN!",
+          "expr": "shock"
         }
       ]
     },
     {
-      "type": "story",
-      "bg": [
-        "#0c0a09",
-        "#000000"
-      ],
+      "type": "cartoon",
+      "bg": "street_night",
       "fx": {
-        "dark": 0.2
+        "rain": true
       },
-      "text": "Zu Hause saß Mia im Dunkeln. Ihr Arm war *verbunden*.",
-      "actors": [
+      "show": [
         {
-          "e": "🏠",
+          "who": "ich",
           "x": 0.5,
-          "y": 0.35,
-          "s": 525,
-          "alpha": 0.5,
-          "pop": false
-        },
-        {
-          "e": "👧",
-          "x": 0.5,
-          "y": 0.5,
-          "s": 325
-        },
-        {
-          "e": "🩹",
-          "x": 0.62,
-          "y": 0.56,
-          "s": 137,
-          "at": 1.2
+          "pose": "run",
+          "expr": "shock"
         }
       ],
-      "sfx": [
-        [
-          "door",
-          0.2
-        ]
-      ],
-      "size": 96,
-      "tail": 0.9
-    },
-    {
-      "type": "story",
-      "bg": [
-        "#0c0a09",
-        "#000000"
-      ],
-      "text": "Er hat mich gebissen, flüsterte sie. Aber ich fühle mich *ganz normal*.",
-      "actors": [
+      "chat": {
+        "from": "Mia 💔",
+        "text": "Komm nach Hause. Bitte. SCHNELL.",
+        "at": 2.2,
+        "typing": 0.9
+      },
+      "lines": [
         {
-          "e": "👧",
-          "x": 0.5,
-          "y": 0.43,
-          "s": 575,
-          "to": [
-            0.5,
-            0.42
-          ],
-          "pulse": true
+          "who": "ich",
+          "text": "Mia geht nicht an ihr Handy. Komm schon, komm schon …",
+          "pose": "run",
+          "expr": "angry",
+          "sfx": [
+            [
+              "vibrate",
+              2.4
+            ]
+          ]
         }
       ],
-      "size": 96,
-      "tail": 0.9
+      "tail": 1.8
     },
     {
-      "type": "story",
-      "bg": [
-        "#450a0a",
-        "#000000"
+      "type": "cartoon",
+      "bg": "street_night",
+      "fx": {
+        "rain": true
+      },
+      "show": [
+        {
+          "who": "ich",
+          "x": 0.28,
+          "expr": "shock"
+        },
+        {
+          "who": "jonas",
+          "x": 0.72,
+          "from": 1.3,
+          "enter": 0.5,
+          "expr": "angry"
+        }
       ],
+      "lines": [
+        {
+          "who": "jonas",
+          "text": "Hey! Steig ein! Wenn du hier stehen bleibst, bist du Hackfleisch!",
+          "expr": "angry",
+          "sfx": [
+            [
+              "honk",
+              0.0
+            ]
+          ]
+        },
+        {
+          "who": "ich",
+          "text": "Jonas?! Woher wusstest du, wo ich bin?",
+          "expr": "shock"
+        },
+        {
+          "who": "jonas",
+          "text": "Ähm … Zufall.",
+          "expr": "smirk",
+          "expr_after": "smirk"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "street_night",
+      "fx": {
+        "rain": true,
+        "shake": 0.15
+      },
+      "show": [
+        {
+          "who": "ich",
+          "x": 0.28,
+          "expr": "tired"
+        },
+        {
+          "who": "jonas",
+          "x": 0.72,
+          "expr": "neutral"
+        }
+      ],
+      "lines": [
+        {
+          "who": "ich",
+          "text": "Jonas, was ist hier los?!",
+          "expr": "shock"
+        },
+        {
+          "who": "jonas",
+          "text": "Keine Ahnung, Mann. Im Radio sagen sie, es fing heute Morgen an."
+        },
+        {
+          "who": "ich",
+          "text": "Und warum bist du so ruhig?",
+          "expr": "tired"
+        },
+        {
+          "who": "jonas",
+          "text": "Bin ich doch gar nicht.",
+          "expr": "smirk",
+          "expr_after": "smirk"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "living_room",
+      "fx": {
+        "dark": 0.15
+      },
+      "show": [
+        {
+          "who": "ich",
+          "x": 0.28,
+          "expr": "neutral"
+        },
+        {
+          "who": "mia",
+          "x": 0.72,
+          "pose": "sad",
+          "expr": "sad"
+        }
+      ],
+      "lines": [
+        {
+          "who": "ich",
+          "text": "Mia! Was ist mit deinem Arm passiert?",
+          "expr": "shock",
+          "sfx": [
+            [
+              "door",
+              0.0
+            ]
+          ]
+        },
+        {
+          "who": "mia",
+          "text": "Einer von denen hat mich gebissen. Aber … ich fühl mich ganz normal.",
+          "expr": "sad"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "living_room",
       "fx": {
         "tint": "#7f1d1d",
-        "tint_alpha": 40
+        "tint_alpha": 45
       },
-      "text": "Jonas wurde ganz still. Dann nahm er sein Handy und flüsterte: Ich habe sie gefunden. *Die Immune*.",
-      "actors": [
+      "show": [
         {
-          "e": "🧑",
-          "x": 0.42,
-          "y": 0.44,
-          "s": 425
-        },
-        {
-          "e": "📱",
-          "x": 0.66,
-          "y": 0.47,
-          "s": 200,
-          "at": 1.5
+          "who": "jonas",
+          "x": 0.5,
+          "scale": 1.12,
+          "pose": "phone",
+          "expr": "tired"
         }
       ],
-      "sfx": [
-        [
-          "riser",
-          4.0
-        ]
+      "lines": [
+        {
+          "who": "jonas",
+          "text": "Ich hab sie gefunden. Die Immune. Kommt sofort.",
+          "style": "whisper",
+          "pose": "phone",
+          "sfx": [
+            [
+              "riser",
+              0.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "living_room",
+      "fx": {
+        "dark": 0.1
+      },
+      "show": [
+        {
+          "who": "ich",
+          "x": 0.28,
+          "expr": "tired"
+        },
+        {
+          "who": "jonas",
+          "x": 0.72,
+          "expr": "neutral"
+        }
       ],
-      "tail": 0.9,
-      "size": 96
+      "lines": [
+        {
+          "who": "ich",
+          "text": "Jonas … mit wem telefonierst du da?",
+          "expr": "tired"
+        },
+        {
+          "who": "jonas",
+          "text": "Mit … niemandem.",
+          "expr": "smirk",
+          "expr_after": "smirk"
+        }
+      ],
+      "tail": 0.8
     },
     {
       "type": "cta",
