@@ -23,7 +23,8 @@ Alle Texte auf dem Bildschirm werden automatisch vorgelesen (Piper, läuft offli
 so lang, wie die Stimme braucht; die Untertitel laufen im Takt der Sprache mit, und die Musik wird beim
 Sprechen automatisch leiser. Im Skript einstellbar:
 
-- `"voice": "thorsten"` (oder `kerstin`, `ramona`, `none`), `"speed": 0.92` (kleiner = schneller)
+- `"voice"`: `thorsten-high` (Standard, sehr klar), `thorsten_emotional:amused` (fröhlich), `thorsten_emotional:surprised`, `kerstin`, `ramona` oder `none`
+- `"speed": 0.92` (kleiner = schneller), `"pitch": 1` (Stimme in Halbtönen höher)
 - `"pronounce": {"Wort": "Aussprache"}` für Wörter, die falsch klingen
 - pro Szene `"say"` / `"say_reveal"`, wenn etwas anderes gesprochen werden soll als auf dem Bildschirm steht
 
@@ -38,6 +39,7 @@ Ergebnis in `tiktok/output/`: `<name>.mp4` + `<name>_caption.txt` (Beschreibung 
 | `captions` | Erklärung als Wort-für-Wort-Untertitel | `text`, `emoji`, `per_word` |
 | `quiz` | Frage mit 2 Antworten, Countdown, Auflösung | `emoji`, `item`, `options`, `answer` (0/1), `fact`, `think` |
 | `scan` | KI-Scanner: Ladebalken, dann Ergebnis-Tonne | `emoji`, `item`, `result`, `bin` (gelb/rest/papier/bio/glas/pfand), `confidence`, `fact` |
+| `fact` | Fakten-Karte mit Zähler (FAKT 3/10), Schlagzeile + Erklärung | `emoji`, `text`, `sub` |
 | `cta` | Ende: Kommentar-/Follow-Aufforderung | `text`, `emoji`, `sub` |
 
 Global: `header` (bleibt oben stehen), `bpm`, `particles` (Hintergrund-Emojis), `theme`

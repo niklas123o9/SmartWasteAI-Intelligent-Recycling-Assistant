@@ -464,6 +464,27 @@ def s_cta(ov, sc, t, d, C, ev):
                 dr.text((W / 2 - tw / 2, cy - asc / 2 - 4), sc["sub"], font=f, fill=C["accent_text"])
 
 
+def s_fact(ov, sc, t, d, C, ev):
+    """Fakten-Karte: Zähler, Emoji, Schlagzeile, Erklärung (erscheint, wenn sie gesprochen wird)."""
+    dr = ImageDraw.Draw(ov)
+    if sc.get("_label"):
+        pill(dr, W / 2, SAFE_TOP + 40, sc["_label"], 46, C["accent"] + (255,), C["accent_text"] + (255,))
+    bouncing_emoji(ov, sc.get("emoji"), 260, W / 2, 560, t)
+    words = parse(sc["text"])
+    size, placed, h = fit(words, sc.get("size", 108), C, 430, 4)
+    top = 900 - h / 2
+    draw_words(ov, placed, top, t, 0.1, min(0.12, 1.2 / max(1, len(placed))))
+    if sc.get("sub"):
+        st = sc.get("_sub_t", 0.3 + len(placed) * 0.12)
+        _, sp, sh = fit(parse(sc["sub"]), 60, C, 300, 4)
+        y = max(top + h + 40, 1120)
+        k = (t - st) / 0.25
+        if k > 0:
+            dr.rounded_rectangle([MX - 20, y - 24, W - MX + 20, y + sh + 24], radius=36,
+                                 fill=(0, 0, 0, int(120 * clamp(k))))
+        draw_words(ov, sp, y, t, st, 0.035)
+
+
 BINS = {  # Farbe, Textfarbe
     "gelb": ((250, 204, 21), (20, 20, 20)), "rest": ((55, 65, 81), (255, 255, 255)),
     "papier": ((37, 99, 235), (255, 255, 255)), "bio": ((146, 64, 14), (255, 255, 255)),
@@ -534,12 +555,13 @@ def s_scan(ov, sc, t, d, C, ev):
                      1 + 1.2 * (1 - ease_out(rt / 0.3)), clamp(rt * 6), -12)
 
 
-SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta, "scan": s_scan}
+SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta, "scan": s_scan, "fact": s_fact}
 
 
 # ---------- Sprachausgabe (Piper, offline) ----------
 
-PRONOUNCE = {"SmartWasteAI": "Smart Wehst I Ei", "Red Flags": "Rädd Fläggs", "Red Flag": "Rädd Fläck",
+PRONOUNCE = {"SmartWasteAI": "Smart Wehst I Ei", "Coffee-to-go": "Koffi-tu-goh", "Vapes": "Wehps",
+             "Energy-Drink": "Enerdschi-Drink", "Fast Fashion": "Fast Fäschn", "1 %": "ein Prozent", "Red Flags": "Rädd Fläggs", "Red Flag": "Rädd Fläck",
              "Score": "Skohr", "Tetra Pak": "Tetra Pack", "Kommis": "Kommis"}
 LEAD = 0.12  # Sprechbeginn nach dem Schnitt
 
@@ -555,9 +577,12 @@ def speech_text(text, extra=None):
 
 
 class Voice:
-    def __init__(self, path, speed=0.92):
+    def __init__(self, path, speed=0.92, speaker=None):
         from piper import PiperVoice, SynthesisConfig
         self.v = PiperVoice.load(path)
+        sid = None
+        if speaker is not None:
+            sid = self.v.config.speaker_id_map.get(speaker, speaker) if isinstance(speaker, str) else speaker
         self.sr = self.v.config.sample_rate
         orig = self.v.phonemize
 
@@ -575,7 +600,7 @@ class Voice:
             return out
 
         self.v.phonemize = fixed
-        self.cfg = SynthesisConfig(length_scale=speed, noise_scale=0.6, noise_w_scale=0.7)
+        self.cfg = SynthesisConfig(speaker_id=sid, length_scale=speed, noise_scale=0.6, noise_w_scale=0.7)
 
     def say(self, text):
         gap = np.zeros(int(self.sr * 0.07), np.float32)
@@ -609,6 +634,14 @@ def plan_voice(scenes, voice, extra):
             sc["reveal"] = max(sc.get("reveal", base_rev), 0.12 + L(aa) + 0.35)
             sc.pop("duration", None)
             clips += [(T0 + LEAD, qa), (T0 + sc["think"] + 0.12, aa)]
+        elif tp == "fact":
+            a1 = say(sc.get("say", sc["text"]))
+            a2 = say(sc.get("say_sub", sc.get("sub", ""))) if sc.get("sub") or sc.get("say_sub") else np.zeros(1, np.float32)
+            gap = np.zeros(int(voice.sr * 0.18), np.float32)
+            a = np.concatenate([a1, gap, a2])
+            sc["_sub_t"] = LEAD + L(a1) + 0.1
+            sc["duration"] = max(sc.get("duration", 2.0), LEAD + L(a) + 0.35)
+            clips.append((T0 + LEAD, a))
         else:
             text = sc.get("say") or (sc["text"] + (" " + sc["sub"] if sc.get("sub") else ""))
             if tp == "hook" and sc.get("sub") and not sc.get("say"):
@@ -630,7 +663,7 @@ def plan_voice(scenes, voice, extra):
     return clips
 
 
-def voice_bus(clips, sr, total):
+def voice_bus(clips, sr, total, pitch=0.0):
     """Legt die Sprachclips auf eine Spur und veredelt sie (EQ, Kompressor) auf 44,1 kHz."""
     bus = np.zeros(int((total + 1) * sr), np.float32)
     for at, a in clips:
@@ -638,8 +671,11 @@ def voice_bus(clips, sr, total):
         j = min(len(bus), i + len(a))
         bus[i:j] += a[:j - i]
     pcm = (np.clip(bus / (np.max(np.abs(bus)) or 1) * 0.9, -1, 1) * 32767).astype(np.int16).tobytes()
-    af = ("highpass=f=75,equalizer=f=250:t=q:w=1:g=-2,equalizer=f=3200:t=q:w=1.2:g=3,"
-          "acompressor=threshold=-20dB:ratio=3:attack=5:release=60:makeup=2,aresample=%d" % SR)
+    af = ("highpass=f=85,equalizer=f=280:t=q:w=1:g=-3,equalizer=f=3000:t=q:w=1.2:g=3.5,"
+          "equalizer=f=7000:t=q:w=1:g=2,acompressor=threshold=-20dB:ratio=3:attack=5:release=60:makeup=2,"
+          "aresample=%d" % SR)
+    if pitch:
+        af = "rubberband=pitch=%.4f:formant=preserved," % (2 ** (pitch / 12)) + af
     raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "s16le", "-ar", str(sr), "-ac", "1", "-i", "-",
                           "-af", af, "-f", "f32le", "-ac", "1", "-"], input=pcm, capture_output=True).stdout
     return np.frombuffer(raw, np.float32).astype(float)
@@ -744,7 +780,7 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
 
 # ---------- Rendern ----------
 
-def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92):
+def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, speaker=None):
     th = script.get("theme", {})
     C = {"text": rgb(th.get("text", "#ffffff")), "accent": rgb(th.get("accent", "#facc15")),
          "accent_text": rgb(th.get("accent_text", "#111111")), "glow": rgb(th.get("glow", th.get("accent", "#facc15"))),
@@ -753,13 +789,13 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92):
     bpm = script.get("bpm", 128)
     beat = 60 / bpm
     scenes = script["scenes"]
-    for tp_, word in (("quiz", "FRAGE"), ("scan", "SCAN")):
+    for tp_, word in (("quiz", "FRAGE"), ("scan", "SCAN"), ("fact", "FAKT")):
         group = [s for s in scenes if s.get("type") == tp_]
         for i, s in enumerate(group):
             s["_label"] = s.get("label", f"{word} {i + 1}/{len(group)}")
     clips, vsr = [], None
     if voice_path:
-        v = Voice(voice_path, speed)
+        v = Voice(voice_path, speed, speaker)
         vsr = v.sr
         clips = plan_voice(scenes, v, script.get("pronounce"))
     durs = [dur_of(s) for s in scenes]
@@ -784,12 +820,14 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92):
             events.append(("ding", T0 + think))
         if tp == "cta":
             events.append(("pop", T0 + 0.9))
+        if tp == "fact" and sc.get("_sub_t"):
+            events.append(("pop", T0 + sc["_sub_t"]))
         T0 += d
 
     wav = os.path.splitext(out)[0] + "_audio.wav"
     with wave.open(wav, "wb") as wf:
         wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(SR)
-        vb = voice_bus(clips, vsr, total) if clips else None
+        vb = voice_bus(clips, vsr, total, script.get("pitch", 0.0)) if clips else None
         wf.writeframes(synth_audio(total, events, bpm, beat_on, music, voice=vb).tobytes())
 
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
@@ -803,7 +841,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92):
     for si, (sc, d) in enumerate(zip(scenes, durs)):
         tp = sc.get("type")
         sbg = sc.get("bg", bgs[si % len(bgs)])
-        rays = 1.0 if tp in ("hook", "punch", "cta") else 0.0
+        rays = 1.0 if tp in ("hook", "punch", "cta") else (0.5 if tp == "fact" else 0.0)
         fn = SCENES[tp]
         for i in range(int(round(d * FPS))):
             t = i / FPS
@@ -857,7 +895,7 @@ def main():
     ap.add_argument("-o", "--out")
     ap.add_argument("--music", help="eigene Audiodatei statt des generierten Beats")
     ap.add_argument("--no-beat", action="store_true", help="nur Soundeffekte (Trend-Sound in TikTok hinzufügen)")
-    ap.add_argument("--voice", help="Stimme: Name (thorsten, kerstin, ramona …) oder Pfad zu .onnx")
+    ap.add_argument("--voice", help="Stimme, z. B. thorsten-high, thorsten_emotional:amused, kerstin oder Pfad zu .onnx")
     ap.add_argument("--no-voice", action="store_true", help="ohne Vorlese-Stimme")
     ap.add_argument("--speed", type=float, default=None, help="Sprechtempo (<1 = schneller), Standard 0.92")
     a = ap.parse_args()
@@ -865,15 +903,23 @@ def main():
         script = json.load(f)
     out = a.out or os.path.join(HERE, "output", os.path.splitext(os.path.basename(a.script))[0] + ".mp4")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
-    voice_path = None
-    if not a.no_voice and script.get("voice", "thorsten") != "none":
-        name = a.voice or script.get("voice", "thorsten")
-        voice_path = name if name.endswith(".onnx") else os.path.join(HERE, "voices", f"de-{name}-low.onnx")
+    voice_path, speaker = None, None
+    if not a.no_voice and script.get("voice", "thorsten-high") != "none":
+        name = a.voice or script.get("voice", "thorsten-high")
+        if ":" in name:
+            name, speaker = name.split(":", 1)
+        voice_path = name
+        if not name.endswith(".onnx"):
+            for cand in (f"de_DE-{name}-high.onnx", f"de_DE-{name}-medium.onnx", f"de_DE-{name}.onnx",
+                         f"de-{name}-low.onnx", f"de-{name}.onnx"):
+                voice_path = os.path.join(HERE, "voices", cand)
+                if os.path.exists(voice_path):
+                    break
         if not os.path.exists(voice_path):
             print(f"Stimme nicht gefunden: {voice_path} (tiktok/get_voices.sh ausführen). Ohne Stimme weiter.",
                   file=sys.stderr)
             voice_path = None
-    render(script, out, a.music, not a.no_beat, voice_path, a.speed or script.get("speed", 0.92))
+    render(script, out, a.music, not a.no_beat, voice_path, a.speed or script.get("speed", 0.92), speaker)
 
 
 if __name__ == "__main__":
