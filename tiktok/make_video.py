@@ -379,7 +379,7 @@ def s_captions(ov, sc, t, d, C, ev):
     cstart = wt[chunk[0]] if wt else chunk[0] * pw
     k = (t - cstart) / 0.12
     s = 0.85 + 0.15 * ease_back(k)
-    top = (1050 if sc.get("emoji") else 900) - h / 2
+    top = sc.get("cap_y", 1050 if sc.get("emoji") else 900) - h / 2
     bouncing_emoji(ov, sc.get("emoji"), 240, W / 2, top - 200, t)
     for i, im, cx, cy in placed:
         paste_scaled(ov, im, cx, top + cy, s * (1.08 if chunk[i] == active else 1), clamp(k * 3))
@@ -657,6 +657,107 @@ def s_badge(ov, sc, t, d, C, ev):
                 paste_scaled(ov, emoji_img(row[1], 130), W / 2 + 230, 1175, ease_back(k3), clamp(k3 * 2))
 
 
+def ease_io(t):
+    t = clamp(t)
+    return t * t * (3 - 2 * t)
+
+
+def s_story(ov, sc, t, d, C, ev):
+    """Erzähl-Szene: bewegte Emoji-Figuren, Handy-Chat, Effekte und Untertitel."""
+    dr = ImageDraw.Draw(ov)
+    fx = sc.get("fx", {})
+    if fx.get("rain"):
+        rnd = random.Random(int(t * 30))
+        for _ in range(70):
+            x, y = rnd.uniform(0, W), rnd.uniform(0, H)
+            dr.line([(x, y), (x - 8, y + 46)], fill=(180, 200, 255, 70), width=3)
+    for a in sc.get("actors", []):
+        at = a.get("at", 0.0)
+        k = (t - at) / 0.35
+        if k <= 0:
+            continue
+        mv_k = ease_io((t - at) / a.get("dur", max(0.1, d - at)))
+        x0, y0 = a.get("x", 0.5), a.get("y", 0.45)
+        x1, y1 = a.get("to", [x0, y0])
+        x = (x0 + (x1 - x0) * mv_k) * W
+        y = (y0 + (y1 - y0) * mv_k) * H
+        y -= abs(math.sin(t * a.get("bob_speed", 7) + at)) * a.get("bob", 0) * 18
+        size = a.get("s", 220)
+        if a.get("pulse"):
+            size *= 1 + 0.06 * math.sin(t * 6)
+        im = emoji_img(a["e"], int(size))
+        if a.get("flip"):
+            im = im.transpose(Image.FLIP_LEFT_RIGHT)
+        sc_k = ease_back(k) if a.get("pop", True) else 1
+        ang = math.sin(t * a.get("bob_speed", 7)) * a.get("sway", 0) * 8
+        paste_scaled(ov, im, x, y, sc_k, clamp(k * 2) * a.get("alpha", 1.0), ang)
+    ch = sc.get("chat")
+    if ch:
+        at = ch.get("at", 0.3)
+        if t > at:
+            bx0, by0, bw = MX, 470, W - 2 * MX
+            f = font("bold", 50)
+            fn = font("black", 36)
+            k = ease_back((t - at) / 0.3)
+            typing = t - at < ch.get("typing", 0.8)
+            lines, cur = [], ""
+            for w in ch["text"].split():
+                if f.getlength(cur + " " + w) > bw - 80 and cur:
+                    lines.append(cur); cur = w
+                else:
+                    cur = (cur + " " + w).strip()
+            lines.append(cur)
+            bh = 90 + (60 if typing else 62 * len(lines))
+            ov_b = Image.new("RGBA", (bw, int(bh) + 10), (0, 0, 0, 0))
+            db = ImageDraw.Draw(ov_b)
+            db.rounded_rectangle([0, 0, bw - 1, bh], radius=40, fill=(255, 255, 255, 245))
+            db.text((40, 22), ch.get("from", ""), font=fn, fill=(37, 99, 235, 255))
+            if typing:
+                for j in range(3):
+                    r = 11 + 5 * max(0, math.sin(t * 9 - j))
+                    db.ellipse([50 + j * 46 - r, 100 - r, 50 + j * 46 + r, 100 + r], fill=(120, 120, 120, 255))
+            else:
+                for j, ln in enumerate(lines):
+                    db.text((40, 78 + j * 62), ln, font=f, fill=(15, 15, 15, 255))
+            paste_scaled(ov, ov_b, bx0 + bw / 2, by0 + bh / 2, k, clamp(k * 2))
+    cap = dict(sc)
+    cap["emoji"] = None
+    cap["cap_y"] = sc.get("cap_y", 1300)
+    cap.setdefault("size", 86)
+    s_captions(ov, cap, t, d, C, ev)
+
+
+def story_overlay(img, sc, t, fxcache):
+    """Kino-Effekte über dem fertigen Bild: Sirenenlicht, Farbstich, Blitz, Vignette, Filmkorn."""
+    fx = sc.get("fx", {})
+    if fx.get("siren"):
+        a = int(60 + 50 * math.sin(t * 9))
+        col = (255, 0, 40) if int(t * 2.2) % 2 == 0 else (30, 60, 255)
+        img.alpha_composite(Image.new("RGBA", (W, H), col + (max(0, a),)))
+    if fx.get("tint"):
+        img.alpha_composite(Image.new("RGBA", (W, H), rgb(fx["tint"]) + (int(fx.get("tint_alpha", 50)),)))
+    if fx.get("flash") and t < 0.25:
+        col = (255, 0, 0) if fx["flash"] == "red" else (255, 255, 255)
+        img.alpha_composite(Image.new("RGBA", (W, H), col + (int(170 * (1 - t / 0.25)),)))
+    if fx.get("dark"):
+        img.alpha_composite(Image.new("RGBA", (W, H), (0, 0, 0, int(fx["dark"] * 255))))
+    if "vig" not in fxcache:
+        yy, xx = np.mgrid[0:H // 4, 0:W // 4]
+        r = np.sqrt(((xx - W / 8) / (W / 8)) ** 2 + ((yy - H / 8) / (H / 8)) ** 2)
+        a = (np.clip(r - 0.55, 0, 1) / 0.6) ** 1.6 * 230
+        v = np.zeros((H // 4, W // 4, 4), np.uint8)
+        v[..., 3] = np.clip(a, 0, 230).astype(np.uint8)
+        fxcache["vig"] = Image.fromarray(v, "RGBA").resize((W, H), Image.BILINEAR)
+        rng = np.random.default_rng(3)
+        fxcache["grain"] = []
+        for _ in range(4):
+            g = rng.integers(0, 255, (H // 3, W // 3), dtype=np.uint8)
+            ga = np.dstack([g, g, g, np.full_like(g, 16)])
+            fxcache["grain"].append(Image.fromarray(ga, "RGBA").resize((W, H), Image.NEAREST))
+    img.alpha_composite(fxcache["vig"])
+    img.alpha_composite(fxcache["grain"][int(t * 24) % 4])
+
+
 BINS = {  # Farbe, Textfarbe
     "gelb": ((250, 204, 21), (20, 20, 20)), "rest": ((55, 65, 81), (255, 255, 255)),
     "papier": ((37, 99, 235), (255, 255, 255)), "bio": ((146, 64, 14), (255, 255, 255)),
@@ -728,7 +829,8 @@ def s_scan(ov, sc, t, d, C, ev):
 
 
 SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta, "scan": s_scan, "fact": s_fact,
-          "stat": s_stat, "bars": s_bars, "myth": s_myth, "calc": s_calc, "badge": s_badge}
+          "stat": s_stat, "bars": s_bars, "myth": s_myth, "calc": s_calc, "badge": s_badge,
+          "story": s_story}
 
 
 # ---------- Sprachausgabe (Piper, offline) ----------
@@ -865,11 +967,11 @@ def plan_voice(scenes, voice, extra):
             if tp == "hook" and sc.get("sub") and not sc.get("say"):
                 text = sc["text"].rstrip() + ("" if sc["text"].rstrip()[-1:] in ".!?" else ".") + " " + sc["sub"]
             a = say(text)
-            tail = {"captions": 0.25, "punch": 0.2, "hook": 0.35, "cta": 0.9}.get(tp, 0.3)
+            tail = sc.get("tail", {"captions": 0.25, "punch": 0.2, "hook": 0.35, "cta": 0.9, "story": 0.5}.get(tp, 0.3))
             vis = sc.get("duration", {"hook": 1.6, "punch": 1.0, "cta": 2.6}.get(tp, 1.0))
             sc["duration"] = max(vis, LEAD + L(a) + tail)
             clips.append((T0 + LEAD, a))
-            if tp == "captions":  # Karaoke-Timing grob an die Sprache koppeln
+            if tp in ("captions", "story"):  # Karaoke-Timing grob an die Sprache koppeln
                 words = [w for w, _ in parse(sc["text"]) if w != "\n"]
                 wts = [len(w) + 2 + (4 if w.endswith((".", "!", "?", ",", ":")) else 0) for w in words]
                 tot, acc, starts = sum(wts), 0, []
@@ -901,7 +1003,7 @@ def voice_bus(clips, sr, total, pitch=0.0):
 
 # ---------- Audio ----------
 
-def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice=None):
+def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice=None, style="beat"):
     n = int(total * SR) + SR
     mix = np.zeros(n)
     tt = lambda d: np.arange(int(d * SR)) / SR
@@ -936,6 +1038,27 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
                               "-f", "f32le", "-ac", "1", "-ar", str(SR), "-"], capture_output=True).stdout
         m = np.frombuffer(raw, np.float32).astype(float)
         mix[:min(n, len(m))] += m[:n] * music_volume
+    elif beat_on and style == "drama":
+        # Düstere Spannungsmusik: Drone, Moll-Flächen, Herzschlag
+        beat = 60 / bpm
+        x = np.arange(n) / SR
+        trem = 1 + 0.35 * np.sin(2 * np.pi * 0.2 * x)
+        mix += (np.sin(2 * np.pi * 55 * x) * 0.5 + np.sin(2 * np.pi * 82.41 * x) * 0.25) * trem * 0.6
+        chords = [[220, 261.6, 329.6], [174.6, 220, 261.6], [146.8, 174.6, 220], [164.8, 207.7, 246.9]]
+        bar_len = beat * 4
+        b = 0
+        while b * bar_len < total:
+            xx = tt(bar_len)
+            pad = sum(np.sin(2 * np.pi * f * xx) + 0.2 * np.sin(6 * np.pi * f * xx) for f in chords[b % 4]) / 3
+            pad *= np.minimum(1, xx / 1.2) * np.minimum(1, (bar_len - xx) / 0.8)
+            add(pad, b * bar_len, 0.22)
+            b += 1
+        k = 0
+        while k * beat < total:
+            add(kick(), k * beat, 0.5)
+            add(kick(), k * beat + 0.2, 0.3)
+            k += 1
+        mix[:n] += np.sin(2 * np.pi * (1760 + 8 * np.sin(2 * np.pi * 0.3 * x)) * x) * 0.025
     elif beat_on:
         beat = 60 / bpm
         roots = [55.0, 43.65, 65.41, 49.0]          # A, F, C, G
@@ -972,6 +1095,31 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
         elif kind == "pop":
             x = tt(0.08)
             add(np.sin(2 * np.pi * (500 + 2500 * x) * x) * np.exp(-x * 50), at, 0.35)
+        elif kind == "growl":
+            x = tt(1.0)
+            nz = np.convolve(rng.uniform(-1, 1, len(x)), np.ones(30) / 30, "same")
+            add(nz * (0.6 + 0.4 * np.sin(2 * np.pi * 28 * x)) * np.sin(np.pi * x) * 4, at, 0.7)
+        elif kind == "honk":
+            for o in (0, 0.42):
+                x = tt(0.32)
+                add(np.sign(np.sin(2 * np.pi * 415 * x)) * 0.5 + np.sign(np.sin(2 * np.pi * 520 * x)) * 0.5, at + o, 0.18)
+        elif kind == "siren":
+            x = tt(3.0)
+            f = np.where((x * 1.4).astype(int) % 2 == 0, 760, 960)
+            add(np.sin(2 * np.pi * np.cumsum(f) / SR) * np.minimum(1, x * 3) * np.minimum(1, (3 - x) * 3), at, 0.16)
+        elif kind == "riser":
+            x = tt(2.0)
+            add(np.diff(rng.uniform(-1, 1, len(x)), prepend=0) * (x / 2) ** 2, at, 0.5)
+        elif kind == "boom":
+            x = tt(1.6)
+            add(np.sin(2 * np.pi * (30 + 60 * np.exp(-x * 8)) * x) * np.exp(-x * 2.2), at, 1.0)
+        elif kind == "vibrate":
+            for o in (0, 0.5):
+                x = tt(0.3)
+                add(np.sin(2 * np.pi * 150 * x) * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 25 * x))), at + o, 0.35)
+        elif kind == "door":
+            x = tt(0.25)
+            add(np.sin(2 * np.pi * 90 * x) * np.exp(-x * 25) + noise(0.25, 40) * 0.5, at, 0.7)
         elif kind == "blip":
             add(tone([2400], 0.04, 120), at, 0.18)
         elif kind == "tick":
@@ -1022,9 +1170,18 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
 
     # Sound-Events vorab planen
     events, T0 = [], 0.0
+    style = script.get("music_style", "beat")
     for i, (sc, d) in enumerate(zip(scenes, durs)):
         tp = sc.get("type")
-        events.append(("impact" if tp in ("hook", "punch") or i == 0 else "whoosh", T0))
+        if style == "drama":
+            if sc.get("fx", {}).get("flash"):
+                events.append(("boom", T0))
+            elif i:
+                events.append(("whoosh", T0))
+        else:
+            events.append(("impact" if tp in ("hook", "punch") or i == 0 else "whoosh", T0))
+        for name, at_ in sc.get("sfx", []):
+            events.append((name, T0 + at_))
         if tp == "quiz":
             think = sc.get("think", 2.6)
             for k in range(math.ceil(think)):
@@ -1046,7 +1203,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
     with wave.open(wav, "wb") as wf:
         wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(SR)
         vb = voice_bus(clips, vsr, total, script.get("pitch", 0.0)) if clips else None
-        wf.writeframes(synth_audio(total, events, bpm, beat_on, music, voice=vb).tobytes())
+        wf.writeframes(synth_audio(total, events, bpm, beat_on, music, voice=vb, style=style).tobytes())
 
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
            "-r", str(FPS), "-i", "-", "-i", wav, "-map", "0:v", "-map", "1:a",
@@ -1055,6 +1212,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     total_frames = int(total * FPS)
     header = script.get("header")
+    fxcache = {}
     fr, T0 = 0, 0.0
     for si, (sc, d) in enumerate(zip(scenes, durs)):
         tp = sc.get("type")
@@ -1072,6 +1230,9 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             # Kamera: Zoom-Punch beim Schnitt, Wackeln bei Impact, leichtes Atmen im Beat
             zoom = 1 + 0.10 * (1 - ease_out(t / 0.25)) + 0.012 * math.exp(-((T % beat) / beat) * 5)
             shake = 22 * max(0, 1 - t / 0.3) if tp in ("hook", "punch") else 0
+            if tp == "story":  # langsamer Kamera-Zoom statt Beat-Pumpen
+                zoom = 1 + 0.06 * (t / max(d, 0.1)) + 0.04 * (1 - ease_out(t / 0.4))
+                shake = sc.get("fx", {}).get("shake", 0) * 26 * max(0.15, 1 - t / 0.6)
             if tp in ("quiz", "scan") and 0 <= t - think < 0.3:
                 shake = 14
             ox = math.sin(fr * 2.1) * shake
@@ -1083,6 +1244,8 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
                 ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
                 composite(ov, z, -l, -tp_)
             img.alpha_composite(ov)
+            if script.get("cinematic"):
+                story_overlay(img, sc, t, fxcache)
             dr = ImageDraw.Draw(img)
             dr.rectangle([0, 0, W, 12], fill=(0, 0, 0, 90))
             dr.rectangle([0, 0, W * (fr + 1) / total_frames, 12], fill=C["accent"] + (255,))

@@ -1,0 +1,338 @@
+{
+  "title": "TAG 0 – Teil 3: Das Labor",
+  "header": "TAG 0 · TEIL 3",
+  "voice": "thorsten-high",
+  "speed": 1.08,
+  "pitch": -1,
+  "bpm": 68,
+  "music_style": "drama",
+  "cinematic": true,
+  "theme": {
+    "bgs": [
+      [
+        "#1c1917",
+        "#000000"
+      ]
+    ],
+    "accent": "#ef4444",
+    "accent_text": "#ffffff",
+    "glow": "#7f1d1d",
+    "active": "#fca5a5"
+  },
+  "particles": [],
+  "caption": "TAG 0 – Teil 3 🧟 Mit diesem Twist hat keiner gerechnet … Soll es weitergehen? Schreib JA 👇\n\n#story #zombie #drama #plottwist #storytime #serie #fyp",
+  "scenes": [
+    {
+      "type": "story",
+      "bg": [
+        "#0f172a",
+        "#000000"
+      ],
+      "fx": {
+        "flash": "white",
+        "shake": 0.6
+      },
+      "text": "Sie brachten uns in ein Labor. Tief unter der *Stadt*.",
+      "actors": [
+        {
+          "e": "🏥",
+          "x": 0.5,
+          "y": 0.4,
+          "s": 550,
+          "alpha": 0.85,
+          "pop": false
+        },
+        {
+          "e": "🧪",
+          "x": 0.25,
+          "y": 0.58,
+          "s": 187,
+          "at": 1.0
+        },
+        {
+          "e": "🧪",
+          "x": 0.75,
+          "y": 0.58,
+          "s": 187,
+          "at": 1.3
+        }
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#083344",
+        "#020617"
+      ],
+      "fx": {
+        "tint": "#0ea5e9",
+        "tint_alpha": 25
+      },
+      "text": "Überall Glasröhren. Ärzte in weißen *Schutzanzügen*.",
+      "actors": [
+        {
+          "e": "🧪",
+          "x": 0.2,
+          "y": 0.35,
+          "s": 250
+        },
+        {
+          "e": "💉",
+          "x": 0.5,
+          "y": 0.3,
+          "s": 250,
+          "at": 0.4
+        },
+        {
+          "e": "🧪",
+          "x": 0.8,
+          "y": 0.35,
+          "s": 250,
+          "at": 0.8
+        },
+        {
+          "e": "🥼",
+          "x": 0.5,
+          "y": 0.55,
+          "s": 325,
+          "at": 1.4
+        }
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#083344",
+        "#020617"
+      ],
+      "text": "Dann ging eine Tür auf. Und *sie* kam herein.",
+      "actors": [
+        {
+          "e": "🚪",
+          "x": 0.75,
+          "y": 0.42,
+          "s": 450,
+          "pop": false
+        },
+        {
+          "e": "👩",
+          "x": 0.75,
+          "y": 0.45,
+          "s": 300,
+          "to": [
+            0.4,
+            0.45
+          ],
+          "at": 1.0,
+          "bob": 0.6
+        }
+      ],
+      "sfx": [
+        [
+          "door",
+          0.9
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#450a0a",
+        "#000000"
+      ],
+      "fx": {
+        "flash": "red",
+        "shake": 1.0
+      },
+      "text": "Es war unsere *Mutter*. Seit drei Jahren galt sie als tot.",
+      "actors": [
+        {
+          "e": "👩",
+          "x": 0.5,
+          "y": 0.42,
+          "s": 587,
+          "pulse": true
+        }
+      ],
+      "sfx": [
+        [
+          "boom",
+          0.0
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#14532d",
+        "#020617"
+      ],
+      "fx": {
+        "tint": "#16a34a",
+        "tint_alpha": 25
+      },
+      "text": "Ich habe das Virus nicht gemacht, um die Welt zu zerstören, sagte sie. Sondern um sie *neu zu starten*.",
+      "actors": [
+        {
+          "e": "👩",
+          "x": 0.35,
+          "y": 0.45,
+          "s": 375
+        },
+        {
+          "e": "🦠",
+          "x": 0.72,
+          "y": 0.38,
+          "s": 275,
+          "at": 2.0,
+          "pulse": true
+        }
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#1e1b4b",
+        "#000000"
+      ],
+      "text": "Mia ist nicht immun. Sie ist der *Anfang*.",
+      "actors": [
+        {
+          "e": "👧",
+          "x": 0.5,
+          "y": 0.45,
+          "s": 500,
+          "pulse": true
+        },
+        {
+          "e": "✨",
+          "x": 0.3,
+          "y": 0.3,
+          "s": 187,
+          "at": 1.2
+        },
+        {
+          "e": "✨",
+          "x": 0.72,
+          "y": 0.32,
+          "s": 187,
+          "at": 1.5
+        }
+      ],
+      "sfx": [
+        [
+          "riser",
+          0.3
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#450a0a",
+        "#000000"
+      ],
+      "fx": {
+        "siren": true,
+        "shake": 0.6
+      },
+      "text": "Dann ging der Alarm los. Die Toten waren im *Gebäude*.",
+      "actors": [
+        {
+          "e": "🚨",
+          "x": 0.5,
+          "y": 0.25,
+          "s": 250,
+          "pulse": true
+        },
+        {
+          "e": "🧟",
+          "x": 1.05,
+          "y": 0.5,
+          "s": 275,
+          "to": [
+            0.6,
+            0.5
+          ],
+          "bob": 0.8,
+          "flip": true
+        },
+        {
+          "e": "🧟",
+          "x": 1.2,
+          "y": 0.58,
+          "s": 300,
+          "to": [
+            0.8,
+            0.58
+          ],
+          "bob": 0.8,
+          "flip": true,
+          "at": 0.4
+        }
+      ],
+      "sfx": [
+        [
+          "siren",
+          0.2
+        ],
+        [
+          "growl",
+          1.2
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#1c1917",
+        "#000000"
+      ],
+      "fx": {
+        "tint": "#7f1d1d",
+        "tint_alpha": 35
+      },
+      "text": "Mama drückte mir einen Schlüssel in die Hand. Lauf, sagte sie. Und vertrau *niemandem*. Auch nicht Mia.",
+      "actors": [
+        {
+          "e": "🔑",
+          "x": 0.5,
+          "y": 0.42,
+          "s": 375,
+          "pulse": true,
+          "at": 0.5
+        }
+      ],
+      "sfx": [
+        [
+          "riser",
+          3.5
+        ]
+      ],
+      "tail": 0.9,
+      "size": 96
+    },
+    {
+      "type": "cta",
+      "emoji": "🧟",
+      "text": "Soll es *weitergehen*?",
+      "sub": "Schreib JA in die Kommentare",
+      "duration": 3.2,
+      "say": "Soll es weitergehen? Schreib Ja in die Kommentare."
+    }
+  ]
+}

@@ -1,0 +1,478 @@
+{
+  "title": "TAG 0 – Teil 1: Der Biss",
+  "header": "TAG 0 · TEIL 1",
+  "voice": "thorsten-high",
+  "speed": 1.08,
+  "pitch": -1,
+  "bpm": 68,
+  "music_style": "drama",
+  "cinematic": true,
+  "theme": {
+    "bgs": [
+      [
+        "#1c1917",
+        "#000000"
+      ]
+    ],
+    "accent": "#ef4444",
+    "accent_text": "#ffffff",
+    "glow": "#7f1d1d",
+    "active": "#fca5a5"
+  },
+  "particles": [],
+  "caption": "TAG 0 – Teil 1 🧟 Die Welt endet an einem ganz normalen Dienstag … Teil 2 kommt morgen 👀\n\n#story #zombie #drama #apokalypse #storytime #serie #fyp",
+  "scenes": [
+    {
+      "type": "story",
+      "bg": [
+        "#450a0a",
+        "#000000"
+      ],
+      "fx": {
+        "flash": "red",
+        "shake": 0.8
+      },
+      "text": "Ich dachte immer, Zombies gibt es nur in Filmen. Dann kam dieser *Dienstag*.",
+      "actors": [
+        {
+          "e": "🧟",
+          "x": 0.5,
+          "y": 0.42,
+          "s": 525,
+          "to": [
+            0.5,
+            0.4
+          ],
+          "bob": 0.4,
+          "sway": 1,
+          "pulse": true
+        }
+      ],
+      "sfx": [
+        [
+          "growl",
+          0.6
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#1e293b",
+        "#020617"
+      ],
+      "fx": {
+        "siren": true
+      },
+      "text": "Ich stand an der Kasse im Supermarkt. Plötzlich heulten überall die *Sirenen*.",
+      "actors": [
+        {
+          "e": "🏪",
+          "x": 0.5,
+          "y": 0.36,
+          "s": 700,
+          "alpha": 0.9,
+          "pop": false
+        },
+        {
+          "e": "🧍",
+          "x": 0.3,
+          "y": 0.55,
+          "s": 250
+        },
+        {
+          "e": "🧍",
+          "x": 0.7,
+          "y": 0.56,
+          "s": 225,
+          "at": 0.3
+        }
+      ],
+      "sfx": [
+        [
+          "siren",
+          0.2
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#1e293b",
+        "#020617"
+      ],
+      "fx": {
+        "siren": true,
+        "shake": 0.4
+      },
+      "tail": 0.9,
+      "size": 96,
+      "text": "Alle rannten zu den Ausgängen. Einkaufswagen krachten *ineinander*.",
+      "actors": [
+        {
+          "e": "🛒",
+          "x": 0.1,
+          "y": 0.48,
+          "s": 300,
+          "to": [
+            0.42,
+            0.48
+          ],
+          "dur": 1.2
+        },
+        {
+          "e": "🛒",
+          "x": 0.9,
+          "y": 0.5,
+          "s": 300,
+          "to": [
+            0.6,
+            0.5
+          ],
+          "dur": 1.2,
+          "flip": true
+        },
+        {
+          "e": "💥",
+          "x": 0.51,
+          "y": 0.45,
+          "s": 280,
+          "at": 1.2
+        }
+      ],
+      "sfx": [
+        [
+          "boom",
+          1.2
+        ]
+      ]
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#450a0a",
+        "#0a0000"
+      ],
+      "fx": {
+        "flash": "red",
+        "shake": 1.0,
+        "tint": "#ff0000",
+        "tint_alpha": 35
+      },
+      "text": "Ein Mann stürzte auf die Kassiererin zu. Und *biss* zu.",
+      "actors": [
+        {
+          "e": "🧟",
+          "x": 0.85,
+          "y": 0.45,
+          "s": 375,
+          "to": [
+            0.58,
+            0.45
+          ],
+          "dur": 1.2,
+          "bob": 1,
+          "flip": true
+        },
+        {
+          "e": "😱",
+          "x": 0.32,
+          "y": 0.45,
+          "s": 350,
+          "pulse": true
+        }
+      ],
+      "sfx": [
+        [
+          "growl",
+          0.4
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#111827",
+        "#000000"
+      ],
+      "text": "Dann vibrierte mein Handy. Meine kleine Schwester *Mia*.",
+      "chat": {
+        "from": "Mia 💔",
+        "text": "Komm nach Hause. Bitte. SCHNELL.",
+        "at": 0.4,
+        "typing": 1.0
+      },
+      "actors": [
+        {
+          "e": "📱",
+          "x": 0.5,
+          "y": 0.52,
+          "s": 325,
+          "bob": 0.3,
+          "bob_speed": 30
+        }
+      ],
+      "sfx": [
+        [
+          "vibrate",
+          0.3
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#1f2937",
+        "#030712"
+      ],
+      "fx": {
+        "rain": true,
+        "shake": 0.3
+      },
+      "text": "Ich rannte. Die Straßen waren *voll* von ihnen.",
+      "actors": [
+        {
+          "e": "🏃",
+          "x": 0.15,
+          "y": 0.52,
+          "s": 300,
+          "to": [
+            0.45,
+            0.52
+          ],
+          "bob": 1.2,
+          "bob_speed": 12,
+          "flip": true
+        },
+        {
+          "e": "🧟",
+          "x": 1.05,
+          "y": 0.4,
+          "s": 250,
+          "to": [
+            0.75,
+            0.4
+          ],
+          "bob": 0.8,
+          "flip": true
+        },
+        {
+          "e": "🧟",
+          "x": 1.15,
+          "y": 0.55,
+          "s": 287,
+          "to": [
+            0.82,
+            0.55
+          ],
+          "bob": 0.8,
+          "flip": true,
+          "at": 0.4
+        },
+        {
+          "e": "🧟",
+          "x": 1.2,
+          "y": 0.3,
+          "s": 212,
+          "to": [
+            0.92,
+            0.3
+          ],
+          "bob": 0.8,
+          "flip": true,
+          "at": 0.8
+        }
+      ],
+      "sfx": [
+        [
+          "growl",
+          1.0
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#1f2937",
+        "#030712"
+      ],
+      "fx": {
+        "rain": true
+      },
+      "text": "Dann quietschten Reifen. *Jonas*. Mein bester Freund. Er hat mir das Leben gerettet.",
+      "actors": [
+        {
+          "e": "🚗",
+          "x": -0.2,
+          "y": 0.5,
+          "s": 412,
+          "to": [
+            0.45,
+            0.5
+          ],
+          "dur": 1.0
+        },
+        {
+          "e": "🧑",
+          "x": 0.75,
+          "y": 0.36,
+          "s": 250,
+          "at": 1.3
+        }
+      ],
+      "sfx": [
+        [
+          "honk",
+          0.9
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#111827",
+        "#000000"
+      ],
+      "fx": {
+        "shake": 0.35,
+        "rain": true
+      },
+      "tail": 0.9,
+      "size": 96,
+      "text": "Jonas fuhr wie ein Verrückter. Er sagte die ganze Fahrt *kein einziges Wort*.",
+      "actors": [
+        {
+          "e": "🚗",
+          "x": 0.5,
+          "y": 0.46,
+          "s": 420,
+          "bob": 0.3,
+          "bob_speed": 18
+        }
+      ]
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#0c0a09",
+        "#000000"
+      ],
+      "fx": {
+        "dark": 0.2
+      },
+      "text": "Zu Hause saß Mia im Dunkeln. Ihr Arm war *verbunden*.",
+      "actors": [
+        {
+          "e": "🏠",
+          "x": 0.5,
+          "y": 0.35,
+          "s": 525,
+          "alpha": 0.5,
+          "pop": false
+        },
+        {
+          "e": "👧",
+          "x": 0.5,
+          "y": 0.5,
+          "s": 325
+        },
+        {
+          "e": "🩹",
+          "x": 0.62,
+          "y": 0.56,
+          "s": 137,
+          "at": 1.2
+        }
+      ],
+      "sfx": [
+        [
+          "door",
+          0.2
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#0c0a09",
+        "#000000"
+      ],
+      "text": "Er hat mich gebissen, flüsterte sie. Aber ich fühle mich *ganz normal*.",
+      "actors": [
+        {
+          "e": "👧",
+          "x": 0.5,
+          "y": 0.43,
+          "s": 575,
+          "to": [
+            0.5,
+            0.42
+          ],
+          "pulse": true
+        }
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#450a0a",
+        "#000000"
+      ],
+      "fx": {
+        "tint": "#7f1d1d",
+        "tint_alpha": 40
+      },
+      "text": "Jonas wurde ganz still. Dann nahm er sein Handy und flüsterte: Ich habe sie gefunden. *Die Immune*.",
+      "actors": [
+        {
+          "e": "🧑",
+          "x": 0.42,
+          "y": 0.44,
+          "s": 425
+        },
+        {
+          "e": "📱",
+          "x": 0.66,
+          "y": 0.47,
+          "s": 200,
+          "at": 1.5
+        }
+      ],
+      "sfx": [
+        [
+          "riser",
+          4.0
+        ]
+      ],
+      "tail": 0.9,
+      "size": 96
+    },
+    {
+      "type": "cta",
+      "emoji": "👀",
+      "text": "Teil 2 kommt *morgen*",
+      "sub": "Folg, um es nicht zu verpassen",
+      "duration": 3.0,
+      "fx": {
+        "flash": "red"
+      },
+      "say": "Teil 2 kommt morgen."
+    }
+  ]
+}

@@ -1,0 +1,338 @@
+{
+  "title": "TAG 0 – Teil 2: Der Verrat",
+  "header": "TAG 0 · TEIL 2",
+  "voice": "thorsten-high",
+  "speed": 1.08,
+  "pitch": -1,
+  "bpm": 68,
+  "music_style": "drama",
+  "cinematic": true,
+  "theme": {
+    "bgs": [
+      [
+        "#1c1917",
+        "#000000"
+      ]
+    ],
+    "accent": "#ef4444",
+    "accent_text": "#ffffff",
+    "glow": "#7f1d1d",
+    "active": "#fca5a5"
+  },
+  "particles": [],
+  "caption": "TAG 0 – Teil 2 🧟 Wem kannst du noch vertrauen? Teil 3 kommt morgen 👀\n\n#story #zombie #drama #apokalypse #storytime #serie #fyp",
+  "scenes": [
+    {
+      "type": "story",
+      "bg": [
+        "#450a0a",
+        "#000000"
+      ],
+      "fx": {
+        "flash": "red",
+        "shake": 0.8
+      },
+      "text": "Was ich damals nicht wusste: Jonas hatte uns seit *Wochen* beobachtet.",
+      "actors": [
+        {
+          "e": "🧑",
+          "x": 0.5,
+          "y": 0.45,
+          "s": 475,
+          "pulse": true
+        },
+        {
+          "e": "👀",
+          "x": 0.5,
+          "y": 0.25,
+          "s": 250,
+          "at": 1.2
+        }
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#0f172a",
+        "#000000"
+      ],
+      "fx": {
+        "shake": 0.5
+      },
+      "text": "Zwei Minuten später landete ein *Hubschrauber* vor unserem Haus.",
+      "actors": [
+        {
+          "e": "🏠",
+          "x": 0.5,
+          "y": 0.5,
+          "s": 450,
+          "alpha": 0.6,
+          "pop": false
+        },
+        {
+          "e": "🚁",
+          "x": 0.5,
+          "y": 0.1,
+          "s": 375,
+          "to": [
+            0.5,
+            0.3
+          ],
+          "bob": 0.3,
+          "bob_speed": 20
+        }
+      ],
+      "sfx": [
+        [
+          "boom",
+          0.4
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#1f2937",
+        "#030712"
+      ],
+      "fx": {
+        "rain": true
+      },
+      "text": "Ich packte Mia an der Hand und wir flohen durch den *Garten*.",
+      "actors": [
+        {
+          "e": "🏃",
+          "x": 0.75,
+          "y": 0.5,
+          "s": 300,
+          "to": [
+            0.2,
+            0.5
+          ],
+          "bob": 1.2,
+          "bob_speed": 12
+        },
+        {
+          "e": "👧",
+          "x": 0.9,
+          "y": 0.53,
+          "s": 237,
+          "to": [
+            0.38,
+            0.53
+          ],
+          "bob": 1.2,
+          "bob_speed": 12
+        }
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#052e16",
+        "#000000"
+      ],
+      "fx": {
+        "dark": 0.25
+      },
+      "text": "Im Wald hörten wir sie. *Hunderte*.",
+      "actors": [
+        {
+          "e": "🌲",
+          "x": 0.15,
+          "y": 0.4,
+          "s": 450,
+          "pop": false
+        },
+        {
+          "e": "🌲",
+          "x": 0.85,
+          "y": 0.38,
+          "s": 475,
+          "pop": false
+        },
+        {
+          "e": "🌲",
+          "x": 0.5,
+          "y": 0.3,
+          "s": 375,
+          "pop": false
+        },
+        {
+          "e": "🧟",
+          "x": 0.3,
+          "y": 0.55,
+          "s": 225,
+          "at": 0.8,
+          "bob": 0.6
+        },
+        {
+          "e": "🧟",
+          "x": 0.7,
+          "y": 0.57,
+          "s": 250,
+          "at": 1.1,
+          "bob": 0.6
+        },
+        {
+          "e": "🧟",
+          "x": 0.5,
+          "y": 0.6,
+          "s": 275,
+          "at": 1.4,
+          "bob": 0.6
+        }
+      ],
+      "sfx": [
+        [
+          "growl",
+          0.6
+        ],
+        [
+          "growl",
+          1.6
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#292524",
+        "#0c0a09"
+      ],
+      "text": "Am Waldrand stand eine alte Hütte. Eine Frau öffnete die Tür. Kommt rein, sagte sie. *Schnell*.",
+      "actors": [
+        {
+          "e": "🛖",
+          "x": 0.5,
+          "y": 0.4,
+          "s": 525,
+          "pop": false
+        },
+        {
+          "e": "👵",
+          "x": 0.5,
+          "y": 0.55,
+          "s": 275,
+          "at": 1.6
+        }
+      ],
+      "sfx": [
+        [
+          "door",
+          1.5
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#292524",
+        "#0c0a09"
+      ],
+      "fx": {
+        "tint": "#7f1d1d",
+        "tint_alpha": 35
+      },
+      "text": "Sie kannte Mias Namen. Obwohl wir ihn *nie* gesagt hatten.",
+      "actors": [
+        {
+          "e": "👵",
+          "x": 0.5,
+          "y": 0.43,
+          "s": 550,
+          "pulse": true
+        }
+      ],
+      "sfx": [
+        [
+          "riser",
+          1.0
+        ]
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#1c1917",
+        "#000000"
+      ],
+      "text": "Im Radio lief eine Durchsage: Belohnung für das immune Mädchen. *Eine Million*.",
+      "actors": [
+        {
+          "e": "📻",
+          "x": 0.5,
+          "y": 0.42,
+          "s": 375,
+          "bob": 0.2,
+          "bob_speed": 25
+        },
+        {
+          "e": "💰",
+          "x": 0.72,
+          "y": 0.3,
+          "s": 225,
+          "at": 2.5
+        }
+      ],
+      "size": 96,
+      "tail": 0.9
+    },
+    {
+      "type": "story",
+      "bg": [
+        "#450a0a",
+        "#000000"
+      ],
+      "fx": {
+        "flash": "red",
+        "shake": 0.7
+      },
+      "text": "Die Frau lächelte. Und schloss die Tür ab. *Von außen*.",
+      "actors": [
+        {
+          "e": "🚪",
+          "x": 0.5,
+          "y": 0.42,
+          "s": 475,
+          "pop": false
+        },
+        {
+          "e": "🔒",
+          "x": 0.5,
+          "y": 0.42,
+          "s": 250,
+          "at": 1.6
+        }
+      ],
+      "sfx": [
+        [
+          "door",
+          1.6
+        ]
+      ],
+      "tail": 0.9,
+      "size": 96
+    },
+    {
+      "type": "cta",
+      "emoji": "👀",
+      "text": "Teil 3: *Das Labor*",
+      "sub": "Folg, um es nicht zu verpassen",
+      "duration": 3.0,
+      "say": "Teil 3 kommt morgen. Das Labor."
+    }
+  ]
+}
