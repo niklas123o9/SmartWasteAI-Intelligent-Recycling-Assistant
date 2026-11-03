@@ -1,0 +1,298 @@
+{
+  "speed": 1.0,
+  "bpm": 66,
+  "music_style": "drama",
+  "subtitles": true,
+  "theme": {
+    "bgs": [
+      [
+        "#111111",
+        "#000000"
+      ]
+    ],
+    "accent": "#ef4444",
+    "accent_text": "#ffffff",
+    "glow": "#7f1d1d",
+    "active": "#fca5a5"
+  },
+  "particles": [],
+  "cast": {
+    "erzähler": {
+      "name": "Erzähler",
+      "voice": "thorsten-high",
+      "pitch": -1.5,
+      "color": "#e5e7eb"
+    },
+    "markus": {
+      "name": "Markus",
+      "voice": "thorsten_emotional",
+      "color": "#38bdf8",
+      "look": {
+        "hair": "short",
+        "hair_color": "#4a2c14",
+        "shirt": "#0ea5e9",
+        "pants": "#1f2937"
+      }
+    },
+    "sarah": {
+      "name": "Sarah",
+      "voice": "css10",
+      "color": "#f87171",
+      "size": 0.95,
+      "look": {
+        "hair": "long",
+        "hair_color": "#eab308",
+        "shirt": "#dc2626",
+        "pants": "#dc2626"
+      }
+    },
+    "daniel": {
+      "name": "Daniel",
+      "voice": "thorsten-high",
+      "pitch": -2.5,
+      "color": "#a3a3a3",
+      "look": {
+        "hair": "short",
+        "hair_color": "#111827",
+        "shirt": "#f8fafc",
+        "jacket": "#111827",
+        "pants": "#1f2937"
+      }
+    },
+    "lena": {
+      "name": "Lena",
+      "voice": "css10",
+      "pitch": 2.5,
+      "speed": 0.95,
+      "color": "#4ade80",
+      "size": 0.93,
+      "look": {
+        "hair": "bun",
+        "hair_color": "#78350f",
+        "glasses": true,
+        "shirt": "#16a34a",
+        "pants": "#334155"
+      }
+    }
+  },
+  "title": "Betrogen – Teil 2: Der beste Freund",
+  "title_bar": "BETROGEN · Teil 2",
+  "caption": "Wenn dein bester Freund dir direkt in die Augen lügt … 🍺💔 Teil 3 kommt morgen!\n\n#betrogen #drama #storytime #animation #beziehung #serie #fyp",
+  "scenes": [
+    {
+      "type": "cartoon",
+      "bg": "bar",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "tired"
+        },
+        {
+          "who": "daniel",
+          "x": 0.72,
+          "expr": "happy"
+        }
+      ],
+      "lines": [
+        {
+          "who": "erzähler",
+          "text": "Am nächsten Tag traf ich Daniel. Wie jeden Donnerstag.",
+          "emo": "cold"
+        },
+        {
+          "who": "daniel",
+          "text": "Na, alter Mann! Wie läuft's mit der Ehe?",
+          "emo": "happy",
+          "expr": "happy"
+        },
+        {
+          "who": "markus",
+          "text": "Gut. Richtig *gut*.",
+          "emo": "cold",
+          "expr": "tired"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "bar",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "tired"
+        },
+        {
+          "who": "daniel",
+          "x": 0.72,
+          "expr": "neutral"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Sag mal, Daniel. Hast du eigentlich gerade jemanden?",
+          "emo": "neutral"
+        },
+        {
+          "who": "daniel",
+          "text": "Ich? Nee. Also … nichts *Ernstes*.",
+          "emo": "nervous",
+          "expr": "tired"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "bar",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "angry"
+        },
+        {
+          "who": "daniel",
+          "x": 0.72,
+          "expr": "shock"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Komisch. Du riechst nach ihrem Parfum.",
+          "emo": "cold",
+          "expr": "tired"
+        },
+        {
+          "who": "daniel",
+          "text": "Nach … wessen *Parfum*?",
+          "emo": "nervous",
+          "expr": "shock"
+        },
+        {
+          "who": "markus",
+          "text": "Nach dem Parfum, das ich Sarah zu Weihnachten geschenkt habe!",
+          "emo": "angry",
+          "expr": "angry"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "bar",
+      "show": [
+        {
+          "who": "daniel",
+          "x": 0.5,
+          "scale": 1.08,
+          "pose": "phone",
+          "expr": "shock"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Wer schreibt dir da?",
+          "emo": "cold"
+        },
+        {
+          "who": "daniel",
+          "text": "Nur … meine *Mutter*.",
+          "emo": "nervous",
+          "expr": "tired",
+          "pose": "phone"
+        }
+      ],
+      "chat": {
+        "from": "Sarah",
+        "text": "Hat er was gemerkt?",
+        "at": 0.4,
+        "typing": 0.5,
+        "y": 880
+      },
+      "sfx": [
+        [
+          "vibrate",
+          0.2
+        ]
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "bar",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "scale": 1.08,
+          "expr": "sad"
+        }
+      ],
+      "lines": [
+        {
+          "who": "erzähler",
+          "text": "Er hat mir direkt in die Augen gelogen. Zwanzig Jahre Freundschaft.",
+          "emo": "sad"
+        },
+        {
+          "who": "markus",
+          "text": "Okay. Dann … bis Freitag, mein *Freund*.",
+          "emo": "cold",
+          "expr": "tired"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "street_night",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "expr": "sad",
+          "pose": "sad"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Freitag. Hotel Astoria. Zwanzig Uhr.",
+          "emo": "sad",
+          "expr": "sad"
+        },
+        {
+          "who": "markus",
+          "text": "Ich werde *da* sein.",
+          "emo": "cold",
+          "expr": "angry",
+          "sfx": [
+            [
+              "riser",
+              0.0
+            ]
+          ]
+        }
+      ],
+      "fx": {
+        "rain": true
+      },
+      "tail": 0.8
+    },
+    {
+      "type": "cta",
+      "emoji": "👀",
+      "text": "Teil 3 kommt *morgen*",
+      "sub": "Folg, um es nicht zu verpassen",
+      "duration": 3.0,
+      "fx": {
+        "flash": "red"
+      },
+      "say": "Teil 3 kommt morgen. Das Hotel."
+    }
+  ],
+  "pronounce": {
+    "Parfum": "Parföng"
+  }
+}

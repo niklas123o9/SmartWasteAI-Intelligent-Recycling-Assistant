@@ -1,0 +1,350 @@
+{
+  "speed": 1.0,
+  "bpm": 66,
+  "music_style": "drama",
+  "subtitles": true,
+  "theme": {
+    "bgs": [
+      [
+        "#111111",
+        "#000000"
+      ]
+    ],
+    "accent": "#ef4444",
+    "accent_text": "#ffffff",
+    "glow": "#7f1d1d",
+    "active": "#fca5a5"
+  },
+  "particles": [],
+  "cast": {
+    "erzähler": {
+      "name": "Erzähler",
+      "voice": "thorsten-high",
+      "pitch": -1.5,
+      "color": "#e5e7eb"
+    },
+    "markus": {
+      "name": "Markus",
+      "voice": "thorsten_emotional",
+      "color": "#38bdf8",
+      "look": {
+        "hair": "short",
+        "hair_color": "#4a2c14",
+        "shirt": "#0ea5e9",
+        "pants": "#1f2937"
+      }
+    },
+    "sarah": {
+      "name": "Sarah",
+      "voice": "css10",
+      "color": "#f87171",
+      "size": 0.95,
+      "look": {
+        "hair": "long",
+        "hair_color": "#eab308",
+        "shirt": "#dc2626",
+        "pants": "#dc2626"
+      }
+    },
+    "daniel": {
+      "name": "Daniel",
+      "voice": "thorsten-high",
+      "pitch": -2.5,
+      "color": "#a3a3a3",
+      "look": {
+        "hair": "short",
+        "hair_color": "#111827",
+        "shirt": "#f8fafc",
+        "jacket": "#111827",
+        "pants": "#1f2937"
+      }
+    },
+    "lena": {
+      "name": "Lena",
+      "voice": "css10",
+      "pitch": 2.5,
+      "speed": 0.95,
+      "color": "#4ade80",
+      "size": 0.93,
+      "look": {
+        "hair": "bun",
+        "hair_color": "#78350f",
+        "glasses": true,
+        "shirt": "#16a34a",
+        "pants": "#334155"
+      }
+    }
+  },
+  "title": "Betrogen – Teil 3: Das Hotel",
+  "title_bar": "BETROGEN · Teil 3",
+  "caption": "Er hat sie erwischt. Aber dann sagt sie DIESEN Satz … 😳 Teil 4 kommt morgen!\n\n#betrogen #drama #storytime #animation #beziehung #serie #fyp",
+  "scenes": [
+    {
+      "type": "cartoon",
+      "bg": "car_night",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "expr": "sad",
+          "scale": 1.05
+        }
+      ],
+      "lines": [
+        {
+          "who": "erzähler",
+          "text": "Freitag. Neunzehn Uhr achtundfünfzig.",
+          "emo": "cold"
+        },
+        {
+          "who": "markus",
+          "text": "Bitte lass mich falschliegen. *Bitte*.",
+          "emo": "whisper",
+          "expr": "sad"
+        }
+      ],
+      "fx": {
+        "rain": true
+      }
+    },
+    {
+      "type": "cartoon",
+      "bg": "hotel",
+      "show": [
+        {
+          "who": "daniel",
+          "x": 0.7,
+          "expr": "happy"
+        },
+        {
+          "who": "sarah",
+          "x": 0.3,
+          "expr": "happy",
+          "from": -0.2,
+          "enter": 0.9
+        }
+      ],
+      "lines": [
+        {
+          "who": "daniel",
+          "text": "Da bist du ja, Schönheit.",
+          "emo": "happy",
+          "expr": "happy"
+        },
+        {
+          "who": "sarah",
+          "text": "Ich hab dich so *vermisst*.",
+          "emo": "happy",
+          "expr": "happy"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "car_night",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "expr": "sad",
+          "scale": 1.05
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Nein. Nein, nein, *nein*.",
+          "emo": "cry",
+          "expr": "sad"
+        }
+      ],
+      "fx": {
+        "rain": true,
+        "shake": 0.2
+      }
+    },
+    {
+      "type": "cartoon",
+      "bg": "hotel",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.25,
+          "expr": "angry",
+          "from": -0.2,
+          "enter": 0.5
+        },
+        {
+          "who": "sarah",
+          "x": 0.72,
+          "expr": "shock",
+          "pose": "shock"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Zehn *Jahre*, Sarah! Zehn Jahre habe ich dir *vertraut*!",
+          "emo": "shout",
+          "expr": "angry"
+        },
+        {
+          "who": "sarah",
+          "text": "Markus?! Es ist nicht so, wie es *aussieht*!",
+          "emo": "cry",
+          "expr": "shock",
+          "pose": "shock"
+        }
+      ],
+      "fx": {
+        "flash": "red",
+        "shake": 0.8
+      },
+      "sfx": [
+        [
+          "boom",
+          0.0
+        ]
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "hotel",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "angry"
+        },
+        {
+          "who": "daniel",
+          "x": 0.72,
+          "expr": "tired",
+          "pose": "hips"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Und du, Daniel? Du warst mein *Trauzeuge*!",
+          "emo": "shout",
+          "expr": "angry"
+        },
+        {
+          "who": "daniel",
+          "text": "Sie war nicht glücklich, Markus. Das hast du nur nie *gesehen*.",
+          "emo": "cold",
+          "expr": "tired"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "hotel",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "tired"
+        },
+        {
+          "who": "sarah",
+          "x": 0.72,
+          "expr": "sad",
+          "pose": "sad"
+        }
+      ],
+      "lines": [
+        {
+          "who": "sarah",
+          "text": "Markus, warte! Ich muss dir noch etwas sagen!",
+          "emo": "cry",
+          "expr": "sad"
+        },
+        {
+          "who": "markus",
+          "text": "Es gibt nichts mehr zu sagen.",
+          "emo": "cold",
+          "expr": "tired"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "hotel",
+      "show": [
+        {
+          "who": "sarah",
+          "x": 0.5,
+          "scale": 1.1,
+          "expr": "sad"
+        }
+      ],
+      "lines": [
+        {
+          "who": "sarah",
+          "text": "Ich bin schwanger. Und ich weiß nicht, von *wem*.",
+          "emo": "sad",
+          "expr": "sad",
+          "sfx": [
+            [
+              "riser",
+              0.0
+            ]
+          ]
+        }
+      ],
+      "fx": {
+        "dark": 0.15
+      },
+      "tail": 0.4
+    },
+    {
+      "type": "cartoon",
+      "bg": "hotel",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "scale": 1.12,
+          "expr": "shock",
+          "pose": "shock"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Was … hast du gerade gesagt?",
+          "emo": "shock",
+          "expr": "shock",
+          "pose": "shock"
+        }
+      ],
+      "fx": {
+        "flash": "red",
+        "shake": 0.6
+      },
+      "sfx": [
+        [
+          "boom",
+          0.0
+        ]
+      ],
+      "tail": 0.8
+    },
+    {
+      "type": "cta",
+      "emoji": "👀",
+      "text": "Teil 4 kommt *morgen*",
+      "sub": "Folg, um es nicht zu verpassen",
+      "duration": 3.0,
+      "fx": {
+        "flash": "red"
+      },
+      "say": "Teil 4 kommt morgen."
+    }
+  ],
+  "pronounce": {
+    "Parfum": "Parföng"
+  }
+}

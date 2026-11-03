@@ -1,0 +1,339 @@
+{
+  "speed": 1.0,
+  "bpm": 66,
+  "music_style": "drama",
+  "subtitles": true,
+  "theme": {
+    "bgs": [
+      [
+        "#111111",
+        "#000000"
+      ]
+    ],
+    "accent": "#ef4444",
+    "accent_text": "#ffffff",
+    "glow": "#7f1d1d",
+    "active": "#fca5a5"
+  },
+  "particles": [],
+  "cast": {
+    "erzähler": {
+      "name": "Erzähler",
+      "voice": "thorsten-high",
+      "pitch": -1.5,
+      "color": "#e5e7eb"
+    },
+    "markus": {
+      "name": "Markus",
+      "voice": "thorsten_emotional",
+      "color": "#38bdf8",
+      "look": {
+        "hair": "short",
+        "hair_color": "#4a2c14",
+        "shirt": "#0ea5e9",
+        "pants": "#1f2937"
+      }
+    },
+    "sarah": {
+      "name": "Sarah",
+      "voice": "css10",
+      "color": "#f87171",
+      "size": 0.95,
+      "look": {
+        "hair": "long",
+        "hair_color": "#eab308",
+        "shirt": "#dc2626",
+        "pants": "#dc2626"
+      }
+    },
+    "daniel": {
+      "name": "Daniel",
+      "voice": "thorsten-high",
+      "pitch": -2.5,
+      "color": "#a3a3a3",
+      "look": {
+        "hair": "short",
+        "hair_color": "#111827",
+        "shirt": "#f8fafc",
+        "jacket": "#111827",
+        "pants": "#1f2937"
+      }
+    },
+    "lena": {
+      "name": "Lena",
+      "voice": "css10",
+      "pitch": 2.5,
+      "speed": 0.95,
+      "color": "#4ade80",
+      "size": 0.93,
+      "look": {
+        "hair": "bun",
+        "hair_color": "#78350f",
+        "glasses": true,
+        "shirt": "#16a34a",
+        "pants": "#334155"
+      }
+    }
+  },
+  "title": "Betrogen – Teil 1: Die Nachricht",
+  "title_bar": "BETROGEN · Teil 1",
+  "caption": "Zehn Jahre verheiratet … und dann diese eine Nachricht 💔 Teil 2 kommt morgen!\n\n#betrogen #drama #storytime #animation #beziehung #serie #fyp",
+  "scenes": [
+    {
+      "type": "cartoon",
+      "bg": "kitchen",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.3,
+          "expr": "happy",
+          "from": -0.2,
+          "enter": 0.8
+        }
+      ],
+      "lines": [
+        {
+          "who": "erzähler",
+          "text": "Unser zehnter Hochzeitstag. Ich wollte sie überraschen.",
+          "emo": "sad"
+        },
+        {
+          "who": "markus",
+          "text": "Schatz, ich bin früher zu Hause! Ich hab Blumen mitgebracht. Für *uns*.",
+          "emo": "happy",
+          "expr": "happy"
+        }
+      ],
+      "props": [
+        {
+          "e": "💐",
+          "x": 0.45,
+          "y": 0.47,
+          "s": 170,
+          "at": 2.5
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "kitchen",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "happy"
+        },
+        {
+          "who": "sarah",
+          "x": 0.72,
+          "expr": "shock"
+        }
+      ],
+      "lines": [
+        {
+          "who": "sarah",
+          "text": "Markus?! Du … du bist ja *schon* da.",
+          "emo": "nervous",
+          "expr": "shock"
+        },
+        {
+          "who": "markus",
+          "text": "Klar! Zehn Jahre, Sarah. Das muss gefeiert werden.",
+          "emo": "happy",
+          "expr": "happy"
+        }
+      ],
+      "props": [
+        {
+          "e": "💐",
+          "x": 0.12,
+          "y": 0.47,
+          "s": 150
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "kitchen",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "neutral"
+        },
+        {
+          "who": "sarah",
+          "x": 0.72,
+          "expr": "neutral"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Dein Handy. Da hat jemand geschrieben.",
+          "emo": "neutral",
+          "expr": "tired"
+        },
+        {
+          "who": "markus",
+          "text": "Kann es kaum erwarten, dich wiederzusehen. *D*.",
+          "emo": "cold",
+          "expr": "tired"
+        },
+        {
+          "who": "markus",
+          "text": "Und wer ist dieses *D*?",
+          "emo": "shock",
+          "expr": "shock"
+        }
+      ],
+      "chat": {
+        "from": "D.",
+        "text": "Kann es kaum erwarten, dich wiederzusehen.",
+        "at": 0.6,
+        "typing": 0.6,
+        "y": 880
+      },
+      "sfx": [
+        [
+          "vibrate",
+          0.3
+        ]
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "kitchen",
+      "show": [
+        {
+          "who": "sarah",
+          "x": 0.5,
+          "scale": 1.08,
+          "expr": "neutral"
+        }
+      ],
+      "lines": [
+        {
+          "who": "sarah",
+          "text": "Das ist … Diana. Aus dem Büro. Sie ist einfach *so*.",
+          "emo": "nervous",
+          "expr": "tired"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "kitchen",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "angry"
+        },
+        {
+          "who": "sarah",
+          "x": 0.72,
+          "expr": "angry"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Diana. Seit wann schickt dir Diana Herzchen?",
+          "emo": "cold",
+          "expr": "tired"
+        },
+        {
+          "who": "sarah",
+          "text": "Spionierst du mir jetzt etwa *nach*?!",
+          "emo": "angry",
+          "expr": "angry"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "bedroom",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "expr": "sad",
+          "pose": "phone"
+        }
+      ],
+      "lines": [
+        {
+          "who": "erzähler",
+          "text": "In dieser Nacht konnte ich nicht schlafen. Ihr Handy lag direkt neben mir.",
+          "emo": "sad"
+        },
+        {
+          "who": "markus",
+          "text": "Freitag, zwanzig Uhr. Hotel Astoria. *Er* darf nichts merken.",
+          "emo": "whisper",
+          "expr": "shock",
+          "pose": "phone"
+        }
+      ],
+      "fx": {
+        "dark": 0.15
+      },
+      "chat": {
+        "from": "D.",
+        "text": "Freitag, 20 Uhr. Hotel Astoria. Er darf nichts merken.",
+        "at": 3.0,
+        "typing": 0.6,
+        "y": 880
+      }
+    },
+    {
+      "type": "cartoon",
+      "bg": "bedroom",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "scale": 1.12,
+          "expr": "shock",
+          "pose": "shock"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "D … Daniel? Mein *bester* Freund?",
+          "emo": "cry",
+          "expr": "shock",
+          "pose": "shock"
+        }
+      ],
+      "fx": {
+        "flash": "red",
+        "shake": 0.7,
+        "dark": 0.15
+      },
+      "sfx": [
+        [
+          "boom",
+          0.0
+        ]
+      ],
+      "tail": 0.8
+    },
+    {
+      "type": "cta",
+      "emoji": "👀",
+      "text": "Teil 2 kommt *morgen*",
+      "sub": "Folg, um es nicht zu verpassen",
+      "duration": 3.0,
+      "fx": {
+        "flash": "red"
+      },
+      "say": "Teil 2 kommt morgen."
+    }
+  ],
+  "pronounce": {
+    "Parfum": "Parföng"
+  }
+}

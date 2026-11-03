@@ -172,13 +172,112 @@ def bg_lab():
     return im
 
 
+def bg_kitchen():
+    im = Image.new("RGB", (W, H), rgb("#fde7c8"))
+    d = ImageDraw.Draw(im)
+    for y in range(560, 960, 60):
+        for x in range(0, W, 60):
+            d.rectangle([x, y, x + 60, y + 60], fill=rgb("#f8fafc"), outline=rgb("#cbd5e1"), width=2)
+    d.rectangle([0, 280, W, 560], fill=rgb("#fde7c8"))
+    for x in (40, 380, 720):
+        d.rectangle([x, 300, x + 320, 520], fill=rgb("#0f766e"), outline=OUT, width=LW)
+        d.line([(x + 160, 300), (x + 160, 520)], fill=OUT, width=5)
+    d.rectangle([0, 960, W, 1240], fill=rgb("#115e59"), outline=OUT, width=LW)
+    d.rectangle([0, 940, W, 980], fill=rgb("#e2e8f0"), outline=OUT, width=LW)
+    d.rectangle([0, 1240, W, H], fill=rgb("#d6c2a8"))
+    for y in range(1270, H, 80):
+        d.line([(0, y), (W, y)], fill=rgb("#c4ae92"), width=4)
+    d.rounded_rectangle([760, 120, 900, 260], radius=70, fill=rgb("#ffffff"), outline=OUT, width=LW)
+    d.line([(830, 190), (830, 140)], fill=OUT, width=6)
+    d.line([(830, 190), (865, 205)], fill=OUT, width=6)
+    return im
+
+
+def bg_bedroom():
+    im = Image.new("RGB", (W, H), rgb("#1e1b4b"))
+    d = ImageDraw.Draw(im)
+    d.rectangle([380, 220, 700, 640], fill=rgb("#0b1026"), outline=OUT, width=LW)
+    d.ellipse([560, 270, 640, 350], fill=rgb("#e2e8f0"))
+    d.line([(540, 220), (540, 640)], fill=OUT, width=6)
+    d.rectangle([0, 1180, W, H], fill=rgb("#312e81"))
+    d.rounded_rectangle([60, 860, 1020, 1240], radius=40, fill=rgb("#4338ca"), outline=OUT, width=LW)
+    d.rounded_rectangle([40, 700, 1040, 900], radius=40, fill=rgb("#3730a3"), outline=OUT, width=LW)
+    d.rounded_rectangle([120, 880, 420, 990], radius=40, fill=rgb("#e0e7ff"), outline=OUT, width=LW)
+    d.rounded_rectangle([660, 880, 960, 990], radius=40, fill=rgb("#e0e7ff"), outline=OUT, width=LW)
+    d.rectangle([900, 1000, 1060, 1180], fill=rgb("#78350f"), outline=OUT, width=LW)
+    d.polygon([(930, 1000), (1030, 1000), (1000, 900), (960, 900)], fill=rgb("#fde68a"), outline=OUT)
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse([820, 800, 1140, 1120], fill=(253, 230, 138, 60))
+    return Image.alpha_composite(im.convert("RGBA"), glow.filter(ImageFilter.GaussianBlur(50))).convert("RGB")
+
+
+def bg_bar():
+    im = Image.new("RGB", (W, H), rgb("#2a1a12"))
+    d = ImageDraw.Draw(im)
+    for y in range(300, 960, 170):
+        d.rectangle([0, y + 120, W, y + 140], fill=rgb("#5b3a1e"), outline=OUT, width=4)
+        rnd = random.Random(y)
+        x = 30
+        while x < W - 40:
+            c = rnd.choice(["#16a34a", "#b45309", "#dc2626", "#0ea5e9", "#a16207"])
+            h = rnd.randint(70, 110)
+            d.rounded_rectangle([x, y + 120 - h, x + 36, y + 120], radius=10, fill=rgb(c), outline=OUT, width=3)
+            d.rectangle([x + 12, y + 120 - h - 25, x + 24, y + 120 - h], fill=rgb(c), outline=OUT, width=3)
+            x += rnd.randint(50, 80)
+    for x in (180, 540, 900):
+        d.line([(x, 0), (x, 160)], fill=OUT, width=5)
+        d.polygon([(x - 60, 220), (x + 60, 220), (x + 30, 160), (x - 30, 160)], fill=rgb("#f59e0b"), outline=OUT)
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    for x in (180, 540, 900):
+        gd.ellipse([x - 200, 180, x + 200, 600], fill=(251, 191, 36, 45))
+    im = Image.alpha_composite(im.convert("RGBA"), glow.filter(ImageFilter.GaussianBlur(60))).convert("RGB")
+    d = ImageDraw.Draw(im)
+    d.rectangle([0, 1180, W, 1260], fill=rgb("#78350f"), outline=OUT, width=LW)
+    d.rectangle([0, 1260, W, H], fill=rgb("#3f2a1d"))
+    return im
+
+
+def bg_hotel():
+    im = Image.new("RGB", (W, H), rgb("#f3e8d2"))
+    d = ImageDraw.Draw(im)
+    for x in range(0, W, 270):
+        d.rectangle([x + 100, 200, x + 160, 1180], fill=rgb("#e7d5b5"), outline=OUT, width=5)
+    d.rounded_rectangle([300, 270, 780, 370], radius=12, fill=rgb("#7c2d12"), outline=OUT, width=LW)
+    d.text((540, 320), "HOTEL ASTORIA", fill=rgb("#fde68a"), anchor="mm", font=_f(44))
+
+    d.rectangle([0, 1180, W, H], fill=rgb("#7f1d1d"))
+    d.rectangle([340, 1180, 740, H], fill=rgb("#991b1b"))
+    d.line([(340, 1180), (340, H)], fill=rgb("#fbbf24"), width=8)
+    d.line([(740, 1180), (740, H)], fill=rgb("#fbbf24"), width=8)
+    d.rounded_rectangle([700, 980, 1100, 1220], radius=14, fill=rgb("#78350f"), outline=OUT, width=LW)
+    d.text((900, 1100), "REZEPTION", fill=rgb("#fde68a"), anchor="mm", font=_f(40))
+    return im
+
+
+def bg_car_night():
+    im = bg_street_night()
+    d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, W, 140], fill=rgb("#111827"))
+    d.polygon([(0, 140), (120, 140), (0, 900)], fill=rgb("#111827"))
+    d.polygon([(W, 140), (W - 120, 140), (W, 900)], fill=rgb("#111827"))
+    d.rectangle([0, 1250, W, H], fill=rgb("#1f2937"))
+    d.rounded_rectangle([-40, 1180, W + 40, 1340], radius=60, fill=rgb("#374151"), outline=OUT, width=LW)
+    d.ellipse([60, 1260, 360, 1560], outline=OUT, width=26)
+    d.ellipse([170, 1370, 250, 1450], fill=OUT)
+    d.rounded_rectangle([700, 1210, 900, 1290], radius=10, fill=rgb("#0ea5e9"), outline=OUT, width=4)
+    d.line([(0, 140), (W, 140)], fill=OUT, width=10)
+    return im
+
+
 def bg_title():
     im = Image.new("RGB", (W, H), rgb("#111111"))
     return im
 
 
 BACKGROUNDS = {"supermarket": bg_supermarket, "street_night": bg_street_night, "living_room": bg_living_room,
-               "forest_night": bg_forest_night, "cabin": bg_cabin, "lab": bg_lab, "black": bg_title}
+               "forest_night": bg_forest_night, "cabin": bg_cabin, "lab": bg_lab, "black": bg_title,
+               "kitchen": bg_kitchen, "bedroom": bg_bedroom, "bar": bg_bar, "hotel": bg_hotel, "car_night": bg_car_night}
 _bg_cache = {}
 
 
@@ -395,3 +494,15 @@ def draw_character(layer, look, cx, ground, scale, t, mouth=0.0, expr="neutral",
         d.arc([hx - mw * 0.8, my, hx + mw * 0.8, my + R * 0.3], 200, 340, fill=OUT, width=7)
     else:
         d.line([(hx - mw * 0.7, my), (hx + mw * 0.7, my)], fill=OUT, width=7)
+
+
+def car_foreground(layer):
+    """Armaturenbrett + Lenkrad vor der Figur (Auto-Szenen)."""
+    d = ImageDraw.Draw(layer)
+    d.rectangle([0, 1240, W, H], fill=rgb("#1f2937"))
+    d.rounded_rectangle([-40, 1150, W + 40, 1330], radius=60, fill=rgb("#374151"), outline=OUT, width=LW)
+    d.ellipse([200, 1050, 620, 1470], outline=OUT, width=30)
+    d.ellipse([370, 1220, 450, 1300], fill=OUT)
+    d.line([(410, 1260), (230, 1200)], fill=OUT, width=18)
+    d.line([(410, 1260), (590, 1200)], fill=OUT, width=18)
+    d.rounded_rectangle([760, 1190, 960, 1270], radius=10, fill=rgb("#0ea5e9"), outline=OUT, width=4)

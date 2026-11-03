@@ -1,3 +1,4 @@
 tiktok/voices/
 tiktok/asr/
 __pycache__/
+tiktok/output/*_audio.wav

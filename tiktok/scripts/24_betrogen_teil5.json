@@ -1,0 +1,341 @@
+{
+  "speed": 1.0,
+  "bpm": 66,
+  "music_style": "drama",
+  "subtitles": true,
+  "theme": {
+    "bgs": [
+      [
+        "#111111",
+        "#000000"
+      ]
+    ],
+    "accent": "#ef4444",
+    "accent_text": "#ffffff",
+    "glow": "#7f1d1d",
+    "active": "#fca5a5"
+  },
+  "particles": [],
+  "cast": {
+    "erzähler": {
+      "name": "Erzähler",
+      "voice": "thorsten-high",
+      "pitch": -1.5,
+      "color": "#e5e7eb"
+    },
+    "markus": {
+      "name": "Markus",
+      "voice": "thorsten_emotional",
+      "color": "#38bdf8",
+      "look": {
+        "hair": "short",
+        "hair_color": "#4a2c14",
+        "shirt": "#0ea5e9",
+        "pants": "#1f2937"
+      }
+    },
+    "sarah": {
+      "name": "Sarah",
+      "voice": "css10",
+      "color": "#f87171",
+      "size": 0.95,
+      "look": {
+        "hair": "long",
+        "hair_color": "#eab308",
+        "shirt": "#dc2626",
+        "pants": "#dc2626"
+      }
+    },
+    "daniel": {
+      "name": "Daniel",
+      "voice": "thorsten-high",
+      "pitch": -2.5,
+      "color": "#a3a3a3",
+      "look": {
+        "hair": "short",
+        "hair_color": "#111827",
+        "shirt": "#f8fafc",
+        "jacket": "#111827",
+        "pants": "#1f2937"
+      }
+    },
+    "lena": {
+      "name": "Lena",
+      "voice": "css10",
+      "pitch": 2.5,
+      "speed": 0.95,
+      "color": "#4ade80",
+      "size": 0.93,
+      "look": {
+        "hair": "bun",
+        "hair_color": "#78350f",
+        "glasses": true,
+        "shirt": "#16a34a",
+        "pants": "#334155"
+      }
+    }
+  },
+  "title": "Betrogen – Teil 5: Das Ergebnis",
+  "title_bar": "BETROGEN · Teil 5",
+  "caption": "Das Ergebnis ist da … und dann kommt DIESE Nachricht 😳 Staffel 2? Schreib JA 👇\n\n#betrogen #drama #storytime #animation #beziehung #serie #fyp",
+  "scenes": [
+    {
+      "type": "cartoon",
+      "bg": "living_room",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "tired"
+        },
+        {
+          "who": "sarah",
+          "x": 0.72,
+          "expr": "sad"
+        }
+      ],
+      "lines": [
+        {
+          "who": "erzähler",
+          "text": "Drei Wochen später. Der Umschlag mit dem Ergebnis.",
+          "emo": "cold"
+        },
+        {
+          "who": "sarah",
+          "text": "Mach du ihn auf. Bitte.",
+          "emo": "nervous",
+          "expr": "sad"
+        }
+      ],
+      "props": [
+        {
+          "e": "✉️",
+          "x": 0.5,
+          "y": 0.55,
+          "s": 170,
+          "at": 1.0,
+          "wobble": 1
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "living_room",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "scale": 1.08,
+          "expr": "tired",
+          "pose": "phone"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Neunundneunzig Komma neun Prozent.",
+          "emo": "whisper",
+          "expr": "tired",
+          "pose": "phone"
+        },
+        {
+          "who": "markus",
+          "text": "Das Baby … ist von *mir*.",
+          "emo": "shock",
+          "expr": "shock"
+        }
+      ],
+      "fx": {
+        "flash": "white"
+      }
+    },
+    {
+      "type": "cartoon",
+      "bg": "living_room",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.28,
+          "expr": "shock"
+        },
+        {
+          "who": "sarah",
+          "x": 0.72,
+          "expr": "happy"
+        }
+      ],
+      "lines": [
+        {
+          "who": "sarah",
+          "text": "Markus! Dann können wir es doch nochmal versuchen! Für unser *Kind*!",
+          "emo": "cry",
+          "expr": "happy"
+        },
+        {
+          "who": "markus",
+          "text": "Für unser Kind werde ich *immer* da sein.",
+          "emo": "sad",
+          "expr": "sad"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "living_room",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "scale": 1.1,
+          "expr": "tired"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Aber nicht als dein Mann, Sarah. Das hast *du* zerstört. Nicht ich.",
+          "emo": "cold",
+          "expr": "tired"
+        }
+      ],
+      "fx": {
+        "dark": 0.1
+      }
+    },
+    {
+      "type": "cartoon",
+      "bg": "living_room",
+      "show": [
+        {
+          "who": "sarah",
+          "x": 0.5,
+          "scale": 1.08,
+          "expr": "sad",
+          "pose": "sad"
+        }
+      ],
+      "lines": [
+        {
+          "who": "sarah",
+          "text": "Markus … bitte geh nicht.",
+          "emo": "cry",
+          "expr": "sad",
+          "pose": "sad",
+          "sfx": [
+            [
+              "door",
+              2.5
+            ]
+          ]
+        }
+      ],
+      "tail": 0.6
+    },
+    {
+      "type": "cartoon",
+      "bg": "street_night",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "expr": "tired",
+          "from": 0.2,
+          "enter": 2.0
+        }
+      ],
+      "lines": [
+        {
+          "who": "erzähler",
+          "text": "Manchmal ist das Mutigste, was man tun kann … zu gehen.",
+          "emo": "sad"
+        },
+        {
+          "who": "markus",
+          "text": "Neues Leben. Neuer *Anfang*.",
+          "emo": "happy",
+          "expr": "smirk"
+        }
+      ],
+      "props": [
+        {
+          "e": "🧳",
+          "x": 0.7,
+          "y": 0.82,
+          "s": 170
+        }
+      ],
+      "fx": {
+        "rain": true
+      }
+    },
+    {
+      "type": "cartoon",
+      "bg": "street_night",
+      "show": [
+        {
+          "who": "markus",
+          "x": 0.5,
+          "scale": 1.1,
+          "expr": "shock",
+          "pose": "phone"
+        }
+      ],
+      "lines": [
+        {
+          "who": "markus",
+          "text": "Eine Nachricht von Lena?",
+          "emo": "neutral",
+          "expr": "tired",
+          "pose": "phone"
+        },
+        {
+          "who": "markus",
+          "text": "Du solltest wissen: Daniel war nicht der *Einzige*.",
+          "emo": "whisper",
+          "expr": "shock",
+          "pose": "phone"
+        },
+        {
+          "who": "markus",
+          "text": "Moment … *was*?!",
+          "emo": "shock",
+          "expr": "shock",
+          "pose": "shock"
+        }
+      ],
+      "chat": {
+        "from": "Lena",
+        "text": "Du solltest wissen: Daniel war nicht der Einzige.",
+        "at": 1.4,
+        "typing": 0.6,
+        "y": 880
+      },
+      "fx": {
+        "flash": "red",
+        "shake": 0.4
+      },
+      "sfx": [
+        [
+          "vibrate",
+          0.2
+        ],
+        [
+          "boom",
+          6.0
+        ]
+      ],
+      "tail": 0.8
+    },
+    {
+      "type": "cta",
+      "emoji": "😳",
+      "text": "Soll es eine *Staffel 2* geben?",
+      "sub": "Schreib JA in die Kommentare",
+      "duration": 3.2,
+      "say": "Soll es eine Staffel 2 geben? Schreib Ja in die Kommentare."
+    }
+  ],
+  "pronounce": {
+    "Parfum": "Parföng"
+  }
+}

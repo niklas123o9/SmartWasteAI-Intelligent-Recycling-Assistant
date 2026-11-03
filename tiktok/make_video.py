@@ -773,6 +773,13 @@ def s_cartoon(ov, sc, t, d, C, ev):
         ct.draw_character(ov, look, x, c.get("ground", 1720), c.get("scale", 1.0) * cast.get(who, {}).get("size", 1.0),
                           t, mouth=mouth, expr=expr, pose=pose, look_dir=look_dir, talking=talking and mouth > 0.05,
                           seed=i * 3 + len(who))
+    if sc.get("bg") == "car_night":
+        ct.car_foreground(ov)
+    for pr in sc.get("props", []):  # Gegenstände (Emoji) im Bild, z. B. Blumen, Handy, Umschlag
+        k = (t - pr.get("at", 0.0)) / 0.3
+        if k > 0:
+            paste_scaled(ov, emoji_img(pr["e"], pr.get("s", 160)), pr.get("x", 0.5) * W, pr.get("y", 0.6) * H,
+                         ease_back(k), clamp(k * 2), math.sin(t * 2) * pr.get("wobble", 0) * 6)
     draw_chat(ov, sc.get("chat"), t)
     if cur and sc.get("_subtitles", True) and cur.get("text"):
         name = cast.get(cur["who"], {}).get("name", cur["who"].capitalize())
@@ -1054,6 +1061,39 @@ def plan_voice(scenes, voice, extra):
     return clips
 
 
+class CoquiVoice:
+    """Coqui-VITS-Stimme über sherpa-onnx (z. B. css10: klare deutsche Frauenstimme)."""
+    def __init__(self, path, speed=1.0):
+        import sherpa_onnx
+        cfg = sherpa_onnx.OfflineTtsConfig(model=sherpa_onnx.OfflineTtsModelConfig(
+            vits=sherpa_onnx.OfflineTtsVitsModelConfig(model=os.path.join(path, "model.onnx"),
+                                                       tokens=os.path.join(path, "tokens.txt")), num_threads=4))
+        self.tts = sherpa_onnx.OfflineTts(cfg)
+        self.sr = self.tts.sample_rate
+        self.speed = speed
+
+    def say(self, text, speed=None):
+        g = self.tts.generate(text, sid=0, speed=1.0 / (speed or self.speed))
+        a = np.array(g.samples, np.float32)
+        loud = np.where(np.abs(a) > 0.01)[0]
+        return a[max(0, loud[0] - int(self.sr * 0.08)):loud[-1] + int(self.sr * 0.3)] if len(loud) else a
+
+
+# Emotionen: Tempo (length_scale, >1 = langsamer), Tonhöhe (Halbtöne), Lautstärke, Zittern, Thorsten-Variante
+EMOTIONS = {
+    "neutral": dict(speed=1.0, pitch=0.0, gain=1.0),
+    "angry": dict(speed=0.9, pitch=1.0, gain=1.25, spk="angry"),
+    "shout": dict(speed=0.87, pitch=2.0, gain=1.45, spk="angry"),
+    "sad": dict(speed=1.17, pitch=-1.0, gain=0.85, vibrato=0.12),
+    "cry": dict(speed=1.22, pitch=-0.5, gain=0.9, vibrato=0.35),
+    "shock": dict(speed=0.95, pitch=2.0, gain=1.15, spk="surprised"),
+    "happy": dict(speed=0.94, pitch=1.5, gain=1.1, spk="amused"),
+    "whisper": dict(speed=1.1, pitch=0.0, gain=0.7, spk="whisper"),
+    "cold": dict(speed=1.12, pitch=-1.5, gain=0.95),
+    "nervous": dict(speed=0.88, pitch=1.0, gain=1.0, vibrato=0.15),
+}
+
+
 def resolve_voice(name):
     """'thorsten-high' / 'thorsten_emotional:whisper' / 'kerstin' -> (Pfad, Sprecher)."""
     speaker = None
@@ -1061,6 +1101,8 @@ def resolve_voice(name):
         name, speaker = name.split(":", 1)
     if name.endswith(".onnx"):
         return name, speaker
+    if name == "css10":
+        return os.path.join(HERE, "voices", "vits-coqui-de-css10"), "coqui"
     for cand in (f"de_DE-{name}-high.onnx", f"de_DE-{name}-medium.onnx", f"de_DE-{name}.onnx",
                  f"de-{name}-low.onnx", f"de-{name}.onnx"):
         p = os.path.join(HERE, "voices", cand)
@@ -1069,15 +1111,22 @@ def resolve_voice(name):
     raise FileNotFoundError(f"Stimme nicht gefunden: {name}")
 
 
-def to_sr(a, sr, pitch=0.0):
-    """Sprachclip auf 44,1 kHz bringen, optional Tonhöhe in Halbtönen ändern."""
+def to_sr(a, sr, pitch=0.0, vibrato=0.0):
+    """Sprachclip auf 44,1 kHz bringen, optional Tonhöhe (Halbtöne) und Zittern (Weinen) ändern."""
     af = "aresample=%d" % SR
     if pitch:
         af = "rubberband=pitch=%.4f:formant=preserved," % (2 ** (pitch / 12)) + af
     raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "f32le", "-ar", str(sr), "-ac", "1", "-i", "-",
                           "-af", af, "-f", "f32le", "-ac", "1", "-"], input=a.astype(np.float32).tobytes(),
                          capture_output=True).stdout
-    return np.frombuffer(raw, np.float32).astype(float)
+    out = np.nan_to_num(np.frombuffer(raw, np.float32).astype(float), nan=0.0, posinf=0.0, neginf=0.0)
+    if vibrato:  # zitternde Stimme (Weinen): Tonhöhe schwankt mit 5,5 Hz um ±(2·vibrato) Halbtöne
+        f = 5.5
+        amp = (2 ** (2 * vibrato / 12) - 1) / (2 * math.pi * f) * SR
+        n = np.arange(len(out))
+        idx = np.clip(n - amp * (1 + np.sin(2 * math.pi * f * n / SR)), 0, len(out) - 1)
+        out = np.interp(idx, n, out)
+    return out
 
 
 def lip_env(a):
@@ -1098,8 +1147,51 @@ def plan_cast(scenes, cast, extra, speed):
     def get(spec):
         if spec not in voices:
             path, spk = resolve_voice(spec)
-            voices[spec] = Voice(path, speed, spk)
+            voices[spec] = CoquiVoice(path, speed) if spk == "coqui" else Voice(path, speed, spk)
         return voices[spec]
+
+    def speak(m, ln):
+        """Eine Zeile mit Emotion + Wortbetonung (*Wort*) sprechen -> Audio bei 44,1 kHz."""
+        emo = EMOTIONS.get(ln.get("emo", "neutral"), EMOTIONS["neutral"])
+        spec = m["voice"]
+        if spec.startswith("thorsten_emotional"):
+            spec = "thorsten_emotional:" + (ln.get("style") or emo.get("spk") or "neutral")
+        elif ln.get("style"):
+            spec = spec.split(":")[0] + ":" + ln["style"]
+        v = get(spec)
+        base_pitch = m.get("pitch", 0) + emo["pitch"] + ln.get("pitch", 0)
+        sp = m.get("speed", 1.0) * emo["speed"]
+        text = ln.get("say", ln["text"])
+        plain = text.replace("*", "")
+        spans, pos = [], 0  # Lage der *betonten* Wörter im Satz (als Anteil 0..1)
+        for part in re.split(r"(\*[^*]+\*)", text):
+            n = len(part.replace("*", ""))
+            if part.startswith("*") and plain:
+                spans.append((pos / len(plain), (pos + n) / len(plain)))
+            pos += n
+        st = speech_text(plain, extra)
+        if isinstance(v, CoquiVoice):
+            raw = v.say(st, sp)
+        else:
+            old = v.cfg.length_scale
+            v.cfg.length_scale = sp
+            raw = v.say(st)
+            v.cfg.length_scale = old
+        a = to_sr(raw, v.sr, base_pitch, emo.get("vibrato", 0))
+        if spans:  # betonte Wörter lauter (weiche Rampen)
+            env = np.ones(len(a))
+            loud = np.where(np.abs(a) > 0.02)[0]
+            s0, s1 = (loud[0], loud[-1]) if len(loud) else (0, len(a))
+            for f0, f1 in spans:
+                i0, i1 = int(s0 + (s1 - s0) * f0), int(s0 + (s1 - s0) * f1)
+                ramp = int(SR * 0.04)
+                env[i0:i1] = np.maximum(env[i0:i1], 1.35)
+                env[max(0, i0 - ramp):i0] = np.maximum(env[max(0, i0 - ramp):i0], np.linspace(1, 1.35, i0 - max(0, i0 - ramp)))
+                env[i1:i1 + ramp] = np.maximum(env[i1:i1 + ramp], np.linspace(1.35, 1, len(env[i1:i1 + ramp])))
+            a = a * env
+        out = [a]
+        a = np.concatenate(out) if out else np.zeros(1)
+        return a * emo["gain"] * m.get("gain", 1.0)
 
     narr = cast.get("erzähler", {"voice": "thorsten-high"})
     clips, T0 = [], 0.0
@@ -1111,11 +1203,7 @@ def plan_cast(scenes, cast, extra, speed):
             for ln in sc.get("lines", []):
                 m = cast.get(ln["who"], narr)
                 if ln.get("text") and m.get("voice"):
-                    spec = m["voice"]
-                    if ln.get("style"):
-                        spec = spec.split(":")[0] + ":" + ln["style"]
-                    v = get(spec)
-                    a = to_sr(v.say(speech_text(ln.get("say", ln["text"]), extra)), v.sr, m.get("pitch", 0) + ln.get("pitch", 0))
+                    a = speak(m, ln)
                     clips.append((T0 + t, a))
                     dur = len(a) / SR
                     env = lip_env(a)
@@ -1147,7 +1235,7 @@ def voice_bus_sr(clips, total):
         bus[i:j] += a[:j - i]
     pcm = (np.clip(bus / (np.max(np.abs(bus)) or 1) * 0.9, -1, 1) * 32767).astype(np.int16).tobytes()
     af = ("highpass=f=85,equalizer=f=280:t=q:w=1:g=-3,equalizer=f=3000:t=q:w=1.2:g=3.5,"
-          "equalizer=f=7000:t=q:w=1:g=2,acompressor=threshold=-20dB:ratio=3:attack=5:release=60:makeup=2")
+          "equalizer=f=7000:t=q:w=1:g=2,acompressor=threshold=-18dB:ratio=2:attack=5:release=80:makeup=2")
     raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "s16le", "-ar", str(SR), "-ac", "1", "-i", "-",
                           "-af", af, "-f", "f32le", "-ac", "1", "-"], input=pcm, capture_output=True).stdout
     return np.frombuffer(raw, np.float32).astype(float)
