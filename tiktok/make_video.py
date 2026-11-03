@@ -443,6 +443,9 @@ def s_quiz(ov, sc, t, d, C, ev):
 
 
 def s_cta(ov, sc, t, d, C, ev):
+    if sc.get("note") and t > 0.8:
+        ImageDraw.Draw(ov).multiline_text((W / 2, 1420), sc["note"], font=font("bold", 30), anchor="mm", align="center",
+                                          fill=(255, 255, 255, int(190 * clamp((t - 0.8) / 0.4))))
     words = parse(sc["text"])
     size, placed, h = fit(words, sc.get("size", 120), C, 520)
     top = 980 - h / 2
@@ -483,6 +486,175 @@ def s_fact(ov, sc, t, d, C, ev):
             dr.rounded_rectangle([MX - 20, y - 24, W - MX + 20, y + sh + 24], radius=36,
                                  fill=(0, 0, 0, int(120 * clamp(k))))
         draw_words(ov, sp, y, t, st, 0.035)
+
+
+FACT_TYPES = ("fact", "stat", "bars", "myth", "calc", "badge")
+
+
+def de_num(v, dec=1):
+    return f"{v:.{dec}f}".replace(".", ",")
+
+
+def fact_frame(ov, sc, t, C):
+    """Gemeinsamer Rahmen der Daten-Szenen: Zähler oben, Schlagzeile, Erklärung unten."""
+    dr = ImageDraw.Draw(ov)
+    if sc.get("_label"):
+        pill(dr, W / 2, SAFE_TOP + 40, sc["_label"], 46, C["accent"] + (255,), C["accent_text"] + (255,))
+    _, placed, _ = fit(parse(sc["text"]), sc.get("size", 92), C, 270, 3)
+    draw_words(ov, placed, 420, t, 0.08, min(0.1, 1.0 / max(1, len(placed))))
+    if sc.get("sub"):
+        st = sc.get("_sub_t", 1.5)
+        _, sp, sh = fit(parse(sc["sub"]), 54, C, 170, 3)
+        y = 1460 - sh - 10
+        k = (t - st) / 0.25
+        if k > 0:
+            dr.rounded_rectangle([MX - 20, y - 22, W - MX + 20, y + sh + 18], radius=34,
+                                 fill=(0, 0, 0, int(140 * clamp(k))))
+        draw_words(ov, sp, y, t, st, 0.03)
+
+
+def text_c(dr, x, y, txt, size, fill, anchor="mm", stroke=0):
+    dr.text((x, y), txt, font=font("black", size), fill=fill, anchor=anchor,
+            stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
+
+
+def s_stat(ov, sc, t, d, C, ev):
+    """Großer Zähler + Personen-Reihe + Vergleichsbalken."""
+    fact_frame(ov, sc, t, C)
+    dr = ImageDraw.Draw(ov)
+    v = sc["value"]
+    k = ease_out((t - 0.3) / 1.2)
+    if k > 0:
+        text_c(dr, W / 2, 780, de_num(v * k, sc.get("decimals", 1)) + " " + sc.get("unit", "%"), 190,
+               C["accent"] + (255,), stroke=10)
+    n, hi = sc.get("people", 5), sc.get("highlight", [2])
+    gap = (W - 2 * MX) / n
+    for i in range(n):
+        st = 0.6 + i * 0.12
+        kk = (t - st) / 0.3
+        if kk <= 0:
+            continue
+        cx, cy = MX + gap * (i + 0.5), 1000
+        if i in hi:
+            r = 88 * (1 + 0.05 * math.sin(t * 6))
+            dr.ellipse([cx - r, cy - r, cx + r, cy + r], fill=C["accent"] + (int(230 * clamp(kk)),))
+            paste_scaled(ov, emoji_img(sc.get("hi_emoji", "🧑"), 120), cx, cy, ease_back(kk), clamp(kk * 2))
+        else:
+            paste_scaled(ov, emoji_img(sc.get("emoji", "🧑"), 110), cx, cy, ease_back(kk), clamp(kk * 2) * 0.45)
+    comp = sc.get("compare", [])
+    vmax = max([c["value"] for c in comp] + [1])
+    for j, c in enumerate(comp):
+        y = 1140 + j * 72
+        kk = ease_out((t - 1.3 - j * 0.2) / 0.8)
+        if kk <= 0:
+            continue
+        f = font("bold", 38)
+        dr.text((MX, y), c["label"], font=f, fill=(255, 255, 255, 230), anchor="lm")
+        x0, x1 = MX + 250, W - MX - 150
+        dr.rounded_rectangle([x0, y - 20, x0 + 40 + (x1 - x0 - 40) * c["value"] / vmax * kk, y + 20], radius=20,
+                             fill=(C["accent"] if j == 0 else (255, 255, 255)) + (255,))
+        dr.text((x0 + 60 + (x1 - x0 - 40) * c["value"] / vmax * kk, y), de_num(c["value"] * kk) + " %",
+                font=font("black", 40), fill=(255, 255, 255, 255), anchor="lm")
+
+
+def s_bars(ov, sc, t, d, C, ev):
+    """Vergleichs-Balkendiagramm mit wachsenden Balken und hochzählenden Werten."""
+    fact_frame(ov, sc, t, C)
+    dr = ImageDraw.Draw(ov)
+    bars = sc["bars"]
+    vmax = max(b["value"] for b in bars)
+    for i, b in enumerate(bars):
+        y = 720 + i * 170
+        k = ease_out((t - 0.5 - i * 0.35) / 1.0)
+        if k <= 0:
+            continue
+        paste_scaled(ov, emoji_img(b.get("emoji", "📊"), 96), MX + 48, y + 30, ease_back(k * 1.5), clamp(k * 3))
+        x0 = MX + 120
+        dr.text((x0, y - 22), b["label"], font=font("bold", 42), fill=(255, 255, 255, 235), anchor="lm")
+        maxw = W - MX - 170 - x0
+        col = rgb(b["color"]) if b.get("color") else C["accent"]
+        dr.rounded_rectangle([x0, y + 8, x0 + max(30, maxw * b["value"] / vmax * k), y + 64], radius=28,
+                             fill=col + (255,))
+        dr.text((x0 + max(30, maxw * b["value"] / vmax * k) + 18, y + 36), de_num(b["value"] * k, b.get("decimals", 1)),
+                font=font("black", 50), fill=(255, 255, 255, 255), anchor="lm")
+    if sc.get("note"):
+        a = int(210 * clamp((t - 1.8) / 0.4))
+        if a:
+            dr.text((W / 2, 720 + len(bars) * 170 - 20), sc["note"], font=font("bold", 34),
+                    fill=(255, 255, 255, a), anchor="mm")
+
+
+def s_myth(ov, sc, t, d, C, ev):
+    """Mythos: Dampfwolke, darum erscheinen Stoffe, die enthalten sein können."""
+    fact_frame(ov, sc, t, C)
+    dr = ImageDraw.Draw(ov)
+    paste_scaled(ov, emoji_img(sc.get("emoji", "💨"), 300), W / 2 + math.sin(t * 1.5) * 25, 860,
+                 ease_back(t / 0.4), clamp(t * 3))
+    spots = [(-260, 700), (250, 740), (-250, 1030), (240, 1070), (0, 1150)]
+    for i, chip in enumerate(sc.get("chips", [])):
+        k = (t - 1.0 - i * 0.3) / 0.3
+        if k <= 0:
+            continue
+        dx, cy = spots[i % len(spots)]
+        cx = W / 2 + dx
+        e = ease_back(k)
+        f = font("black", int(42 * e) or 1)
+        tw = f.getlength(chip)
+        dr.rounded_rectangle([cx - tw / 2 - 26, cy - 34 * e, cx + tw / 2 + 26, cy + 34 * e], radius=34,
+                             fill=(239, 68, 68, 235), outline=(0, 0, 0, 255), width=4)
+        dr.text((cx, cy), chip, font=f, fill=(255, 255, 255, 255), anchor="mm")
+
+
+def s_calc(ov, sc, t, d, C, ev):
+    """Rechnung Schritt für Schritt + fallende Münzen."""
+    fact_frame(ov, sc, t, C)
+    toks = sc["steps"]
+    ims = [word_img(x, 100, "box" if i == len(toks) - 1 else "normal", C) for i, x in enumerate(toks)]
+    gap = 26
+    total = sum(i.width for i in ims) + gap * (len(ims) - 1)
+    scale = min(1.0, (W - 2 * MX) / total)
+    x = (W - total * scale) / 2
+    for i, im in enumerate(ims):
+        s_, a = stamp(t, 0.4 + i * 0.3)
+        paste_scaled(ov, im, x + im.width * scale / 2, 800, s_ * scale, a)
+        x += (im.width + gap) * scale
+    coin = emoji_img(sc.get("emoji", "🪙"), 110)
+    n = sc.get("coins", 7)
+    for i in range(n):
+        st = 0.4 + len(toks) * 0.3 + i * 0.12
+        k = (t - st) / 0.5
+        if k <= 0:
+            continue
+        ex, ey = W / 2 + (i - (n - 1) / 2) * 80, 1110 - (i % 2) * 40
+        y = 560 + (ey - 560) * ease_back(k)
+        paste_scaled(ov, coin, ex, y, 1, clamp(k * 3), (i * 37) % 30 - 15)
+
+
+def s_badge(ov, sc, t, d, C, ev):
+    """Altersgrenze als Stempel + Rückgabe-Symbol."""
+    fact_frame(ov, sc, t, C)
+    dr = ImageDraw.Draw(ov)
+    k = ease_back((t - 0.3) / 0.35)
+    if k > 0:
+        r = 170 * k * (1 + 0.03 * math.sin(t * 5))
+        cx, cy = W / 2, 880
+        dr.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(255, 255, 255, 240), outline=(239, 68, 68, 255),
+                   width=int(28 * k) or 1)
+        text_c(dr, cx, cy + 6, sc.get("badge", "18+"), int(135 * k) or 1, (20, 20, 20, 255))
+    row = sc.get("row")
+    if row:
+        k2 = (t - 1.3) / 0.35
+        if k2 > 0:
+            paste_scaled(ov, emoji_img(row[0], 120), W / 2 - 230, 1175, ease_back(k2), clamp(k2 * 2))
+            ax = W / 2 - 120 + 240 * clamp((t - 1.5) / 0.4)
+            if t > 1.5:
+                dr.line([(W / 2 - 120, 1175), (ax, 1175)], fill=C["accent"] + (255,), width=14)
+                if t > 1.9:
+                    dr.polygon([(W / 2 + 140, 1175), (W / 2 + 105, 1145), (W / 2 + 105, 1205)],
+                               fill=C["accent"] + (255,))
+            k3 = (t - 1.9) / 0.35
+            if k3 > 0:
+                paste_scaled(ov, emoji_img(row[1], 130), W / 2 + 230, 1175, ease_back(k3), clamp(k3 * 2))
 
 
 BINS = {  # Farbe, Textfarbe
@@ -555,7 +727,8 @@ def s_scan(ov, sc, t, d, C, ev):
                      1 + 1.2 * (1 - ease_out(rt / 0.3)), clamp(rt * 6), -12)
 
 
-SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta, "scan": s_scan, "fact": s_fact}
+SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta, "scan": s_scan, "fact": s_fact,
+          "stat": s_stat, "bars": s_bars, "myth": s_myth, "calc": s_calc, "badge": s_badge}
 
 
 # ---------- Sprachausgabe (Piper, offline) ----------
@@ -609,7 +782,9 @@ def speech_text(text, extra=None):
     s = re.sub(r"(\d+)\s*/\s*(\d+)", r"\1 von \2", s)
     # Anglizismus "recyceln" deutsch korrekt: ri-SAI-keln
     s = re.sub(r"[Rr]ecyc", lambda m: "Rissaik" if m.group(0)[0] == "R" else "rissaik", s)
-    s = s.replace("%", " Prozent")
+    s = re.sub(r"(\d+),(\d+)", r"\1 Komma \2", s)
+    s = re.sub(r"(\d+)\s*[–-]\s*(\d+)", r"\1 bis \2", s)
+    s = s.replace("%", " Prozent").replace("€", " Euro")
     s = german_numbers(s)
     s = s.replace("&", " und ").replace("+", " plus ").replace("=", " ist ").replace("·", ",").replace("…", "...")
     s = re.sub(r"\s+", " ", s).strip()
@@ -677,7 +852,7 @@ def plan_voice(scenes, voice, extra):
             sc["reveal"] = max(sc.get("reveal", base_rev), 0.12 + L(aa) + 0.35)
             sc.pop("duration", None)
             clips += [(T0 + LEAD, qa), (T0 + sc["think"] + 0.12, aa)]
-        elif tp == "fact":
+        elif tp in FACT_TYPES:
             a1 = say(sc.get("say", sc["text"]))
             a2 = say(sc.get("say_sub", sc.get("sub", ""))) if sc.get("sub") or sc.get("say_sub") else np.zeros(1, np.float32)
             gap = np.zeros(int(voice.sr * 0.18), np.float32)
@@ -833,7 +1008,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
     beat = 60 / bpm
     scenes = script["scenes"]
     for tp_, word in (("quiz", "FRAGE"), ("scan", "SCAN"), ("fact", "FAKT")):
-        group = [s for s in scenes if s.get("type") == tp_]
+        group = [s for s in scenes if s.get("type") in ((tp_,) if tp_ != "fact" else FACT_TYPES)]
         for i, s in enumerate(group):
             s["_label"] = s.get("label", f"{word} {i + 1}/{len(group)}")
     clips, vsr = [], None
@@ -863,7 +1038,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             events.append(("ding", T0 + think))
         if tp == "cta":
             events.append(("pop", T0 + 0.9))
-        if tp == "fact" and sc.get("_sub_t"):
+        if tp in FACT_TYPES and sc.get("_sub_t"):
             events.append(("pop", T0 + sc["_sub_t"]))
         T0 += d
 
@@ -884,7 +1059,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
     for si, (sc, d) in enumerate(zip(scenes, durs)):
         tp = sc.get("type")
         sbg = sc.get("bg", bgs[si % len(bgs)])
-        rays = 1.0 if tp in ("hook", "punch", "cta") else (0.5 if tp == "fact" else 0.0)
+        rays = 1.0 if tp in ("hook", "punch", "cta") else (0.5 if tp in FACT_TYPES else 0.0)
         fn = SCENES[tp]
         for i in range(int(round(d * FPS))):
             t = i / FPS

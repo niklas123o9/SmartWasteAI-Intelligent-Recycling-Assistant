@@ -1,0 +1,33 @@
+{
+  "title": "5 Fakten über E-Zigaretten",
+  "bpm": 120,
+  "voice": "thorsten-high",
+  "pitch": 1,
+  "speed": 0.9,
+  "theme": { "bgs": [["#1e293b", "#020617"], ["#3b0764", "#0b0217"], ["#134e4a", "#021412"]], "accent": "#facc15", "accent_text": "#111111", "glow": "#a855f7", "active": "#facc15" },
+  "particles": ["💨", "⚠️", "🫁", "💨"],
+  "caption": "5 Fakten über Vapes und E-Zigaretten, die dir keiner sagt 💨⚠️ Wusstest du das alles? Schick es jemandem, der es wissen sollte.\n\nQuellen: DAK-Präventionsradar 2026, BfR/LMU-Studie 2026, DKFZ, Tabaksteuergesetz, Jugendschutzgesetz\n\n#vape #ezigarette #aufklärung #gesundheit #fakten #wusstestdu #fyp",
+  "scenes": [
+    { "type": "hook", "emoji": "💨", "text": "5 Fakten über *E-Zigaretten*, die dir keiner sagt", "sub": "Fakt 2 überrascht fast jeden",
+      "say": "Hier sind 5 Fakten über E-Zigaretten, die dir keiner sagt. Fakt 2 überrascht fast jeden.", "duration": 2.4 },
+    { "type": "stat", "text": "Fast *jeder Fünfte* nutzt Einweg-E-Zigaretten", "value": 19.4, "unit": "%",
+      "people": 5, "highlight": [2], "hi_emoji": "💨",
+      "compare": [ { "label": "15–17 Jahre", "value": 19.4 }, { "label": "11–14 Jahre", "value": 4.9 } ],
+      "sub": "19,4 % der 15- bis 17-Jährigen nutzen sie mindestens einmal im Monat." },
+    { "type": "bars", "text": "Fast so viel *Nikotin* wie eine Zigarette",
+      "bars": [ { "label": "Zigarette", "value": 8.1, "emoji": "🚬", "color": "#ef4444" },
+                { "label": "Einweg-E-Zigarette A", "value": 7.1, "emoji": "💨" },
+                { "label": "Einweg-E-Zigarette B", "value": 6.9, "emoji": "💨" } ],
+      "note": "Nikotin im Blut, Spitzenwert in ng/ml",
+      "sub": "Das zeigt eine Studie mit dem Bundesinstitut für Risikobewertung. Abhängig wird man schneller als gedacht." },
+    { "type": "myth", "text": "Nur Wasserdampf? *Falsch!*", "emoji": "💨",
+      "chips": ["Nikotin", "Aromastoffe", "Metallpartikel", "Formaldehyd"],
+      "sub": "Der Dampf kann Schadstoffe enthalten. Die Langzeitfolgen sind laut Krebsforschungszentrum noch unklar." },
+    { "type": "calc", "text": "In jeder E-Zigarette steckt *Steuer*", "steps": ["2 ml", "×", "0,32 €", "=", "0,64 €"],
+      "sub": "Seit 2026 kostet jeder Milliliter Liquid 32 Cent Steuer. Bei 2 Millilitern sind das 64 Cent." },
+    { "type": "badge", "text": "Verkauf erst ab *18*", "badge": "18+", "row": ["🔋", "🏪"],
+      "sub": "Auch ohne Nikotin. Und leere Geräte gehören wegen des Akkus zurück in den Laden, nicht in den Hausmüll." },
+    { "type": "cta", "emoji": "🤔", "text": "Wusstest du das *alles*?", "sub": "Schick es deinen Freunden", "duration": 3.4,
+      "note": "Quellen: DAK-Präventionsradar 2026 · BfR/LMU-Studie 2026\nDKFZ · Tabaksteuergesetz · Jugendschutzgesetz" }
+  ]
+}

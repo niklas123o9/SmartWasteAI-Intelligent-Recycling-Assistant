@@ -48,6 +48,11 @@ Ergebnis in `tiktok/output/`: `<name>.mp4` + `<name>_caption.txt` (Beschreibung 
 | `quiz` | Frage mit 2 Antworten, Countdown, Auflösung | `emoji`, `item`, `options`, `answer` (0/1), `fact`, `think` |
 | `scan` | KI-Scanner: Ladebalken, dann Ergebnis-Tonne | `emoji`, `item`, `result`, `bin` (gelb/rest/papier/bio/glas/pfand), `confidence`, `fact` |
 | `fact` | Fakten-Karte mit Zähler (FAKT 3/10), Schlagzeile + Erklärung | `emoji`, `text`, `sub` |
+| `stat` | Zähler (z. B. 19,4 %), Personen-Reihe, Vergleichsbalken | `text`, `value`, `unit`, `people`, `highlight`, `compare`, `sub` |
+| `bars` | Balkendiagramm mit wachsenden Balken | `text`, `bars` (`label`, `value`, `emoji`, `color`), `note`, `sub` |
+| `myth` | Mythos aufdecken: Emoji + eingeblendete Stichworte | `text`, `emoji`, `chips`, `sub` |
+| `calc` | Rechnung Schritt für Schritt + fallende Münzen | `text`, `steps`, `sub` |
+| `badge` | Stempel (z. B. 18+) + Symbol-Reihe mit Pfeil | `text`, `badge`, `row`, `sub` |
 | `cta` | Ende: Kommentar-/Follow-Aufforderung | `text`, `emoji`, `sub` |
 
 Global: `header` (bleibt oben stehen), `bpm`, `particles` (Hintergrund-Emojis), `theme`
