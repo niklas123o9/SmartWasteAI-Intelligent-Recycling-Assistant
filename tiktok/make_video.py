@@ -667,7 +667,7 @@ def draw_chat(ov, ch, t):
     if ch:
         at = ch.get("at", 0.3)
         if t > at:
-            bx0, by0, bw = MX, 470, W - 2 * MX
+            bx0, by0, bw = MX, ch.get("y", 470), W - 2 * MX
             f = font("bold", 50)
             fn = font("black", 36)
             k = ease_back((t - at) / 0.3)

@@ -194,10 +194,11 @@
         }
       ],
       "chat": {
-        "from": "Mia 💔",
+        "from": "Mia",
         "text": "Komm nach Hause. Bitte. SCHNELL.",
         "at": 2.2,
-        "typing": 0.9
+        "typing": 0.9,
+        "y": 880
       },
       "lines": [
         {

@@ -100,7 +100,7 @@
       "color": "#34d399",
       "look": {
         "hair": "long",
-        "hair_color": "#111827",
+        "hair_color": "#92400e",
         "shirt": "#f8fafc",
         "jacket": "#e5e7eb",
         "pants": "#334155"
@@ -277,6 +277,35 @@
         {
           "who": "mia",
           "x": 0.28,
+          "expr": "sad",
+          "pose": "sad"
+        },
+        {
+          "who": "mama",
+          "x": 0.72,
+          "expr": "tired"
+        }
+      ],
+      "lines": [
+        {
+          "who": "mia",
+          "text": "Mama … warum hast du uns nichts gesagt?",
+          "expr": "sad"
+        },
+        {
+          "who": "mama",
+          "text": "Weil ihr mich aufgehalten hättet.",
+          "expr": "tired"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "lab",
+      "show": [
+        {
+          "who": "mia",
+          "x": 0.28,
           "expr": "neutral"
         },
         {
@@ -341,6 +370,54 @@
           "who": "ich",
           "text": "Ich lass dich hier nicht allein!",
           "expr": "angry"
+        }
+      ]
+    },
+    {
+      "type": "cartoon",
+      "bg": "lab",
+      "fx": {
+        "siren": true,
+        "shake": 0.3
+      },
+      "show": [
+        {
+          "who": "ich",
+          "x": 0.3,
+          "pose": "run",
+          "expr": "angry"
+        },
+        {
+          "who": "mia",
+          "x": 0.7,
+          "pose": "run",
+          "expr": "shock"
+        }
+      ],
+      "lines": [
+        {
+          "who": "ich",
+          "text": "Mia, nimm meine Hand! Zum Ausgang!",
+          "pose": "run",
+          "expr": "angry"
+        },
+        {
+          "who": "mia",
+          "text": "Und Mama?!",
+          "pose": "run",
+          "expr": "shock"
+        },
+        {
+          "who": "ich",
+          "text": "Sie hat gesagt, wir sollen laufen!",
+          "pose": "run",
+          "expr": "angry",
+          "sfx": [
+            [
+              "growl",
+              0.8
+            ]
+          ]
         }
       ]
     },
