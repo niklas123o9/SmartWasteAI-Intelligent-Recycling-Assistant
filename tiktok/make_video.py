@@ -611,13 +611,19 @@ def s_calc(ov, sc, t, d, C, ev):
     toks = sc["steps"]
     ims = [word_img(x, 100, "box" if i == len(toks) - 1 else "normal", C) for i, x in enumerate(toks)]
     gap = 26
-    total = sum(i.width for i in ims) + gap * (len(ims) - 1)
-    scale = min(1.0, (W - 2 * MX) / total)
-    x = (W - total * scale) / 2
-    for i, im in enumerate(ims):
-        s_, a = stamp(t, 0.4 + i * 0.3)
-        paste_scaled(ov, im, x + im.width * scale / 2, 800, s_ * scale, a)
-        x += (im.width + gap) * scale
+    rows = [list(range(len(toks)))]
+    if sum(i.width for i in ims) + gap * (len(ims) - 1) > W - 2 * MX:  # zu breit: Ergebnis in eigene Zeile
+        cut = max(i for i, x in enumerate(toks) if x in ("=", "≈")) if any(x in ("=", "≈") for x in toks) else len(toks) // 2
+        rows = [list(range(cut)), list(range(cut, len(toks)))]
+    for r, row in enumerate(rows):
+        total = sum(ims[i].width for i in row) + gap * (len(row) - 1)
+        scale = min(1.0, (W - 2 * MX) / total)
+        x = (W - total * scale) / 2
+        y = 780 + r * 150 - (len(rows) - 1) * 40
+        for i in row:
+            s_, a = stamp(t, 0.4 + i * 0.3)
+            paste_scaled(ov, ims[i], x + ims[i].width * scale / 2, y, s_ * scale, a)
+            x += (ims[i].width + gap) * scale
     coin = emoji_img(sc.get("emoji", "🪙"), 110)
     n = sc.get("coins", 7)
     for i in range(n):
@@ -625,7 +631,7 @@ def s_calc(ov, sc, t, d, C, ev):
         k = (t - st) / 0.5
         if k <= 0:
             continue
-        ex, ey = W / 2 + (i - (n - 1) / 2) * 80, 1110 - (i % 2) * 40
+        ex, ey = W / 2 + (i - (n - 1) / 2) * 80, 1150 - (i % 2) * 40
         y = 560 + (ey - 560) * ease_back(k)
         paste_scaled(ov, coin, ex, y, 1, clamp(k * 3), (i * 37) % 30 - 15)
 
@@ -962,6 +968,8 @@ def speech_text(text, extra=None):
     s = re.sub(r"(\d+)\s*/\s*(\d+)", r"\1 von \2", s)
     # Anglizismus "recyceln" deutsch korrekt: ri-SAI-keln
     s = re.sub(r"[Rr]ecyc", lambda m: "Rissaik" if m.group(0)[0] == "R" else "rissaik", s)
+    s = re.sub(r"(\d)\.(\d{3})(?!\d)", r"\1\2", s)  # Tausenderpunkt: 100.000 -> 100000
+    s = re.sub(r"(\d)\.(\d{3})(?!\d)", r"\1\2", s)
     s = re.sub(r"(\d+),(\d+)", r"\1 Komma \2", s)
     s = re.sub(r"(\d+)\s*[–-]\s*(\d+)", r"\1 bis \2", s)
     s = s.replace("%", " Prozent").replace("€", " Euro")
@@ -1079,6 +1087,8 @@ class CoquiVoice:
         return a[max(0, loud[0] - int(self.sr * 0.08)):loud[-1] + int(self.sr * 0.3)] if len(loud) else a
 
 
+CLEAN = {"on": True}  # saubere Stimme: keine Tonhöhen-Tricks, kein Zittern, keine Sättigung
+
 # Emotionen: Tempo (length_scale, >1 = langsamer), Tonhöhe (Halbtöne), Lautstärke, Zittern, Thorsten-Variante
 EMOTIONS = {
     "neutral": dict(speed=1.0, pitch=0.0, gain=1.0),
@@ -1113,9 +1123,9 @@ def resolve_voice(name):
 
 def to_sr(a, sr, pitch=0.0, vibrato=0.0):
     """Sprachclip auf 44,1 kHz bringen, optional Tonhöhe (Halbtöne) und Zittern (Weinen) ändern."""
-    af = "aresample=%d" % SR
+    af = "aresample=%d:resampler=soxr" % SR
     if pitch:
-        af = "rubberband=pitch=%.4f:formant=preserved," % (2 ** (pitch / 12)) + af
+        af = "rubberband=pitch=%.4f:formant=preserved:pitchq=quality," % (2 ** (pitch / 12)) + af
     raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "f32le", "-ar", str(sr), "-ac", "1", "-i", "-",
                           "-af", af, "-f", "f32le", "-ac", "1", "-"], input=a.astype(np.float32).tobytes(),
                          capture_output=True).stdout
@@ -1159,7 +1169,7 @@ def plan_cast(scenes, cast, extra, speed):
         elif ln.get("style"):
             spec = spec.split(":")[0] + ":" + ln["style"]
         v = get(spec)
-        base_pitch = m.get("pitch", 0) + emo["pitch"] + ln.get("pitch", 0)
+        base_pitch = m.get("pitch", 0) + (0 if CLEAN["on"] else emo["pitch"]) + ln.get("pitch", 0)
         sp = m.get("speed", 1.0) * emo["speed"]
         text = ln.get("say", ln["text"])
         plain = text.replace("*", "")
@@ -1177,7 +1187,8 @@ def plan_cast(scenes, cast, extra, speed):
             v.cfg.length_scale = sp
             raw = v.say(st)
             v.cfg.length_scale = old
-        a = to_sr(raw, v.sr, base_pitch, emo.get("vibrato", 0))
+        a = to_sr(raw, v.sr, base_pitch, 0 if CLEAN["on"] else emo.get("vibrato", 0))
+        boost = 1.25 if CLEAN["on"] else 1.35
         if spans:  # betonte Wörter lauter (weiche Rampen)
             env = np.ones(len(a))
             loud = np.where(np.abs(a) > 0.02)[0]
@@ -1185,9 +1196,9 @@ def plan_cast(scenes, cast, extra, speed):
             for f0, f1 in spans:
                 i0, i1 = int(s0 + (s1 - s0) * f0), int(s0 + (s1 - s0) * f1)
                 ramp = int(SR * 0.04)
-                env[i0:i1] = np.maximum(env[i0:i1], 1.35)
-                env[max(0, i0 - ramp):i0] = np.maximum(env[max(0, i0 - ramp):i0], np.linspace(1, 1.35, i0 - max(0, i0 - ramp)))
-                env[i1:i1 + ramp] = np.maximum(env[i1:i1 + ramp], np.linspace(1.35, 1, len(env[i1:i1 + ramp])))
+                env[i0:i1] = np.maximum(env[i0:i1], boost)
+                env[max(0, i0 - ramp):i0] = np.maximum(env[max(0, i0 - ramp):i0], np.linspace(1, boost, i0 - max(0, i0 - ramp)))
+                env[i1:i1 + ramp] = np.maximum(env[i1:i1 + ramp], np.linspace(boost, 1, len(env[i1:i1 + ramp])))
             a = a * env
         out = [a]
         a = np.concatenate(out) if out else np.zeros(1)
@@ -1216,13 +1227,22 @@ def plan_cast(scenes, cast, extra, speed):
                 t += dur + ln.get("pause", 0.22)
             sc["_lines"] = lines
             sc["duration"] = max(sc.get("duration", 0), t + sc.get("tail", 0.35))
+        elif tp in FACT_TYPES:
+            a1 = speak(narr, {"text": sc.get("say", sc["text"]), "emo": sc.get("emo", "neutral")})
+            a = a1
+            if sc.get("sub") or sc.get("say_sub"):
+                a2 = speak(narr, {"text": sc.get("say_sub", sc.get("sub", "")), "emo": sc.get("emo_sub", "neutral")})
+                a = np.concatenate([a1, np.zeros(int(SR * 0.25)), a2])
+            sc["_sub_t"] = LEAD + len(a1) / SR + 0.12
+            clips.append((T0 + LEAD, a))
+            sc["duration"] = max(sc.get("duration", 2.0), LEAD + len(a) / SR + sc.get("tail", 0.45))
         else:
             text = sc.get("say") or (sc.get("text", "") + (" " + sc["sub"] if sc.get("sub") else ""))
             if text.strip():
-                v = get(narr["voice"])
-                a = to_sr(v.say(speech_text(text, extra)), v.sr, narr.get("pitch", 0))
+                a = speak(narr, {"text": text, "emo": sc.get("emo", "neutral")})
                 clips.append((T0 + LEAD, a))
-                sc["duration"] = max(sc.get("duration", 1.5), LEAD + len(a) / SR + sc.get("tail", 0.6))
+                tail = {"captions": 0.25, "punch": 0.2, "hook": 0.35, "cta": 0.9}.get(tp, 0.6)
+                sc["duration"] = max(sc.get("duration", 1.0), LEAD + len(a) / SR + sc.get("tail", tail))
         T0 += dur_of(sc)
     return clips
 
@@ -1234,8 +1254,12 @@ def voice_bus_sr(clips, total):
         j = min(len(bus), i + len(a))
         bus[i:j] += a[:j - i]
     pcm = (np.clip(bus / (np.max(np.abs(bus)) or 1) * 0.9, -1, 1) * 32767).astype(np.int16).tobytes()
-    af = ("highpass=f=85,equalizer=f=280:t=q:w=1:g=-3,equalizer=f=3000:t=q:w=1.2:g=3.5,"
-          "equalizer=f=7000:t=q:w=1:g=2,acompressor=threshold=-18dB:ratio=2:attack=5:release=80:makeup=2")
+    if CLEAN["on"]:  # sanft: kein Höhen-Boost, Zischlaute gezähmt, leichte Kompression
+        af = ("highpass=f=80,equalizer=f=250:t=q:w=1:g=-2,equalizer=f=2500:t=q:w=1.5:g=1.5,"
+              "lowpass=f=9500,acompressor=threshold=-20dB:ratio=2:attack=10:release=150:makeup=1.5")
+    else:
+        af = ("highpass=f=85,equalizer=f=280:t=q:w=1:g=-3,equalizer=f=3000:t=q:w=1.2:g=3.5,"
+              "equalizer=f=7000:t=q:w=1:g=2,acompressor=threshold=-18dB:ratio=2:attack=5:release=80:makeup=2")
     raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "s16le", "-ar", str(SR), "-ac", "1", "-i", "-",
                           "-af", af, "-f", "f32le", "-ac", "1", "-"], input=pcm, capture_output=True).stdout
     return np.frombuffer(raw, np.float32).astype(float)
@@ -1316,7 +1340,27 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
             add(kick(), k * beat, 0.5)
             add(kick(), k * beat + 0.2, 0.3)
             k += 1
-        mix[:n] += np.sin(2 * np.pi * (1760 + 8 * np.sin(2 * np.pi * 0.3 * x)) * x) * 0.025
+    elif beat_on and style == "soft":
+        # Weiche Hintergrundmusik: warme Akkord-Flächen + sanfter tiefer Puls, keine Höhen
+        beat = 60 / bpm
+        chords = [[220, 261.6, 329.6], [174.6, 220, 261.6], [130.8, 196, 261.6], [196, 246.9, 293.7]]
+        roots = [55.0, 43.65, 65.41, 49.0]
+        bar_len = beat * 4
+        b = 0
+        while b * bar_len < total:
+            xx = tt(bar_len)
+            pad = sum(np.sin(2 * np.pi * f * xx) for f in chords[b % 4]) / 3
+            pad += 0.5 * np.sin(2 * np.pi * roots[b % 4] * xx)
+            pad *= np.minimum(1, xx / 0.8) * np.minimum(1, (bar_len - xx) / 0.6)
+            add(pad, b * bar_len, 0.35)
+            b += 1
+        k = 0
+        while k * beat < total:
+            if k % 2 == 0:
+                x = tt(0.4)
+                add(np.sin(2 * np.pi * (40 + 40 * np.exp(-x * 25)) * x) * np.exp(-x * 7), k * beat, 0.6)
+            k += 1
+        mix[:n] *= np.minimum(1, np.arange(n) / (SR * 0.5))
     elif beat_on:
         beat = 60 / bpm
         roots = [55.0, 43.65, 65.41, 49.0]          # A, F, C, G
@@ -1341,7 +1385,25 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
     music = mix.copy()
     mix[:] = 0
 
+    soft = CLEAN["on"]
     for kind, at in events:
+        if soft and kind in ("whoosh", "pop", "tick", "blip", "ding", "impact"):
+            if kind == "whoosh":  # weiches, tiefes Rauschen
+                x = tt(0.4)
+                nz = np.convolve(rng.uniform(-1, 1, len(x)), np.ones(24) / 24, "same")
+                add(nz * np.sin(np.pi * x / 0.4) ** 2 * 3, max(0, at - 0.15), 0.25)
+            elif kind == "pop":
+                x = tt(0.12)
+                add(np.sin(2 * np.pi * (220 + 300 * x) * x) * np.exp(-x * 35), at, 0.3)
+            elif kind == "tick":  # Holz-Klick statt Piepton
+                x = tt(0.05)
+                add(np.sin(2 * np.pi * 520 * x) * np.exp(-x * 90), at, 0.22)
+            elif kind == "ding":  # weiches Glockenspiel (C5 + G5)
+                add(tone([523.25, 783.99], 0.9, 4.5), at, 0.22)
+            elif kind == "impact":
+                x = tt(0.7)
+                add(np.sin(2 * np.pi * (35 + 70 * np.exp(-x * 18)) * x) * np.exp(-x * 5), at, 0.7)
+            continue
         if kind == "whoosh":
             x = tt(0.35)
             s = np.diff(rng.uniform(-1, 1, len(x)), prepend=0) * np.sin(np.pi * x / 0.35) ** 2
@@ -1386,6 +1448,21 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
             add(tone([1046.5, 1568], 0.8, 5), at, 0.45)
             add(tone([1318.5, 2093], 0.6, 6), at + 0.09, 0.35)
     norm = lambda a, lvl: a / (np.max(np.abs(a)) or 1) * lvl
+    if CLEAN["on"]:
+        # Musik leise, Effekte tiefpassgefiltert, Stimme vorne – ohne Sättigung oder Clipping
+        mix = np.convolve(mix, np.ones(6) / 6, "same")
+        music, sfx = norm(music, 0.16), norm(mix, 0.3)
+        v = np.zeros(n)
+        if voice is not None and len(voice):
+            v[:min(n, len(voice))] = voice[:n]
+        win = int(SR * 0.05)
+        env = np.sqrt(np.convolve(v ** 2, np.ones(win) / win, "same"))
+        env = np.clip(np.convolve(np.clip(env / 0.02, 0, 1), np.ones(int(SR * 0.3)) / int(SR * 0.3), "same") * 1.5, 0, 1)
+        out = music * (1 - 0.6 * env) + sfx * (1 - 0.4 * env) + norm(v, 0.85)
+        peak = np.max(np.abs(out)) or 1
+        if peak > 0.89:
+            out *= 0.89 / peak
+        return (out * 32767).astype(np.int16)
     music, sfx = norm(music, 0.5), norm(mix, 0.55)
     out = music + sfx
     if voice is not None and len(voice):
@@ -1417,6 +1494,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
         group = [s for s in scenes if s.get("type") in ((tp_,) if tp_ != "fact" else FACT_TYPES)]
         for i, s in enumerate(group):
             s["_label"] = s.get("label", f"{word} {i + 1}/{len(group)}")
+    CLEAN["on"] = script.get("audio", "clean") == "clean"
     clips, vsr = [], None
     if script.get("cast"):
         for sc in scenes:
@@ -1433,7 +1511,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
 
     # Sound-Events vorab planen
     events, T0 = [], 0.0
-    style = script.get("music_style", "beat")
+    style = script.get("music_style", "soft" if CLEAN["on"] else "beat")
     for i, (sc, d) in enumerate(zip(scenes, durs)):
         tp = sc.get("type")
         if style == "drama":

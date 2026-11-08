@@ -1,0 +1,137 @@
+{
+  "title": "5 Fakten über deinen Körper",
+  "audio": "clean",
+  "music_style": "soft",
+  "bpm": 90,
+  "cast": {
+    "erzähler": {
+      "voice": "thorsten_emotional"
+    }
+  },
+  "pronounce": {
+    "1 cm": "einen Zentimeter",
+    "km": "Kilometer",
+    "cm": "Zentimeter",
+    "Babys": "Bebis"
+  },
+  "theme": {
+    "bgs": [
+      [
+        "#0f766e",
+        "#042f2e"
+      ],
+      [
+        "#4c1d95",
+        "#0f0a1f"
+      ],
+      [
+        "#9f1239",
+        "#1a0410"
+      ]
+    ],
+    "accent": "#facc15",
+    "accent_text": "#111111",
+    "glow": "#38bdf8",
+    "active": "#facc15"
+  },
+  "particles": [
+    "❤️",
+    "🦴",
+    "🧠",
+    "🦷",
+    "🩸"
+  ],
+  "caption": "5 Fakten über deinen Körper, die dich umhauen 🤯 Welcher hat dich am meisten überrascht? 👇\n\n#fakten #wusstestdu #körper #biologie #lernenmittiktok #funfacts #fyp",
+  "scenes": [
+    {
+      "type": "hook",
+      "emoji": "🤯",
+      "text": "5 Fakten über deinen *Körper*, die dich umhauen",
+      "sub": "Nummer 5 kennt fast keiner",
+      "say": "Hier sind fünf Fakten über deinen *Körper*, die dich umhauen! Nummer fünf kennt fast *keiner*.",
+      "emo": "shock",
+      "duration": 2.4
+    },
+    {
+      "type": "calc",
+      "text": "Dein Herz schlägt rund *100.000 Mal* am Tag",
+      "steps": [
+        "70",
+        "×",
+        "60",
+        "×",
+        "24",
+        "≈",
+        "100.800"
+      ],
+      "emoji": "❤️",
+      "coins": 5,
+      "emo": "happy",
+      "sub": "Bei 70 Schlägen pro Minute. Und das ohne eine einzige Pause!",
+      "emo_sub": "neutral"
+    },
+    {
+      "type": "fact",
+      "emoji": "📏",
+      "text": "Morgens bist du rund *1 cm größer* als abends",
+      "emo": "shock",
+      "sub": "Tagsüber werden deine Bandscheiben zusammengedrückt. Nachts erholen sie sich wieder.",
+      "emo_sub": "neutral"
+    },
+    {
+      "type": "fact",
+      "emoji": "🦷",
+      "text": "Zahnschmelz ist das *Härteste* in deinem Körper",
+      "emo": "happy",
+      "sub": "Aber er kann sich nicht selbst reparieren. Also: *Zähne putzen*!",
+      "emo_sub": "neutral"
+    },
+    {
+      "type": "bars",
+      "text": "Babys haben fast *100 Knochen* mehr als du",
+      "bars": [
+        {
+          "label": "Baby",
+          "value": 300,
+          "emoji": "👶",
+          "decimals": 0
+        },
+        {
+          "label": "Erwachsener",
+          "value": 206,
+          "emoji": "🧑",
+          "decimals": 0,
+          "color": "#38bdf8"
+        }
+      ],
+      "note": "Anzahl der Knochen (Baby: rund 300)",
+      "emo": "shock",
+      "sub": "Viele Knochen wachsen später zusammen. Am Ende bleiben 206.",
+      "emo_sub": "neutral"
+    },
+    {
+      "type": "calc",
+      "text": "Deine Adern sind rund *100.000 km* lang",
+      "steps": [
+        "100.000 km",
+        "÷",
+        "40.000 km",
+        "≈",
+        "2,5 × 🌍"
+      ],
+      "emoji": "🩸",
+      "coins": 4,
+      "emo": "shock",
+      "sub": "Aneinandergelegt reichen sie mehr als *zweimal* um die ganze Erde!",
+      "emo_sub": "happy"
+    },
+    {
+      "type": "cta",
+      "emoji": "👇",
+      "text": "Welcher Fakt hat dich *überrascht*?",
+      "sub": "Folg für mehr Fakten",
+      "duration": 3.0,
+      "emo": "happy"
+    }
+  ]
+}
