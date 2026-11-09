@@ -1,0 +1,31 @@
+{
+  "title": "5 Fakten über das Weltall",
+  "audio": "clean",
+  "music_style": "ambient",
+  "calm": true,
+  "backdrop": "space",
+  "bpm": 72,
+  "speed": 1.03,
+  "cast": { "erzähler": { "voice": "thorsten_emotional" } },
+  "theme": { "bgs": [["#0b1026", "#02030a"]], "accent": "#c4b5fd", "accent_text": "#1e1b4b", "glow": "#6366f1", "active": "#c4b5fd" },
+  "particles": [],
+  "caption": "5 Fakten über das Weltall, die dich staunen lassen 🌌✨ Welcher hat dich am meisten beeindruckt? 👇\n\n#weltall #space #fakten #wusstestdu #astronomie #lernenmittiktok #fyp",
+  "scenes": [
+    { "type": "hook", "emoji": "🌌", "text": "5 Fakten über das *Weltall*, die dich staunen lassen", "sub": "Lehn dich kurz zurück",
+      "say": "Hier sind fünf Fakten über das *Weltall*, die dich staunen lassen.", "emo": "happy", "duration": 3.0 },
+    { "type": "bars", "text": "Auf der Venus ist ein *Tag* länger als ein *Jahr*",
+      "bars": [ { "label": "1 Tag auf der Venus", "value": 243, "emoji": "🌞", "decimals": 0, "color": "#fbbf24" },
+                { "label": "1 Jahr auf der Venus", "value": 225, "emoji": "🪐", "decimals": 0, "color": "#a78bfa" } ],
+      "note": "in Erdtagen",
+      "emo": "shock", "sub": "Sie dreht sich so langsam, dass sie schneller um die Sonne kreist als um sich selbst.", "emo_sub": "neutral" },
+    { "type": "fact", "emoji": "☀️", "text": "Sonnenlicht ist rund *8 Minuten* zu dir unterwegs",
+      "emo": "happy", "sub": "Wenn du die Sonne siehst, siehst du sie so, wie sie vor acht Minuten war.", "emo_sub": "neutral" },
+    { "type": "calc", "text": "Astronauten sehen bis zu *16 Sonnenaufgänge* am Tag", "steps": ["24 Std.", "÷", "1,5 Std.", "=", "16 🌅"], "emoji": "✨", "coins": 5,
+      "emo": "shock", "sub": "Die Raumstation ISS umrundet die Erde etwa alle neunzig Minuten.", "emo_sub": "neutral" },
+    { "type": "fact", "emoji": "🔇", "text": "Im Weltall ist es *komplett still*",
+      "emo": "neutral", "sub": "Schall braucht Luft, um sich auszubreiten. Und im All gibt es keine.", "emo_sub": "neutral" },
+    { "type": "fact", "emoji": "✨", "text": "Es gibt mehr *Sterne* als Sandkörner an allen Stränden der Erde",
+      "emo": "shock", "sub": "Zumindest nach heutigen Schätzungen. Denk daran, wenn du das nächste Mal am Strand liegst.", "emo_sub": "happy" },
+    { "type": "cta", "emoji": "🌙", "text": "Welcher Fakt hat dich am meisten *beeindruckt*?", "sub": "Folg für mehr Fakten", "duration": 3.4, "emo": "happy" }
+  ]
+}

@@ -233,7 +233,7 @@ def stamp(t, start, dur=0.16):
     k = (t - start) / dur
     if k <= 0:
         return 0, 0
-    return 1 + 0.9 * (1 - ease_out(k)), clamp(k * 2)
+    return 1 + (0.15 if CLEAN.get("calm") else 0.9) * (1 - ease_out(k)), clamp(k * (1.2 if CLEAN.get("calm") else 2))
 
 
 def draw_words(ov, placed, top, t, start, per_word, pop=True):
@@ -274,13 +274,41 @@ class Background:
             self.grads[(c1, c2)] = Image.fromarray(np.repeat(col[:, None, :], W, axis=1).reshape(H, W, 3)).convert("RGBA")
         return self.grads[(c1, c2)]
 
-    def render(self, T, bg, beat, rays=0.0):
+    def space(self, img, T):
+        """Ruhiger Sternenhimmel: langsam ziehende Nebel + sanft funkelnde Sterne."""
+        if not hasattr(self, "_neb"):
+            rnd = random.Random(11)
+            sw, sh = W // 4, H // 4
+            neb = Image.new("RGBA", (sw + 80, sh + 80), (0, 0, 0, 0))
+            dn = ImageDraw.Draw(neb)
+            for col in [(124, 58, 237), (14, 165, 233), (236, 72, 153), (59, 130, 246), (147, 51, 234)]:
+                for _ in range(2):
+                    x, y, r = rnd.uniform(0, sw), rnd.uniform(0, sh), rnd.uniform(60, 130)
+                    dn.ellipse([x - r, y - r * 0.6, x + r, y + r * 0.6], fill=col + (55,))
+            self._neb = neb.filter(ImageFilter.GaussianBlur(28)).resize(((sw + 80) * 4, (sh + 80) * 4), Image.BICUBIC)
+            self._stars = [(rnd.uniform(0, W), rnd.uniform(0, H), rnd.choice([1.5, 2, 2.5, 3.5]), rnd.uniform(0, 6.3),
+                            rnd.uniform(0.6, 1.8)) for _ in range(170)]
+        ox = int(160 + math.sin(T * 0.04) * 150)
+        oy = int(160 + math.cos(T * 0.03) * 150)
+        img.alpha_composite(self._neb.crop((ox, oy, ox + W, oy + H)))
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
+        for x, y, r, ph, sp in self._stars:
+            a = int(110 + 120 * (0.5 + 0.5 * math.sin(T * sp + ph)))
+            yy = (y + T * 4) % H  # ganz langsames Driften
+            d.ellipse([x - r, yy - r, x + r, yy + r], fill=(255, 255, 255, a))
+        img.alpha_composite(layer)
+        return img
+
+    def render(self, T, bg, beat, rays=0.0, calm=False, backdrop=None):
         img = self.grad(*bg).copy()
+        if backdrop == "space":
+            return self.space(img, T)
         # Glow, der im Beat pulsiert, und rotierende Strahlen
         sw, sh = W // 8, H // 8
         small = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
         d = ImageDraw.Draw(small)
-        pulse = math.exp(-((T % beat) / beat) * 4)
+        pulse = 0.3 if calm else math.exp(-((T % beat) / beat) * 4)
         r = sw * (0.55 + 0.12 * pulse)
         cx, cy = sw / 2 + math.sin(T * 0.7) * 20, sh * 0.45 + math.cos(T * 0.5) * 30
         d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=self.C["glow"] + (int(70 + 70 * pulse),))
@@ -1340,6 +1368,37 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
             add(kick(), k * beat, 0.5)
             add(kick(), k * beat + 0.2, 0.3)
             k += 1
+    elif beat_on and style == "ambient":
+        # Ruhige Ambient-Musik: weiches Klavier-Arpeggio, warme Fläche, Hall – kein Beat, keine Höhen
+        beat = 60 / bpm
+        chords = [[261.63, 329.63, 392.0, 493.88], [220.0, 261.63, 329.63, 392.0],
+                  [174.61, 220.0, 261.63, 329.63], [196.0, 246.94, 293.66, 392.0]]  # Cmaj7 Am7 Fmaj7 G
+        bar_len = beat * 4
+
+        def piano(f, d=2.2):
+            x = tt(d)
+            s_ = np.sin(2 * np.pi * f * x) + 0.35 * np.sin(4 * np.pi * f * x) + 0.12 * np.sin(6 * np.pi * f * x)
+            return s_ * np.exp(-x * 2.2) * np.minimum(1, x * 120)
+
+        b = 0
+        while b * bar_len < total + 1:
+            ch = chords[b % 4]
+            at = b * bar_len
+            xx = tt(bar_len + 0.5)
+            pad = sum(np.sin(2 * np.pi * f / 2 * xx) for f in ch[:3]) / 3
+            pad *= np.minimum(1, xx / 1.5) * np.minimum(1, np.maximum(0, (bar_len + 0.5 - xx)) / 1.0)
+            add(pad, at, 0.22)
+            for k, ni in enumerate([0, 1, 2, 3, 2, 1, 2, 3]):
+                add(piano(ch[ni]), at + k * beat / 2, 0.16 if k % 4 == 0 else 0.11)
+            b += 1
+        # einfacher Hall (zwei Echos, gedämpft) für Raumgefühl
+        d1, d2 = int(SR * 0.21), int(SR * 0.37)
+        wet = np.zeros(n)
+        wet[d1:] += mix[:-d1] * 0.35
+        wet[d2:] += mix[:-d2] * 0.22
+        mix += np.convolve(wet, np.ones(12) / 12, "same")
+        mix = np.convolve(mix, np.ones(5) / 5, "same")  # Höhen weich machen
+        mix[:n] *= np.minimum(1, np.arange(n) / (SR * 1.5))
     elif beat_on and style == "soft":
         # Weiche Hintergrundmusik: warme Akkord-Flächen + sanfter tiefer Puls, keine Höhen
         beat = 60 / bpm
@@ -1386,12 +1445,14 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
     mix[:] = 0
 
     soft = CLEAN["on"]
+    if style == "ambient":
+        events = [(k, a) for k, a in events if k in ("whoosh", "ding")]
     for kind, at in events:
         if soft and kind in ("whoosh", "pop", "tick", "blip", "ding", "impact"):
             if kind == "whoosh":  # weiches, tiefes Rauschen
                 x = tt(0.4)
                 nz = np.convolve(rng.uniform(-1, 1, len(x)), np.ones(24) / 24, "same")
-                add(nz * np.sin(np.pi * x / 0.4) ** 2 * 3, max(0, at - 0.15), 0.25)
+                add(nz * np.sin(np.pi * x / 0.4) ** 2 * 3, max(0, at - 0.15), 0.12 if style == "ambient" else 0.25)
             elif kind == "pop":
                 x = tt(0.12)
                 add(np.sin(2 * np.pi * (220 + 300 * x) * x) * np.exp(-x * 35), at, 0.3)
@@ -1495,6 +1556,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
         for i, s in enumerate(group):
             s["_label"] = s.get("label", f"{word} {i + 1}/{len(group)}")
     CLEAN["on"] = script.get("audio", "clean") == "clean"
+    CLEAN["calm"] = bool(script.get("calm"))
     clips, vsr = [], None
     if script.get("cast"):
         for sc in scenes:
@@ -1557,6 +1619,7 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
     total_frames = int(total * FPS)
     header = script.get("header")
     fxcache = {}
+    last_frame = None
     fr, T0 = 0, 0.0
     for si, (sc, d) in enumerate(zip(scenes, durs)):
         tp = sc.get("type")
@@ -1568,12 +1631,16 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             T = fr / FPS
             think = sc.get("think", 2.6 if tp == "quiz" else 2.2)
             quiz_rays = 1.0 if tp in ("quiz", "scan") and t >= think else 0.0
-            img = bg.render(T, sbg, beat, max(rays, quiz_rays))
+            calm = bool(script.get("calm"))
+            img = bg.render(T, sbg, beat, 0.0 if calm else max(rays, quiz_rays), calm, script.get("backdrop"))
             ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
             fn(ov, sc, t, d, C, events)
             # Kamera: Zoom-Punch beim Schnitt, Wackeln bei Impact, leichtes Atmen im Beat
             zoom = 1 + 0.10 * (1 - ease_out(t / 0.25)) + 0.012 * math.exp(-((T % beat) / beat) * 5)
             shake = 22 * max(0, 1 - t / 0.3) if tp in ("hook", "punch") else 0
+            if calm:  # ruhige Kamera: nur ganz sanftes Heranzoomen, kein Wackeln
+                zoom = 1 + 0.025 * (t / max(d, 0.1))
+                shake = 0
             if tp in ("story", "cartoon"):  # langsamer Kamera-Zoom statt Beat-Pumpen
                 zoom = 1 + 0.06 * (t / max(d, 0.1)) + 0.04 * (1 - ease_out(t / 0.4))
                 shake = sc.get("fx", {}).get("shake", 0) * 26 * max(0.15, 1 - t / 0.6)
@@ -1603,8 +1670,11 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
                 dr.rectangle([W / 2 - tw / 2 - 28, 165, W / 2 + tw / 2 + 28, 255], fill=(255, 255, 255, 255))
                 dr.text((W / 2, 210), tb, font=ft, fill=(10, 10, 10, 255), anchor="mm")
             frame = img.convert("RGB")
-            if tp in ("hook", "punch") and t < 0.1:
+            if tp in ("hook", "punch") and t < 0.1 and not calm:
                 frame = Image.blend(frame, Image.new("RGB", (W, H), (255, 255, 255)), 0.55 * (1 - t / 0.1))
+            if calm and t < 0.3 and fr > 0:  # weiche Überblendung statt harter Schnitte
+                frame = Image.blend(last_frame, frame, t / 0.3)
+            last_frame = frame
             proc.stdin.write(frame.tobytes())
             fr += 1
         T0 += d
