@@ -1274,7 +1274,13 @@ def plan_cast(scenes, cast, extra, speed):
             text = sc.get("say") or (sc.get("text", "") + (" " + sc["sub"] if sc.get("sub") else ""))
             if text.strip():
                 a = speak(narr, {"text": text, "emo": sc.get("emo", "neutral")})
-                clips.append((T0 + LEAD, a))
+                lead = 0.04 if tp == "motion" else LEAD
+                clips.append((T0 + lead, a))
+                sc["_say_dur"] = len(a) / SR
+                if tp == "motion":
+                    sc["duration"] = max(sc.get("duration", 0.6), lead + len(a) / SR + sc.get("tail", 0.18))
+                    T0 += dur_of(sc)
+                    continue
                 tail = {"captions": 0.25, "punch": 0.2, "hook": 0.35, "cta": 0.9, "motion": 0.35}.get(tp, 0.6)
                 sc["duration"] = max(sc.get("duration", 1.0), LEAD + len(a) / SR + sc.get("tail", tail))
         T0 += dur_of(sc)
@@ -1405,6 +1411,29 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
         mix += np.convolve(wet, np.ones(12) / 12, "same")
         mix = np.convolve(mix, np.ones(5) / 5, "same")  # Höhen weich machen
         mix[:n] *= np.minimum(1, np.arange(n) / (SR * 1.5))
+    elif beat_on and style == "drive":
+        # Treibender, dunkler Puls: Sub-Kick auf jedem Schlag, tiefer Bass, Moll-Fläche – keine Höhen
+        beat = 60 / bpm
+        chords = [[110.0, 130.81, 164.81], [87.31, 110.0, 130.81], [130.81, 164.81, 196.0], [98.0, 123.47, 146.83]]
+        bar_len = beat * 4
+        b = 0
+        while b * bar_len < total + 1:
+            xx = tt(bar_len + 0.4)
+            ch = chords[b % 4]
+            pad = sum(np.sin(2 * np.pi * f * xx) for f in ch) / 3
+            pad *= np.minimum(1, xx / 0.6) * np.minimum(1, np.maximum(0, bar_len + 0.4 - xx) / 0.6)
+            add(pad, b * bar_len, 0.18)
+            for q in range(8):  # pulsierender Achtel-Bass
+                xb = tt(beat / 2 * 0.9)
+                add(np.sin(2 * np.pi * ch[0] / 2 * xb) * np.exp(-xb * 6), b * bar_len + q * beat / 2, 0.35)
+            b += 1
+        k = 0
+        while k * beat < total:
+            x = tt(0.4)
+            add(np.sin(2 * np.pi * (40 + 60 * np.exp(-x * 25)) * x) * np.exp(-x * 8), k * beat, 0.75)
+            k += 1
+        mix = np.convolve(mix, np.ones(8) / 8, "same")
+        mix[:n] *= np.minimum(1, np.arange(n) / (SR * 0.2))
     elif beat_on and style == "dark":
         # Dunkle, ruhige Motivations-Fläche: tiefe Moll-Akkorde, weicher Sub-Puls, Hall – keine Höhen
         beat = 60 / bpm
@@ -1484,7 +1513,7 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
             nz = np.convolve(rng.uniform(-1, 1, len(x)), np.ones(10) / 10, "same")
             add(nz * np.exp(-x * 18) * (np.sin(2 * np.pi * 60 * x) > 0) * 3, at, 0.16)
             continue
-        if soft and kind in ("whoosh", "pop", "tick", "blip", "ding", "impact"):
+        if soft and kind in ("whoosh", "pop", "tick", "blip", "ding", "impact", "riser", "boom"):
             if kind == "whoosh":  # weiches, tiefes Rauschen
                 x = tt(0.4)
                 nz = np.convolve(rng.uniform(-1, 1, len(x)), np.ones(24) / 24, "same")
@@ -1497,6 +1526,14 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
                 add(np.sin(2 * np.pi * 520 * x) * np.exp(-x * 90), at, 0.22)
             elif kind == "ding":  # weiches Glockenspiel (C5 + G5)
                 add(tone([523.25, 783.99], 0.9, 4.5), at, 0.22)
+            elif kind == "riser":  # tiefe, ansteigende Spannung (ohne Rauschen in den Höhen)
+                x = tt(1.6)
+                f = 70 + 160 * (x / 1.6) ** 2
+                nz = np.convolve(rng.uniform(-1, 1, len(x)), np.ones(40) / 40, "same") * 6
+                add((np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.6 + nz * 0.4) * (x / 1.6) ** 2, at, 0.35)
+            elif kind == "boom":
+                x = tt(1.0)
+                add(np.sin(2 * np.pi * (32 + 70 * np.exp(-x * 14)) * x) * np.exp(-x * 4), at, 0.9)
             elif kind == "impact":
                 x = tt(0.7)
                 add(np.sin(2 * np.pi * (35 + 70 * np.exp(-x * 18)) * x) * np.exp(-x * 5), at, 0.7)
@@ -1548,7 +1585,7 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
     if CLEAN["on"]:
         # Musik leise, Effekte tiefpassgefiltert, Stimme vorne – ohne Sättigung oder Clipping
         mix = np.convolve(mix, np.ones(6) / 6, "same")
-        music, sfx = norm(music, 0.16), norm(mix, 0.3)
+        music, sfx = norm(music, 0.26 if style == "drive" else 0.16), norm(mix, 0.36 if style == "drive" else 0.3)
         v = np.zeros(n)
         if voice is not None and len(voice):
             v[:min(n, len(voice))] = voice[:n]
@@ -1623,6 +1660,16 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             events.append((name, T0 + at_))
         if tp == "motion" and i > 0 and sc.get("glitch", True):
             events.append(("glitch", T0))
+        if tp == "motion":
+            if sc.get("punch"):
+                events.append(("boom", T0))
+            if sc.get("riser"):
+                events.append(("riser", T0 + max(0, d - 1.6)))
+            for e in sc.get("els", []):
+                if e["k"] == "counter":  # Rattern beim Hochzählen
+                    x = e.get("at", 0.2)
+                    while x < e.get("at", 0.2) + e.get("dur", 1.6):
+                        events.append(("tick", T0 + x)); x += 0.075
         if tp == "quiz":
             think = sc.get("think", 2.6)
             for k in range(math.ceil(think)):
@@ -1677,8 +1724,8 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             zoom = 1 + 0.10 * (1 - ease_out(t / 0.25)) + 0.012 * math.exp(-((T % beat) / beat) * 5)
             shake = 22 * max(0, 1 - t / 0.3) if tp in ("hook", "punch") else 0
             if tp == "motion":
-                zoom = 1 + 0.03 * (t / max(d, 0.1))
-                shake = 0
+                zoom = 1 + 0.04 * (t / max(d, 0.1))
+                shake = 16 * max(0, 1 - t / 0.3) if sc.get("punch") else 0
             if calm:  # ruhige Kamera: nur ganz sanftes Heranzoomen, kein Wackeln
                 zoom = 1 + 0.025 * (t / max(d, 0.1))
                 shake = 0

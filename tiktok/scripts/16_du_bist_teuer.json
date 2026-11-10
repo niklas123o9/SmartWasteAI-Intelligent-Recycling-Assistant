@@ -1,0 +1,364 @@
+{
+  "title": "Du bist nicht pleite. Du bist teuer.",
+  "audio": "clean",
+  "music_style": "drive",
+  "bpm": 100,
+  "speed": 0.88,
+  "cast": {
+    "erzähler": {
+      "voice": "thorsten_emotional"
+    }
+  },
+  "theme": {
+    "bgs": [
+      [
+        "#0b0b0d",
+        "#050506"
+      ]
+    ],
+    "accent": "#ff5252",
+    "accent_text": "#ffffff",
+    "glow": "#111111",
+    "active": "#ff5252"
+  },
+  "particles": [],
+  "caption": "Du bist nicht pleite. Du bist teuer. 💸 Schick das dem Freund, der immer pleite ist 👇\n\n#geld #sparen #finanzen #motivation #mindset #fyp",
+  "scenes": [
+    {
+      "type": "motion",
+      "head": "Du bist nicht pleite.",
+      "say": "Du bist nicht *pleite*.",
+      "emo": "angry",
+      "punch": true,
+      "els": [
+        {
+          "k": "figures",
+          "n": 1,
+          "hi": [
+            0
+          ],
+          "h": 340,
+          "y": 1230,
+          "labels": [
+            "0 €"
+          ],
+          "label_color": "red",
+          "label_at": 0.3
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "head": "Du bist teuer.",
+      "color": "red",
+      "say": "Du bist *teuer*.",
+      "emo": "angry",
+      "punch": true,
+      "flash": "red",
+      "els": [
+        {
+          "k": "money",
+          "mode": "away",
+          "y": 1050,
+          "n": 18
+        },
+        {
+          "k": "figures",
+          "n": 1,
+          "hi": [
+            0
+          ],
+          "h": 340,
+          "y": 1230,
+          "labels": [
+            "0 €"
+          ],
+          "label_color": "red",
+          "label_at": 0.0
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "over": "Jeden Morgen",
+      "head": "ein [Kaffee].",
+      "say": "Jeden Morgen ein Kaffee.",
+      "emo": "neutral",
+      "els": [
+        {
+          "k": "chips",
+          "at": 0.5,
+          "items": [
+            {
+              "t": "4,50 €",
+              "color": "yellow",
+              "x": 0.5,
+              "y": 0.42,
+              "size": 70
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "head": "Klingt nach nichts.",
+      "say": "Klingt nach nichts.",
+      "emo": "cold",
+      "els": [
+        {
+          "k": "chips",
+          "at": 0.0,
+          "items": [
+            {
+              "t": "4,50 €",
+              "color": "gray",
+              "x": 0.5,
+              "y": 0.42,
+              "size": 70
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "over": "Im Jahr sind das",
+      "head": "1.642 €.",
+      "color": "red",
+      "say": "Im Jahr sind das *sechzehnhundertzweiundvierzig* Euro.",
+      "emo": "shock",
+      "riser": true,
+      "els": [
+        {
+          "k": "counter",
+          "from": 4.5,
+          "to": 1642.5,
+          "dec": 0,
+          "suffix": " €",
+          "color": "red",
+          "y": 820,
+          "at": 0.3,
+          "dur": 1.6,
+          "caption": "4,50 € × 365 Tage"
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "over": "In 10 Jahren",
+      "head": "über 16.000 €.",
+      "color": "red",
+      "say": "In zehn Jahren über *16.000* Euro.",
+      "emo": "shock",
+      "punch": true,
+      "flash": "red",
+      "els": [
+        {
+          "k": "money",
+          "mode": "rain",
+          "n": 22
+        },
+        {
+          "k": "counter",
+          "from": 1642,
+          "to": 16425,
+          "dec": 0,
+          "suffix": " €",
+          "color": "red",
+          "y": 820,
+          "at": 0.1,
+          "dur": 1.4
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "head": "Nur für [Kaffee].",
+      "say": "Nur für *Kaffee*.",
+      "emo": "angry",
+      "punch": true,
+      "els": [
+        {
+          "k": "money",
+          "mode": "rain",
+          "n": 22,
+          "at": -1.4
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "over": "Und das ist nur",
+      "head": "der Anfang.",
+      "say": "Und das ist nur der *Anfang*.",
+      "emo": "cold",
+      "riser": true,
+      "tail": 0.3,
+      "els": []
+    },
+    {
+      "type": "motion",
+      "over": "Beispiel pro Jahr",
+      "head": "Dazu kommt:",
+      "say": "Zweimal die Woche Lieferdienst. Drei Abos, die du vergessen hast. Snacks an der Tanke.",
+      "emo": "neutral",
+      "els": [
+        {
+          "k": "chips",
+          "at": 0.2,
+          "items": [
+            {
+              "t": "LIEFERDIENST  +2.600 €",
+              "color": "red",
+              "x": 0.5,
+              "y": 0.36,
+              "size": 44
+            },
+            {
+              "t": "3 ABOS  +360 €",
+              "color": "red",
+              "x": 0.5,
+              "y": 0.47,
+              "size": 44
+            },
+            {
+              "t": "TANKE-SNACKS  +780 €",
+              "color": "red",
+              "x": 0.5,
+              "y": 0.58,
+              "size": 44
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "over": "Zusammen",
+      "head": "über 5.000 €.",
+      "color": "red",
+      "say": "Zusammen über *5.000* Euro. Jedes Jahr.",
+      "emo": "shock",
+      "punch": true,
+      "flash": "red",
+      "els": [
+        {
+          "k": "money",
+          "mode": "rain",
+          "n": 28
+        },
+        {
+          "k": "counter",
+          "from": 0,
+          "to": 5382,
+          "dec": 0,
+          "suffix": " €",
+          "color": "red",
+          "y": 820,
+          "at": 0.15,
+          "dur": 1.3,
+          "caption": "pro Jahr"
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "head": "Und du sagst:",
+      "say": "Und du sagst:",
+      "emo": "cold",
+      "els": []
+    },
+    {
+      "type": "motion",
+      "head": "„Ich verdien|zu wenig.“",
+      "say": "Ich verdien halt zu wenig.",
+      "emo": "sad",
+      "els": [
+        {
+          "k": "figures",
+          "n": 1,
+          "hi": [],
+          "h": 320,
+          "y": 1230
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "head": "Nein.",
+      "color": "red",
+      "say": "*Nein*.",
+      "emo": "angry",
+      "punch": true,
+      "flash": "red",
+      "tail": 0.35,
+      "els": []
+    },
+    {
+      "type": "motion",
+      "over": "Du schaust nur",
+      "head": "nie hin.",
+      "color": "yellow",
+      "say": "Du schaust nur *nie* hin.",
+      "emo": "cold",
+      "els": [
+        {
+          "k": "figures",
+          "n": 1,
+          "hi": [
+            0
+          ],
+          "hi_color": "yellow",
+          "h": 320,
+          "y": 1230
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "over": "Mach heute",
+      "head": "einen [Kassensturz].",
+      "say": "Mach heute einen *Kassensturz*. Nur einen.",
+      "emo": "neutral",
+      "els": [
+        {
+          "k": "figures",
+          "n": 1,
+          "hi": [
+            0
+          ],
+          "hi_color": "green",
+          "h": 320,
+          "y": 1230,
+          "labels": [
+            "+5.000 €"
+          ],
+          "label_color": "green",
+          "label_at": 0.8
+        }
+      ]
+    },
+    {
+      "type": "motion",
+      "over": "Schick das dem Freund,",
+      "head": "der immer|pleite ist.",
+      "color": "green",
+      "say": "Und schick das dem Freund, der *immer* pleite ist.",
+      "emo": "happy",
+      "tail": 1.4,
+      "els": [
+        {
+          "k": "figures",
+          "n": 5,
+          "hi": [
+            2
+          ],
+          "hi_color": "green",
+          "y": 1230,
+          "span": 760
+        }
+      ]
+    }
+  ]
+}

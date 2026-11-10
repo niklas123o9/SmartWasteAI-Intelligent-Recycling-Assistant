@@ -69,30 +69,79 @@ def glow_layer(draw_fn, radius=18, strength=2):
 
 # ---------------------------------------------------------------- Text
 
-def headline(img, t, over, head, color="white", y=400, reveal=0.35):
+def headline(img, t, over, head, color="white", y=400, reveal=0.35, punch=False, size=124):
+    """Überzeile + große Überschrift. Wörter erscheinen nacheinander (synchron zur Stimme).
+    '|' trennt Zeilen, Wörter in [eckigen Klammern] bekommen die Akzentfarbe."""
     d = ImageDraw.Draw(img)
     if over:
-        f = font(34, "bold")
-        txt = " ".join(over.upper())  # gesperrt
-        a = int(170 * ease(t / 0.3))
-        d.text((W / 2, y - 95), txt, font=f, fill=(150, 150, 158, a), anchor="mm")
-    if head:
-        size = 120
+        f = font(36, "bold")
+        txt = " ".join(over.upper())
+        a = int(190 * ease(t / 0.2))
+        d.text((W / 2, y - 105), txt, font=f, fill=(160, 160, 168, a), anchor="mm")
+    if not head:
+        return
+    lines = head.upper().split("|")
+    words_total = sum(len(l.split()) for l in lines)
+    shown = words_total if reveal <= 0.06 else int(words_total * clamp(t / reveal) + 0.999)
+    f = font(size)
+    plain = [l.replace("[", "").replace("]", "") for l in lines]
+    while max(f.getlength(l) for l in plain) > W - 120 and size > 56:
+        size -= 6
         f = font(size)
-        while f.getlength(head.upper()) > W - 140 and size > 60:
-            size -= 6
-            f = font(size)
-        txt = head.upper()
-        tw = f.getlength(txt)
-        k = ease(t / reveal)
-        layer = Image.new("RGBA", (W, 260), (0, 0, 0, 0))
-        ImageDraw.Draw(layer).text((W / 2, 130), txt, font=f, fill=col(color) + (255,), anchor="mm")
-        cut = int((W - tw) / 2 + tw * k + 40)
-        layer = layer.crop((0, 0, max(1, cut), 260))
-        if color != "white":
-            g = layer.filter(ImageFilter.GaussianBlur(14))
-            img.alpha_composite(g, (0, y - 130))
-        img.alpha_composite(layer, (0, y - 130))
+    lh = int(size * 1.2)
+    layer = Image.new("RGBA", (W, lh * len(lines) + 60), (0, 0, 0, 0))
+    ld = ImageDraw.Draw(layer)
+    idx = 0
+    for li, line in enumerate(lines):
+        words = line.split()
+        lw = f.getlength(" ".join(w.replace("[", "").replace("]", "") for w in words))
+        x = (W - lw) / 2
+        for w in words:
+            marked = "[" in w or "]" in w
+            ww = w.replace("[", "").replace("]", "")
+            if idx < shown:
+                c = col(color if color != "white" else "yellow") if marked else col(color)
+                ld.text((x, 30 + li * lh), ww, font=f, fill=c + (255,))
+            x += f.getlength(ww + " ")
+            idx += 1
+    if punch:
+        k = ease(t / 0.18)
+        sc = 1.35 - 0.35 * k
+        layer = layer.resize((int(layer.width * sc), int(layer.height * sc)), Image.BILINEAR)
+    lx = int((W - layer.width) / 2)
+    ly = int(y - 30 - lh / 2 - (layer.height - (lh * len(lines) + 60)) / 2)
+    g = layer.filter(ImageFilter.GaussianBlur(16))
+    if color != "white":
+        img.alpha_composite(g, (lx, ly))
+    img.alpha_composite(layer, (lx, ly))
+
+
+def el_money(img, e, t):
+    """Geldscheine: 'rain' = regnen von oben, 'away' = fliegen davon."""
+    import random
+    rnd = random.Random(5)
+    d_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(d_layer)
+    n = e.get("n", 26)
+    for i in range(n):
+        x0, sp, ph, delay = rnd.uniform(60, W - 60), rnd.uniform(380, 700), rnd.uniform(0, 6.3), rnd.uniform(0, 1.2)
+        tt = t - e.get("at", 0) - delay * 0.5
+        if tt < 0:
+            continue
+        if e.get("mode", "rain") == "rain":
+            x, y = x0 + math.sin(tt * 2 + ph) * 40, -80 + tt * sp
+        else:
+            x, y = W / 2 + (x0 - W / 2) * tt * 1.6, e.get("y", 1050) - tt * sp * 0.9
+        if y > H + 80 or y < -120:
+            continue
+        ang = math.sin(tt * 3 + ph) * 35
+        bill = Image.new("RGBA", (120, 64), (0, 0, 0, 0))
+        bd = ImageDraw.Draw(bill)
+        bd.rounded_rectangle([2, 2, 118, 62], radius=8, fill=(34, 120, 70, 235), outline=(74, 222, 128, 255), width=4)
+        bd.text((60, 33), "€", font=font(36), fill=(190, 255, 210, 255), anchor="mm")
+        bill = bill.rotate(ang, expand=True, resample=Image.BICUBIC)
+        d_layer.alpha_composite(bill, (int(x - bill.width / 2), int(y - bill.height / 2)))
+    img.alpha_composite(d_layer)
 
 
 # ---------------------------------------------------------------- Figuren
@@ -252,14 +301,20 @@ def el_stairs(img, e, t):
 
 
 ELEMENTS = {"figures": el_figures, "counter": el_counter, "curve": el_curve, "chips": el_chips, "fork": el_fork,
-            "stairs": el_stairs}
+            "stairs": el_stairs, "money": el_money}
 
 
 def render_scene(sc, t, d):
     img = background()
-    headline(img, t, sc.get("over"), sc.get("head"), sc.get("color", "white"), sc.get("head_y", 400))
     for e in sc.get("els", []):
         ELEMENTS[e["k"]](img, e, t)
+    rev = 0.05 if sc.get("punch") else max(0.2, sc.get("_say_dur", 1.0) * 0.85)
+    empty = not sc.get("els")
+    headline(img, t, sc.get("over"), sc.get("head"), sc.get("color", "white"),
+             sc.get("head_y", 880 if empty else 400), rev, sc.get("punch", False), sc.get("size", 190 if empty else 124))
+    if sc.get("flash") and t < 0.22:
+        c = col(sc["flash"])
+        img.alpha_composite(Image.new("RGBA", (W, H), c + (int(120 * (1 - t / 0.22)),)))
     return img
 
 
