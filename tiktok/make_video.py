@@ -837,6 +837,12 @@ def s_cartoon(ov, sc, t, d, C, ev):
             dr.text((MX + 10, y0 + 60 + j * 62), r_, font=f, fill=(255, 255, 255, 255))
 
 
+def s_motion(ov, sc, t, d, C, ev):
+    """Dunkle Motion-Grafik im Motivations-Stil (siehe motion.py)."""
+    import motion
+    ov.alpha_composite(motion.render_scene(sc, t, d))
+
+
 def story_overlay(img, sc, t, fxcache, grain=True):
     """Kino-Effekte über dem fertigen Bild: Sirenenlicht, Farbstich, Blitz, Vignette, Filmkorn."""
     fx = sc.get("fx", {})
@@ -942,7 +948,7 @@ def s_scan(ov, sc, t, d, C, ev):
 
 SCENES = {"hook": s_hook, "punch": s_punch, "captions": s_captions, "quiz": s_quiz, "cta": s_cta, "scan": s_scan, "fact": s_fact,
           "stat": s_stat, "bars": s_bars, "myth": s_myth, "calc": s_calc, "badge": s_badge,
-          "story": s_story, "cartoon": s_cartoon}
+          "story": s_story, "cartoon": s_cartoon, "motion": s_motion}
 
 
 # ---------- Sprachausgabe (Piper, offline) ----------
@@ -1269,7 +1275,7 @@ def plan_cast(scenes, cast, extra, speed):
             if text.strip():
                 a = speak(narr, {"text": text, "emo": sc.get("emo", "neutral")})
                 clips.append((T0 + LEAD, a))
-                tail = {"captions": 0.25, "punch": 0.2, "hook": 0.35, "cta": 0.9}.get(tp, 0.6)
+                tail = {"captions": 0.25, "punch": 0.2, "hook": 0.35, "cta": 0.9, "motion": 0.35}.get(tp, 0.6)
                 sc["duration"] = max(sc.get("duration", 1.0), LEAD + len(a) / SR + sc.get("tail", tail))
         T0 += dur_of(sc)
     return clips
@@ -1399,6 +1405,31 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
         mix += np.convolve(wet, np.ones(12) / 12, "same")
         mix = np.convolve(mix, np.ones(5) / 5, "same")  # Höhen weich machen
         mix[:n] *= np.minimum(1, np.arange(n) / (SR * 1.5))
+    elif beat_on and style == "dark":
+        # Dunkle, ruhige Motivations-Fläche: tiefe Moll-Akkorde, weicher Sub-Puls, Hall – keine Höhen
+        beat = 60 / bpm
+        chords = [[110.0, 130.81, 164.81], [87.31, 110.0, 130.81], [130.81, 164.81, 196.0], [98.0, 123.47, 146.83]]
+        bar_len = beat * 4
+        b = 0
+        while b * bar_len < total + 1:
+            xx = tt(bar_len + 0.6)
+            ch = chords[b % 4]
+            pad = sum(np.sin(2 * np.pi * f * xx) + 0.25 * np.sin(4 * np.pi * f * xx) for f in ch) / 3
+            pad += 0.6 * np.sin(2 * np.pi * ch[0] / 2 * xx)
+            pad *= np.minimum(1, xx / 1.2) * np.minimum(1, np.maximum(0, bar_len + 0.6 - xx) / 1.0)
+            add(pad, b * bar_len, 0.3)
+            b += 1
+        k = 0
+        while k * beat < total:
+            x = tt(0.5)
+            add(np.sin(2 * np.pi * (38 + 30 * np.exp(-x * 20)) * x) * np.exp(-x * 6), k * beat, 0.55 if k % 2 == 0 else 0.3)
+            k += 1
+        d1 = int(SR * 0.29)
+        wet = np.zeros(n)
+        wet[d1:] += mix[:-d1] * 0.3
+        mix += np.convolve(wet, np.ones(16) / 16, "same")
+        mix = np.convolve(mix, np.ones(6) / 6, "same")
+        mix[:n] *= np.minimum(1, np.arange(n) / (SR * 0.8))
     elif beat_on and style == "soft":
         # Weiche Hintergrundmusik: warme Akkord-Flächen + sanfter tiefer Puls, keine Höhen
         beat = 60 / bpm
@@ -1448,6 +1479,11 @@ def synth_audio(total, events, bpm, beat_on, music=None, music_volume=0.6, voice
     if style == "ambient":
         events = [(k, a) for k, a in events if k in ("whoosh", "ding")]
     for kind, at in events:
+        if kind == "glitch":  # kurzes, tiefes Knistern (ohne Höhen)
+            x = tt(0.14)
+            nz = np.convolve(rng.uniform(-1, 1, len(x)), np.ones(10) / 10, "same")
+            add(nz * np.exp(-x * 18) * (np.sin(2 * np.pi * 60 * x) > 0) * 3, at, 0.16)
+            continue
         if soft and kind in ("whoosh", "pop", "tick", "blip", "ding", "impact"):
             if kind == "whoosh":  # weiches, tiefes Rauschen
                 x = tt(0.4)
@@ -1585,6 +1621,8 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             events.append(("impact" if tp in ("hook", "punch") or i == 0 else "whoosh", T0))
         for name, at_ in sc.get("sfx", []):
             events.append((name, T0 + at_))
+        if tp == "motion" and i > 0 and sc.get("glitch", True):
+            events.append(("glitch", T0))
         if tp == "quiz":
             think = sc.get("think", 2.6)
             for k in range(math.ceil(think)):
@@ -1638,6 +1676,9 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             # Kamera: Zoom-Punch beim Schnitt, Wackeln bei Impact, leichtes Atmen im Beat
             zoom = 1 + 0.10 * (1 - ease_out(t / 0.25)) + 0.012 * math.exp(-((T % beat) / beat) * 5)
             shake = 22 * max(0, 1 - t / 0.3) if tp in ("hook", "punch") else 0
+            if tp == "motion":
+                zoom = 1 + 0.03 * (t / max(d, 0.1))
+                shake = 0
             if calm:  # ruhige Kamera: nur ganz sanftes Heranzoomen, kein Wackeln
                 zoom = 1 + 0.025 * (t / max(d, 0.1))
                 shake = 0
@@ -1672,6 +1713,9 @@ def render(script, out, music=None, beat_on=True, voice_path=None, speed=0.92, s
             frame = img.convert("RGB")
             if tp in ("hook", "punch") and t < 0.1 and not calm:
                 frame = Image.blend(frame, Image.new("RGB", (W, H), (255, 255, 255)), 0.55 * (1 - t / 0.1))
+            if tp == "motion" and si > 0 and t < 0.16 and sc.get("glitch", True):
+                import motion
+                frame = motion.glitch(frame, t, si)
             if calm and t < 0.3 and fr > 0:  # weiche Überblendung statt harter Schnitte
                 frame = Image.blend(last_frame, frame, t / 0.3)
             last_frame = frame
